@@ -1,0 +1,16 @@
+[
+{
+  "modid": "betaplus",
+  "name": "Beta Terrain Plus",
+  "description": "Generates Beta Terrain with most new features",
+  "version": "0.1 BETA",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["mrburgerUS"],
+  "credits": "Minecrell and Ted80 for their previous work to reference",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
