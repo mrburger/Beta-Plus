@@ -21,6 +21,18 @@ public class WorldGenDungeons extends WorldGenerator
 	//Fields
 	private static final ResourceLocation[] SPAWNERTYPES = new ResourceLocation[]{EntityList.getKey(EntitySkeleton.class), EntityList.getKey(EntityZombie.class), EntityList.getKey(EntityZombie.class), EntityList.getKey(EntitySpider.class)};
 
+	//Methods
+	public static void generateDungeons(World world, Random random, BlockPos pos)
+	{
+		for (int i = 0; i < 8; ++i)
+		{
+			int xRand = pos.getX() + random.nextInt(16) + 8;
+			int yRand = random.nextInt(128);
+			int zRand = pos.getZ() + random.nextInt(16) + 8;
+			new WorldGenDungeons().generate(world, random, new BlockPos(xRand, yRand, zRand));
+		}
+	}
+
 	//Overrides
 	@Override
 	public boolean generate(World worldIn, Random rand, BlockPos position)

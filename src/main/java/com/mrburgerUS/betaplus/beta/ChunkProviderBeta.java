@@ -1,10 +1,8 @@
 package com.mrburgerUS.betaplus.beta;
 
 import com.mrburgerUS.betaplus.beta.biome.BiomeGenBeta;
-import com.mrburgerUS.betaplus.beta.feature.decoration.WorldGenFlowersBeta;
-import com.mrburgerUS.betaplus.beta.feature.decoration.WorldGenMinableBeta;
-import com.mrburgerUS.betaplus.beta.feature.decoration.WorldGenTallGrassBeta;
-import com.mrburgerUS.betaplus.beta.feature.decoration.WorldGenTreesBeta;
+import com.mrburgerUS.betaplus.beta.feature.decoration.*;
+import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenDungeons;
 import com.mrburgerUS.betaplus.beta.feature.terrain.MapGenBase;
 import com.mrburgerUS.betaplus.beta.feature.terrain.MapGenCaves;
 import com.mrburgerUS.betaplus.beta.noise.NoiseGeneratorOctavesBeta;
@@ -12,12 +10,16 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEntitySpawner;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.IChunkGenerator;
+import net.minecraft.world.gen.structure.MapGenMineshaft;
+import net.minecraft.world.gen.structure.MapGenScatteredFeature;
+import net.minecraft.world.gen.structure.MapGenStronghold;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -55,6 +57,8 @@ public class ChunkProviderBeta implements IChunkGenerator
 	private double[] generatedTemperatures;
 	//World Features
 	private MapGenBase caveGenerator = new MapGenCaves();
+	private MapGenMineshaft mineshaftGenerator = new MapGenMineshaft();
+	private MapGenStronghold strongholdGenerator = new MapGenStronghold();
 
 	//Constructors
 	public ChunkProviderBeta(World world, long seed, boolean mapFeaturesEnabled)
@@ -110,24 +114,28 @@ public class ChunkProviderBeta implements IChunkGenerator
 		int posZ = z * 16;
 		BlockPos blockPos = new BlockPos(posX, 0, posZ);
 		Biome biomeAtPos = worldObj.getBiome(blockPos.add(16, 0, 16));
+		ChunkPos cPos = new ChunkPos(x, z);
 
 		//Spawn Passive Entities
 		WorldEntitySpawner.performWorldGenSpawning(worldObj, biomeAtPos, posX + 8, posZ + 8, 16, 16, rand);
 
-		//Decorate Vanilla (REMOVED)
-		//biomeAtPos.decorate(worldObj, rand, blockPos);
+		//Decorate Vanilla Plus
+		biomeAtPos.decorate(worldObj, rand, blockPos);
+		if (biomeAtPos == BiomeGenBeta.seasonalForest.handle)
+		{
+			WorldGenMinableBeta.generateOre(worldObj, rand, x, z, 1, 16, 4, Blocks.EMERALD_ORE.getDefaultState());
+		}
+		WorldGenSnowLayerBeta.generateSnow(worldObj, cPos);
 
-		//Add Trees
-		WorldGenTreesBeta.generateTrees(worldObj, rand, blockPos, biomeAtPos);
+		//Features
+		mineshaftGenerator.generateStructure(worldObj, rand, cPos);
+		strongholdGenerator.generateStructure(worldObj, rand, cPos);
+		WorldGenDungeons.generateDungeons(worldObj, rand, blockPos);
+		new MapGenScatteredFeature().generateStructure(worldObj, rand, cPos);
 
-		//Add Flowers
-		WorldGenFlowersBeta.generateFlowers(worldObj, rand, posX, posZ);
+		//Custom Decorate
+		//decorate(worldObj, rand, blockPos, biomeAtPos);
 
-		//Add Grass
-		WorldGenTallGrassBeta.generateTallGrass(worldObj, rand, posX, posZ);
-
-		//Add Ores
-		WorldGenMinableBeta.generateOres(worldObj, rand, x, z);
 
 	}
 
@@ -207,11 +215,11 @@ public class ChunkProviderBeta implements IChunkGenerator
 							double var50 = (var37 - var35) * var46;
 							for (int n = 0; n < 4; ++n)
 							{
-								double tempVal = temperatures[(i * 4 + m) * 16 + j * 4 + n];
 								Block block = null;
 								if (k * 8 + l < sixtyFour)
 								{
-									block = tempVal < 0.5 && k * 8 + l >= sixtyFour - 1 ? Blocks.ICE : Blocks.WATER;
+									//Removed Ice Gen from Here
+									block = Blocks.WATER;
 								}
 								if (var48 > 0.0)
 								{
@@ -437,5 +445,27 @@ public class ChunkProviderBeta implements IChunkGenerator
 				}
 			}
 		}
+	}
+
+	private static void decorate(World world, Random random, BlockPos blockPos, Biome biome)
+	{
+		int posX = blockPos.getX();
+		int posZ = blockPos.getZ();
+
+		//Add Trees
+		WorldGenTreesBeta.generateTrees(world, random, blockPos, biome);
+
+		//Add Flowers
+		WorldGenFlowersBeta.generateFlowers(world, random, posX, posZ);
+
+		//Add Grass
+		WorldGenTallGrassBeta.generateTallGrass(world, random, posX, posZ);
+		if (biome == BiomeGenBeta.desert.handle)
+		{
+			WorldGenDeadBushBeta.generateBush(world, random, blockPos);
+		}
+
+		//Add Ores
+		WorldGenMinableBeta.generateOres(world, random, posX / 16, posZ / 16);
 	}
 }

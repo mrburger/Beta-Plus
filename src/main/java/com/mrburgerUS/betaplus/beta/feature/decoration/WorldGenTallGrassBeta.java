@@ -2,16 +2,17 @@ package com.mrburgerUS.betaplus.beta.feature.decoration;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 
 import java.util.Random;
 
+import static com.mrburgerUS.betaplus.beta.biome.BiomeGenBeta.*;
+
 public class WorldGenTallGrassBeta
 {
-	private static final int grassChance = 5;
-
 	public static void generateTallGrass(World world, Random random, int posX, int posZ)
 	{
-		for (int i = 0; i < grassChance; ++i)
+		for (int i = 0; i < getGrassChance(world.getBiome(new BlockPos(posX, 0, posZ))); ++i)
 		{
 			int xRand = random.nextInt(16) + 8;
 			int zRand = random.nextInt(16) + 8;
@@ -24,5 +25,23 @@ public class WorldGenTallGrassBeta
 				world.getBiome(blockPos).getRandomWorldGenForGrass(random).generate(world, random, blockPos);
 			}
 		}
+	}
+
+	private static int getGrassChance(Biome biome)
+	{
+		if (biome == beach.handle || biome == ocean.handle || biome == deepOcean.handle || biome == desert.handle || biome == tundra.handle)
+			return 0;
+		else if (biome == plains.handle)
+			return 25;
+		else if (biome == savanna.handle || biome == shrubland.handle)
+			return 20;
+		else if (biome == swampland.handle || biome == taiga.handle)
+			return 5;
+		else if (biome == seasonalForest.handle || biome == forest.handle)
+			return 7;
+		else if (biome == rainforest.handle)
+			return 10;
+		else
+			return 2;
 	}
 }

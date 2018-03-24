@@ -40,7 +40,7 @@ public class WorldGenMinableBeta
 	}
 
 
-	private static void generateOre(World world, Random random, int chunkX, int chunkZ, int chances, int maxY, int numBlocks, IBlockState blockToGen)
+	public static void generateOre(World world, Random random, int chunkX, int chunkZ, int chances, int maxY, int numBlocks, IBlockState blockToGen)
 	{
 		int xVal = chunkX * 16;
 		int zVal = chunkZ * 16;
@@ -55,7 +55,7 @@ public class WorldGenMinableBeta
 
 	}
 
-	private static void generateOre2(World world, Random random, int chunkX, int chunkZ, int chances, int maxY, int numBlocks, IBlockState blockToGen)
+	public static void generateOre2(World world, Random random, int chunkX, int chunkZ, int chances, int maxY, int numBlocks, IBlockState blockToGen)
 	{
 		int xVal = chunkX * 16;
 		int zVal = chunkZ * 16;
