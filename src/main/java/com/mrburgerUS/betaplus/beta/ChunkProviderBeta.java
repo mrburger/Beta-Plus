@@ -1,9 +1,10 @@
 package com.mrburgerUS.betaplus.beta;
 
 import com.mrburgerUS.betaplus.beta.biome.BiomeGenBeta;
+import com.mrburgerUS.betaplus.beta.feature.MapGenBase;
 import com.mrburgerUS.betaplus.beta.feature.decoration.*;
+import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenDesertPyramid;
 import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenDungeons;
-import com.mrburgerUS.betaplus.beta.feature.terrain.MapGenBase;
 import com.mrburgerUS.betaplus.beta.feature.terrain.MapGenCaves;
 import com.mrburgerUS.betaplus.beta.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
@@ -18,7 +19,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraft.world.gen.structure.MapGenMineshaft;
-import net.minecraft.world.gen.structure.MapGenScatteredFeature;
 import net.minecraft.world.gen.structure.MapGenStronghold;
 
 import javax.annotation.Nullable;
@@ -41,15 +41,15 @@ public class ChunkProviderBeta implements IChunkGenerator
 	private NoiseGeneratorOctavesBeta octaves3;
 	private NoiseGeneratorOctavesBeta octaves4;
 	private NoiseGeneratorOctavesBeta octaves5;
-	public NoiseGeneratorOctavesBeta octaves6;
-	public NoiseGeneratorOctavesBeta octaves7;
-	public NoiseGeneratorOctavesBeta mobSpawnerNoise;
+	private NoiseGeneratorOctavesBeta octaves6;
+	private NoiseGeneratorOctavesBeta octaves7;
+	private NoiseGeneratorOctavesBeta mobSpawnerNoise;
 	//Noise Arrays
-	double[] octaveArr1;
-	double[] octaveArr2;
-	double[] octaveArr3;
-	double[] octaveArr4;
-	double[] octaveArr5;
+	private double[] octaveArr1;
+	private double[] octaveArr2;
+	private double[] octaveArr3;
+	private double[] octaveArr4;
+	private double[] octaveArr5;
 	private double[] heightNoise;
 	private double[] sandNoise = new double[256];
 	private double[] gravelNoise = new double[256];
@@ -59,6 +59,7 @@ public class ChunkProviderBeta implements IChunkGenerator
 	private MapGenBase caveGenerator = new MapGenCaves();
 	private MapGenMineshaft mineshaftGenerator = new MapGenMineshaft();
 	private MapGenStronghold strongholdGenerator = new MapGenStronghold();
+	private WorldGenDesertPyramid desertPyramidGenerator = new WorldGenDesertPyramid();
 
 	//Constructors
 	public ChunkProviderBeta(World world, long seed, boolean mapFeaturesEnabled)
@@ -75,6 +76,8 @@ public class ChunkProviderBeta implements IChunkGenerator
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
 		mobSpawnerNoise = new NoiseGeneratorOctavesBeta(rand, 8);
 		chunkManager = new WorldChunkManager(world);
+
+		//scatteredFeatureGenerator
 	}
 
 
@@ -100,8 +103,22 @@ public class ChunkProviderBeta implements IChunkGenerator
 		byte[] biomes = chunk.getBiomeArray();
 		for (int i = 0; i < biomes.length; ++i)
 		{
+			//Set Biomes
 			biomes[i] = ((byte) Biome.getIdForBiome(biomesForGeneration[(i & 15) << 4 | i >> 4 & 15].handle));
+
+			//Generate Structures
+
 		}
+
+		//BEGIN STRUCTURES GENERATION
+		if (true)
+		{
+			mineshaftGenerator.generate(worldObj, x, z, primer);
+			strongholdGenerator.generate(worldObj, x, z, primer);
+			desertPyramidGenerator.generate(worldObj, x, z, primer);
+		}
+		//END STRUCTURES GENERATION
+
 		chunk.generateSkylightMap();
 		return chunk;
 	}
@@ -116,9 +133,6 @@ public class ChunkProviderBeta implements IChunkGenerator
 		Biome biomeAtPos = worldObj.getBiome(blockPos.add(16, 0, 16));
 		ChunkPos cPos = new ChunkPos(x, z);
 
-		//Spawn Passive Entities
-		WorldEntitySpawner.performWorldGenSpawning(worldObj, biomeAtPos, posX + 8, posZ + 8, 16, 16, rand);
-
 		//Decorate Vanilla Plus
 		biomeAtPos.decorate(worldObj, rand, blockPos);
 		if (biomeAtPos == BiomeGenBeta.seasonalForest.handle)
@@ -128,15 +142,16 @@ public class ChunkProviderBeta implements IChunkGenerator
 		WorldGenSnowLayerBeta.generateSnow(worldObj, cPos);
 
 		//Features
+		WorldGenDungeons.generateDungeons(worldObj, rand, blockPos);
 		mineshaftGenerator.generateStructure(worldObj, rand, cPos);
 		strongholdGenerator.generateStructure(worldObj, rand, cPos);
-		WorldGenDungeons.generateDungeons(worldObj, rand, blockPos);
-		new MapGenScatteredFeature().generateStructure(worldObj, rand, cPos);
+		desertPyramidGenerator.generateStructure(worldObj, rand, cPos);
 
 		//Custom Decorate
 		//decorate(worldObj, rand, blockPos, biomeAtPos);
 
-
+		//Spawn Passive Entities
+		WorldEntitySpawner.performWorldGenSpawning(worldObj, biomeAtPos, posX + 8, posZ + 8, 16, 16, this.rand);
 	}
 
 	@Override
@@ -155,6 +170,15 @@ public class ChunkProviderBeta implements IChunkGenerator
 	@Override
 	public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position, boolean findUnexplored)
 	{
+		boolean mapFeatures = true;
+		if (!mapFeatures)
+		{
+			return null;
+		}
+		else if ("Stronghold".equals(structureName) && strongholdGenerator != null)
+			return strongholdGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
+		else if ("Pyramid".equals(structureName) && desertPyramidGenerator != null)
+			return desertPyramidGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
 		return null;
 	}
 

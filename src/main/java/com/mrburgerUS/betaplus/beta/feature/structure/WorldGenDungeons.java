@@ -13,6 +13,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
+import net.minecraft.world.storage.loot.LootTableList;
 
 import java.util.Random;
 
@@ -130,10 +131,8 @@ public class WorldGenDungeons extends WorldGenerator
 					TileEntityChest chest = (TileEntityChest) worldIn.getTileEntity(new BlockPos(x2, baseY, z2));
 					for (int count = 0; count < 8; ++count)
 					{
-						// TODO IMPLEMENT LOGIC FOR CHEST FILLING
+						chest.setLootTable(LootTableList.CHESTS_SIMPLE_DUNGEON, rand.nextLong());
 					}
-
-
 					continue block6;
 				}
 			}

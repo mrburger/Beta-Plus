@@ -1,6 +1,7 @@
 package com.mrburgerUS.betaplus.beta.feature.terrain;
 
 import com.mrburgerUS.betaplus.MathHelper;
+import com.mrburgerUS.betaplus.beta.feature.MapGenBase;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
@@ -25,7 +26,7 @@ public class MapGenCaves extends MapGenBase
 		Random random = new Random(rand.nextLong());
 		if (var14 <= 0)
 		{
-			int var24 = chanceNumber * 16 - 16;
+			int var24 = range * 16 - 16;
 			var14 = var24 - random.nextInt(var24 / 4);
 		}
 		boolean var55 = false;
