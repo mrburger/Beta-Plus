@@ -12,16 +12,14 @@ import java.util.Random;
 
 abstract class FeatureBeta extends StructureComponent
 {
+	//BOUNDING BOX IS FINE
 	protected int width;
 	protected int height;
 	protected int depth;
-	protected int horizontalPos = -1;
+	private int horizontalPos = -1;
 
-	public FeatureBeta()
-	{
-	}
-
-	protected FeatureBeta(Random rand, int x, int y, int z, int sizeX, int sizeY, int sizeZ)
+	// WORKING
+	FeatureBeta(Random rand, int x, int y, int z, int sizeX, int sizeY, int sizeZ)
 	{
 		super(0);
 		this.width = sizeX;
@@ -47,7 +45,7 @@ abstract class FeatureBeta extends StructureComponent
 		tagCompound.setInteger("HPos", this.horizontalPos);
 	}
 
-	protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+	protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager manager)
 	{
 		this.width = tagCompound.getInteger("Width");
 		this.height = tagCompound.getInteger("Height");

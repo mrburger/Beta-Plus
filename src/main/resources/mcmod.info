@@ -2,14 +2,14 @@
 {
   "modid": "betaplus",
   "name": "Beta Terrain Plus",
-  "description": "Generates Beta Terrain with most new features",
+  "description": "Generates Beta Terrain with a modern population method, modern structure rules, and modern Biomes. Check out your favorite seeds!",
   "version": "0.1 BETA",
-  "mcversion": "${mcversion}",
-  "url": "",
+  "mcversion": "1.12.2",
+  "url": "https://github.com/mrburger/Beta-Plus",
   "updateUrl": "",
   "authorList": ["mrburgerUS"],
-  "credits": "Minecrell and Ted80 for their previous work to reference",
-  "logoFile": "",
+  "credits": "Minecrell, Ted80, and the Forge Support Team",
+  "logoFile": "assets/betaplus/textures/minecraft-logo.png",
   "screenshots": [],
   "dependencies": []
 }

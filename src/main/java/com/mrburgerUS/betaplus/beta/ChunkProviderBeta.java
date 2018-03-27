@@ -5,10 +5,13 @@ import com.mrburgerUS.betaplus.beta.feature.MapGenBase;
 import com.mrburgerUS.betaplus.beta.feature.decoration.*;
 import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenDesertPyramid;
 import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenDungeons;
+import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenIgloo;
+import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenJunglePyramid;
 import com.mrburgerUS.betaplus.beta.feature.terrain.MapGenCaves;
 import com.mrburgerUS.betaplus.beta.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -18,6 +21,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.IChunkGenerator;
+import net.minecraft.world.gen.feature.WorldGenLakes;
 import net.minecraft.world.gen.structure.MapGenMineshaft;
 import net.minecraft.world.gen.structure.MapGenStronghold;
 
@@ -27,14 +31,14 @@ import java.util.Random;
 
 public class ChunkProviderBeta implements IChunkGenerator
 {
-	private final WorldChunkManager chunkManager;
+	private final BiomeProviderBeta biomeProvider;
 
 	//Fields
 	private Random rand;
 	private World worldObj;
-	private BiomeGenBeta[] biomesForGeneration;
-	private final int seaLevel = 64;
-	private final int seaDepth = 5;
+	public static Biome[] biomesForGeneration;
+	public static final int seaLevel = 64;
+	public static final int seaDepth = 5;
 	//Noise Generators
 	private NoiseGeneratorOctavesBeta octaves1;
 	private NoiseGeneratorOctavesBeta octaves2;
@@ -60,12 +64,15 @@ public class ChunkProviderBeta implements IChunkGenerator
 	private MapGenMineshaft mineshaftGenerator = new MapGenMineshaft();
 	private MapGenStronghold strongholdGenerator = new MapGenStronghold();
 	private WorldGenDesertPyramid desertPyramidGenerator = new WorldGenDesertPyramid();
+	private WorldGenJunglePyramid junglePyramidGenerator = new WorldGenJunglePyramid();
+	private WorldGenIgloo iglooGenerator = new WorldGenIgloo();
 
 	//Constructors
 	public ChunkProviderBeta(World world, long seed, boolean mapFeaturesEnabled)
 	{
 		worldObj = world;
 		worldObj.setSeaLevel(seaLevel);
+
 		rand = new Random(seed);
 		octaves1 = new NoiseGeneratorOctavesBeta(rand, 16);
 		octaves2 = new NoiseGeneratorOctavesBeta(rand, 16);
@@ -75,9 +82,8 @@ public class ChunkProviderBeta implements IChunkGenerator
 		octaves6 = new NoiseGeneratorOctavesBeta(rand, 10);
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
 		mobSpawnerNoise = new NoiseGeneratorOctavesBeta(rand, 8);
-		chunkManager = new WorldChunkManager(world);
+		biomeProvider = new BiomeProviderBeta(world);
 
-		//scatteredFeatureGenerator
 	}
 
 
@@ -87,28 +93,25 @@ public class ChunkProviderBeta implements IChunkGenerator
 	{
 		rand.setSeed((long) x * 341873128712L + (long) z * 132897987541L);
 		//Generate Biome Lookup
-		biomesForGeneration = chunkManager.loadBlockGeneratorData(biomesForGeneration, x * 16, z * 16, 16, 16);
-		//Generate Temperatures
-		double[] temperatures = chunkManager.temperature;
+		biomesForGeneration = this.biomeProvider.getBiomes(biomesForGeneration, x * 16, z * 16, 16, 16);
 		//Create Chunk Primer
 		ChunkPrimer primer = new ChunkPrimer();
 		//Generate Basic Terrain
-		generateTerrain(x, z, primer, temperatures);
+		generateTerrain(x, z, primer);
 		//Add Grass or Sand or Gravel fill
 		replaceBlocksForBiome(x, z, primer, biomesForGeneration);
 		//Make Caves
 		caveGenerator.generate(worldObj, x, z, primer);
 
 		Chunk chunk = new Chunk(worldObj, primer, x, z);
+
 		byte[] biomes = chunk.getBiomeArray();
 		for (int i = 0; i < biomes.length; ++i)
 		{
 			//Set Biomes
-			biomes[i] = ((byte) Biome.getIdForBiome(biomesForGeneration[(i & 15) << 4 | i >> 4 & 15].handle));
-
-			//Generate Structures
-
+			biomes[i] = ((byte) Biome.getIdForBiome(biomesForGeneration[(i & 15) << 4 | i >> 4 & 15]));
 		}
+
 
 		//BEGIN STRUCTURES GENERATION
 		if (true)
@@ -116,6 +119,8 @@ public class ChunkProviderBeta implements IChunkGenerator
 			mineshaftGenerator.generate(worldObj, x, z, primer);
 			strongholdGenerator.generate(worldObj, x, z, primer);
 			desertPyramidGenerator.generate(worldObj, x, z, primer);
+			junglePyramidGenerator.generate(worldObj, x, z, primer);
+			iglooGenerator.generate(worldObj, x, z, primer);
 		}
 		//END STRUCTURES GENERATION
 
@@ -146,6 +151,25 @@ public class ChunkProviderBeta implements IChunkGenerator
 		mineshaftGenerator.generateStructure(worldObj, rand, cPos);
 		strongholdGenerator.generateStructure(worldObj, rand, cPos);
 		desertPyramidGenerator.generateStructure(worldObj, rand, cPos);
+		junglePyramidGenerator.generateStructure(worldObj, rand, cPos);
+		iglooGenerator.generateStructure(worldObj, rand, cPos);
+
+		//Lakes
+		if (biomeAtPos != Biomes.DESERT && biomeAtPos != Biomes.DESERT_HILLS && this.rand.nextInt(20) == 0)
+		{
+			int i1 = this.rand.nextInt(16) + 8;
+			int j1 = this.rand.nextInt(256);
+			int k1 = this.rand.nextInt(16) + 8;
+			(new WorldGenLakes(Blocks.WATER)).generate(worldObj, this.rand, blockPos.add(i1, j1, k1));
+		}
+		//Lava Lakes
+		int addY = this.rand.nextInt(this.rand.nextInt(248) + 8);
+		if (addY < worldObj.getSeaLevel() || this.rand.nextInt(800) == 0)
+		{
+			int addX = this.rand.nextInt(16) + 8;
+			int addZ = this.rand.nextInt(16) + 8;
+			(new WorldGenLakes(Blocks.LAVA)).generate(worldObj, this.rand, blockPos.add(addX, addY, addZ));
+		}
 
 		//Custom Decorate
 		//decorate(worldObj, rand, blockPos, biomeAtPos);
@@ -179,6 +203,10 @@ public class ChunkProviderBeta implements IChunkGenerator
 			return strongholdGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
 		else if ("Pyramid".equals(structureName) && desertPyramidGenerator != null)
 			return desertPyramidGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
+		else if ("Jungle_Temple".equals(structureName) && junglePyramidGenerator != null)
+			return junglePyramidGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
+		else if ("Igloo".equals(structureName) && iglooGenerator != null)
+			return iglooGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
 		return null;
 	}
 
@@ -199,14 +227,14 @@ public class ChunkProviderBeta implements IChunkGenerator
 
 
 	//Methods
-	public void generateTerrain(int chunkX, int chunkZ, ChunkPrimer chunk, double[] temperatures)
+	public void generateTerrain(int chunkX, int chunkZ, ChunkPrimer chunk)
 	{
 		int four = 4;
 		int sixtyFour = 64;
 		int var8 = four + 1;
 		int seventeen = 17;
-		int var10 = four + 1;
-		heightNoise = octaveGenerator(heightNoise, chunkX * four, chunkZ * four, var8, seventeen, var10);
+		int fiver = four + 1;
+		heightNoise = octaveGenerator(heightNoise, chunkX * four, chunkZ * four, var8, seventeen, fiver);
 		for (int i = 0; i < four; ++i)
 		{
 			for (int j = 0; j < four; ++j)
@@ -214,14 +242,14 @@ public class ChunkProviderBeta implements IChunkGenerator
 				for (int k = 0; k < 16; ++k)
 				{
 					double var14 = 0.125;
-					double var16 = heightNoise[((i) * var10 + j) * seventeen + k];
-					double var18 = heightNoise[((i) * var10 + j + 1) * seventeen + k];
-					double var20 = heightNoise[((i + 1) * var10 + j) * seventeen + k];
-					double var22 = heightNoise[((i + 1) * var10 + j + 1) * seventeen + k];
-					double var24 = (heightNoise[((i) * var10 + j) * seventeen + k + 1] - var16) * var14;
-					double var26 = (heightNoise[((i) * var10 + j + 1) * seventeen + k + 1] - var18) * var14;
-					double var28 = (heightNoise[((i + 1) * var10 + j) * seventeen + k + 1] - var20) * var14;
-					double var30 = (heightNoise[((i + 1) * var10 + j + 1) * seventeen + k + 1] - var22) * var14;
+					double var16 = heightNoise[((i) * fiver + j) * seventeen + k];
+					double var18 = heightNoise[((i) * fiver + j + 1) * seventeen + k];
+					double var20 = heightNoise[((i + 1) * fiver + j) * seventeen + k];
+					double var22 = heightNoise[((i + 1) * fiver + j + 1) * seventeen + k];
+					double var24 = (heightNoise[((i) * fiver + j) * seventeen + k + 1] - var16) * var14;
+					double var26 = (heightNoise[((i) * fiver + j + 1) * seventeen + k + 1] - var18) * var14;
+					double var28 = (heightNoise[((i + 1) * fiver + j) * seventeen + k + 1] - var20) * var14;
+					double var30 = (heightNoise[((i + 1) * fiver + j + 1) * seventeen + k + 1] - var22) * var14;
 					for (int l = 0; l < 8; ++l)
 					{
 						double quarter = 0.25;
@@ -276,8 +304,8 @@ public class ChunkProviderBeta implements IChunkGenerator
 			values = new double[var5 * var6 * var7];
 		}
 		double noiseFactor = 684.412;
-		double[] temps = chunkManager.temperature;
-		double[] humidities = chunkManager.humidity;
+		double[] temps = biomeProvider.temperature;
+		double[] humidities = biomeProvider.humidity;
 		octaveArr4 = octaves6.generateNoiseOctaves(octaveArr4, var2, var4, var5, var7, 1.121, 1.121, 0.5);
 		octaveArr5 = octaves7.generateNoiseOctaves(octaveArr5, var2, var4, var5, var7, 200.0, 200.0, 0.5);
 		octaveArr1 = octaves3.generateNoiseOctaves(octaveArr1, var2, 0, var4, var5, var6, var7, noiseFactor / 80.0, noiseFactor / 160.0, noiseFactor / 80.0);
@@ -360,7 +388,7 @@ public class ChunkProviderBeta implements IChunkGenerator
 		return values;
 	}
 
-	public void replaceBlocksForBiome(int chunkX, int chunkZ, ChunkPrimer chunk, BiomeGenBeta[] biomes)
+	public void replaceBlocksForBiome(int chunkX, int chunkZ, ChunkPrimer chunk, Biome[] biomes)
 	{
 		double thirtySecond = 0.03125;
 		this.sandNoise = this.octaves4.generateNoiseOctaves(this.sandNoise, chunkX * 16, chunkZ * 16, 0.0, 16, 16, 1, thirtySecond, thirtySecond, 1.0);
@@ -370,7 +398,7 @@ public class ChunkProviderBeta implements IChunkGenerator
 		{
 			for (int x = 0; x < 16; ++x)
 			{
-				BiomeGenBeta biome = biomes[z + x * 16];
+				BiomeGenBeta biome = BiomeGenBeta.getBiomeBeta(biomes[z + x * 16]);
 				boolean sandN = this.sandNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 0.0;
 				boolean gravelN = this.gravelNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 3.0;
 				int stoneN = (int) (this.stoneNoise[z + x * 16] / 3.0 + 3.0 + this.rand.nextDouble() * 0.25);
@@ -432,17 +460,17 @@ public class ChunkProviderBeta implements IChunkGenerator
 							}
 
 							// FILLS IN OCEAN + BEACH BIOMES
-							if ((y < seaLevel + 1 && y > seaLevel - (seaDepth / 2)) && (topBlock == Blocks.SAND || fillerBlock == Blocks.GRAVEL) && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.desert)
+							if ((y < seaLevel + 1 && y > seaLevel - (seaDepth / 2)) && (topBlock == Blocks.SAND || fillerBlock == Blocks.GRAVEL) && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.desert.handle)
 							{
-								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.beach;
+								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.beach.handle;
 							}
 							else if (y <= seaLevel - seaDepth)
 							{
-								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.deepOcean;
+								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.deepOcean.handle;
 							}
 							else if (y < seaLevel - 1)
 							{
-								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.ocean;
+								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.ocean.handle;
 							}
 							// END OF FILLING OCEANS
 

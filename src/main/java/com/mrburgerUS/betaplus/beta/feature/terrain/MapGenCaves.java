@@ -171,7 +171,7 @@ public class MapGenCaves extends MapGenBase
 	}
 
 	@Override
-	protected void generator(World world, int x, int z, int chunkX, int chunkZ, ChunkPrimer chunk)
+	protected void recursiveGenerate(World world, int x, int z, int chunkX, int chunkZ, ChunkPrimer chunk)
 	{
 		int var7 = rand.nextInt(rand.nextInt(rand.nextInt(40) + 1) + 1);
 		if (rand.nextInt(15) != 0)

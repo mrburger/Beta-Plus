@@ -23,12 +23,12 @@ public class MapGenBase
 			for (int z = chunkZ - r2; z <= chunkZ + r2; ++z)
 			{
 				rand.setSeed((long) x * var7 + (long) z * var9 ^ world.getSeed());
-				generator(world, x, z, chunkX, chunkZ, chunk);
+				recursiveGenerate(world, x, z, chunkX, chunkZ, chunk);
 			}
 		}
 	}
 
-	protected void generator(World world, int x, int z, int chunkX, int chunkZ, ChunkPrimer chunk)
+	protected void recursiveGenerate(World world, int x, int z, int chunkX, int chunkZ, ChunkPrimer chunk)
 	{
 	}
 }

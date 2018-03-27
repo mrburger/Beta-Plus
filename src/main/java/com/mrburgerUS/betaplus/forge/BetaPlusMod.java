@@ -3,7 +3,7 @@ package com.mrburgerUS.betaplus.forge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = BetaPlusMod.MODID, name = BetaPlusMod.NAME, version = BetaPlusMod.VERSION)
+@Mod(modid = BetaPlusMod.MODID, name = BetaPlusMod.NAME, version = BetaPlusMod.VERSION, acceptableRemoteVersions = "*")
 public class BetaPlusMod
 {
 	//Definitions

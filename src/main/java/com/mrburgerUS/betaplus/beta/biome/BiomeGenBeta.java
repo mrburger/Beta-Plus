@@ -84,4 +84,14 @@ public enum BiomeGenBeta implements BetaPlusBiome
 	{
 		return var0 < 0.1f ? tundra : (var1 < 0.2f ? (var0 < 0.5f ? tundra : (var0 < 0.95f ? savanna : desert)) : (var1 > 0.5f && var0 < 0.7f ? swampland : (var0 < 0.5f ? taiga : (var0 < 0.97f ? (var1 < 0.35f ? shrubland : forest) : (var1 < 0.45f ? plains : ((var1 *= var0) < 0.9f ? seasonalForest : rainforest))))));
 	}
+
+	public static BiomeGenBeta getBiomeBeta(Biome biome)
+	{
+		for (BiomeGenBeta biomeBeta : BiomeGenBeta.values())
+		{
+			if (biomeBeta.handle == biome)
+				return biomeBeta;
+		}
+		return BiomeGenBeta.plains;
+	}
 }

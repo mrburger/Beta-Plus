@@ -1,16 +1,16 @@
 package com.mrburgerUS.betaplus.beta.feature.structure;
 
+import com.mrburgerUS.betaplus.BetaPlusHelper;
+import com.mrburgerUS.betaplus.beta.biome.BiomeGenBeta;
 import net.minecraft.block.BlockSandStone;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockStoneSlab;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.structure.MapGenStructure;
@@ -21,33 +21,20 @@ import net.minecraft.world.gen.structure.template.TemplateManager;
 import net.minecraft.world.storage.loot.LootTableList;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 import java.util.Random;
+
 
 public class WorldGenDesertPyramid extends MapGenStructure
 {
 	//Fields
-	private int maxDistanceBetweenPyramids = 9; //MUST be at least 9
 	private String structureName = "Pyramid";
+	private int maxDistanceBetweenPyramids = BetaPlusHelper.maxDistanceBetweenPyramids;
 
 	public WorldGenDesertPyramid()
 	{
 		MapGenStructureIO.registerStructure(WorldGenDesertPyramid.Start.class, structureName);
 		MapGenStructureIO.registerStructureComponent(DesertPyramid.class, structureName);
 	}
-
-	public WorldGenDesertPyramid(Map<String, String> stringMap)
-	{
-		this();
-		for (Map.Entry<String, String> entry : stringMap.entrySet())
-		{
-			if (entry.getKey().equals("distance"))
-			{
-				this.maxDistanceBetweenPyramids = MathHelper.getInt(entry.getValue(), this.maxDistanceBetweenPyramids, 9);
-			}
-		}
-	}
-
 
 	@Override
 	public String getStructureName()
@@ -69,60 +56,64 @@ public class WorldGenDesertPyramid extends MapGenStructure
 		int j = chunkZ;
 
 		if (chunkX < 0)
-			chunkX -= this.maxDistanceBetweenPyramids - 1;
-		if (chunkZ < 0)
-			chunkZ -= this.maxDistanceBetweenPyramids - 1;
-
-		int xDist = chunkX / this.maxDistanceBetweenPyramids;
-		int zDist = chunkZ / this.maxDistanceBetweenPyramids;
-		Random random = this.world.setRandomSeed(xDist, zDist, 14357617);
-		xDist = xDist * this.maxDistanceBetweenPyramids;
-		zDist = zDist * this.maxDistanceBetweenPyramids;
-		xDist = xDist + random.nextInt(this.maxDistanceBetweenPyramids - 8);
-		zDist = zDist + random.nextInt(this.maxDistanceBetweenPyramids - 8);
-
-		boolean retFlag = false;
-		Biome biome = world.getBiome(new BlockPos(new BlockPos(i * 16 + 8, 0, j * 16 + 8)));
-
-		if (i == xDist && j == zDist)
 		{
-			retFlag = (biome == Biomes.DESERT || biome == Biomes.DESERT_HILLS);
+			chunkX -= this.maxDistanceBetweenPyramids - 1;
 		}
-		return retFlag;
+
+		if (chunkZ < 0)
+		{
+			chunkZ -= this.maxDistanceBetweenPyramids - 1;
+		}
+
+		int k = chunkX / this.maxDistanceBetweenPyramids;
+		int l = chunkZ / this.maxDistanceBetweenPyramids;
+		Random random = this.world.setRandomSeed(k, l, 14357617);
+		k = k * this.maxDistanceBetweenPyramids;
+		l = l * this.maxDistanceBetweenPyramids;
+		k = k + random.nextInt(this.maxDistanceBetweenPyramids - 8);
+		l = l + random.nextInt(this.maxDistanceBetweenPyramids - 8);
+
+		if (i == k && j == l)
+		{
+			if (world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == BiomeGenBeta.desert.handle)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	@Override
 	protected StructureStart getStructureStart(int chunkX, int chunkZ)
 	{
-		return new Start(this.rand, chunkX, world.getHeight(chunkX * 16, chunkZ * 16), chunkZ);
+		//return new Start(this.rand, chunkX, world.getHeight(chunkX * 16, chunkZ * 16), chunkZ);
+		int y = world.getHeight(chunkX * 16 + 8, chunkZ * 16 + 8);
+		if (y == 0)
+		{
+			y = 100;
+		}
+		return new Start(this.rand, chunkX, y, chunkZ, world.getBiome(new BlockPos(chunkX * 16 + 8, 0, chunkZ * 16 + 8)));
 	}
 
 	public static class Start extends StructureStart
 	{
-		public Start(Random random, int chunkX, int yVal, int chunkZ)
+		public Start(Random random, int chunkX, int yVal, int chunkZ, Biome biomeIn)
 		{
-			DesertPyramid desertPyramidPieces = new DesertPyramid(random, chunkX * 16, yVal, chunkZ * 16);
-			components.add(desertPyramidPieces);
-			this.updateBoundingBox();
-		}
-
-		public Start(Random random, int chunkX, int chunkZ)
-		{
-			DesertPyramid desertPyramidPieces = new DesertPyramid(random, chunkX * 16, 64, chunkZ * 16);
-			components.add(desertPyramidPieces);
-			this.updateBoundingBox();
+			if (biomeIn == BiomeGenBeta.desert.handle)
+			{
+				DesertPyramid desertPyramidPieces = new DesertPyramid(random, chunkX * 16, yVal, chunkZ * 16);
+				components.add(desertPyramidPieces);
+				this.updateBoundingBox();
+			}
 		}
 	}
-
 
 	// COPIED OVER
 	public static class DesertPyramid extends FeatureBeta
 	{
 		private final boolean[] hasPlacedChest = new boolean[4];
 
-		public DesertPyramid()
-		{
-		}
 
 		public DesertPyramid(Random random, int posX, int posY, int posZ)
 		{
@@ -138,9 +129,9 @@ public class WorldGenDesertPyramid extends MapGenStructure
 			tagCompound.setBoolean("hasPlacedChest3", this.hasPlacedChest[3]);
 		}
 
-		protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+		protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager manager)
 		{
-			super.readStructureFromNBT(tagCompound, p_143011_2_);
+			super.readStructureFromNBT(tagCompound, manager);
 			this.hasPlacedChest[0] = tagCompound.getBoolean("hasPlacedChest0");
 			this.hasPlacedChest[1] = tagCompound.getBoolean("hasPlacedChest1");
 			this.hasPlacedChest[2] = tagCompound.getBoolean("hasPlacedChest2");
@@ -149,6 +140,12 @@ public class WorldGenDesertPyramid extends MapGenStructure
 
 		public boolean addComponentParts(World worldIn, Random randomIn, StructureBoundingBox structureBoundingBoxIn)
 		{
+			//Checks for offest
+			if (!this.offsetToAverageGroundLevel(worldIn, structureBoundingBoxIn, 0))
+			{
+				return false;
+			}
+
 			// Creates Base
 			this.fillWithBlocks(worldIn, structureBoundingBoxIn, 0, -4, 0, this.width - 1, 0, this.depth - 1, Blocks.SANDSTONE.getDefaultState(), Blocks.SANDSTONE.getDefaultState(), false);
 
