@@ -94,7 +94,7 @@ public class WorldGenIgloo extends MapGenStructure
 	{
 		public Start(Random random, int chunkX, int chunkZ, Biome biomeIn)
 		{
-			if (biomeIn == BiomeGenBeta.desert.handle)
+			if (biomeIn == BiomeGenBeta.tundra.handle)
 			{
 				Igloo iglooPieces = new Igloo(random, chunkX * 16, chunkZ * 16);
 				components.add(iglooPieces);

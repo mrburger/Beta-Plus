@@ -1,13 +1,11 @@
 package com.mrburgerUS.betaplus.beta;
 
 import com.mrburgerUS.betaplus.beta.biome.BiomeGenBeta;
-import com.mrburgerUS.betaplus.beta.feature.MapGenBase;
 import com.mrburgerUS.betaplus.beta.feature.decoration.*;
 import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenDesertPyramid;
 import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenDungeons;
 import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenIgloo;
 import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenJunglePyramid;
-import com.mrburgerUS.betaplus.beta.feature.terrain.MapGenCaves;
 import com.mrburgerUS.betaplus.beta.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EnumCreatureType;
@@ -21,6 +19,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.IChunkGenerator;
+import net.minecraft.world.gen.MapGenRavine;
 import net.minecraft.world.gen.feature.WorldGenLakes;
 import net.minecraft.world.gen.structure.MapGenMineshaft;
 import net.minecraft.world.gen.structure.MapGenStronghold;
@@ -60,7 +59,8 @@ public class ChunkProviderBeta implements IChunkGenerator
 	private double[] stoneNoise = new double[256];
 	private double[] generatedTemperatures;
 	//World Features
-	private MapGenBase caveGenerator = new MapGenCaves();
+	private net.minecraft.world.gen.MapGenBase caveGenerator = new net.minecraft.world.gen.MapGenCaves();
+	private MapGenRavine ravineGenerator = new MapGenRavine();
 	private MapGenMineshaft mineshaftGenerator = new MapGenMineshaft();
 	private MapGenStronghold strongholdGenerator = new MapGenStronghold();
 	private WorldGenDesertPyramid desertPyramidGenerator = new WorldGenDesertPyramid();
@@ -102,6 +102,8 @@ public class ChunkProviderBeta implements IChunkGenerator
 		replaceBlocksForBiome(x, z, primer, biomesForGeneration);
 		//Make Caves
 		caveGenerator.generate(worldObj, x, z, primer);
+		//Make Ravines
+		ravineGenerator.generate(worldObj, x, z, primer);
 
 		Chunk chunk = new Chunk(worldObj, primer, x, z);
 
@@ -164,7 +166,7 @@ public class ChunkProviderBeta implements IChunkGenerator
 		}
 		//Lava Lakes
 		int addY = this.rand.nextInt(this.rand.nextInt(248) + 8);
-		if (addY < worldObj.getSeaLevel() || this.rand.nextInt(800) == 0)
+		if (addY < worldObj.getSeaLevel() - 2 || this.rand.nextInt(250) == 0)
 		{
 			int addX = this.rand.nextInt(16) + 8;
 			int addZ = this.rand.nextInt(16) + 8;
