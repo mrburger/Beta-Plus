@@ -1,14 +1,26 @@
-# Beta-Plus
+# Beta+
 Remixes Minecraft's Beta Terrain with modern features!
 
-Versions
-========
-Currently Supports:
-MC 1.12.2
+Have you ever wanted to play on the Older Beta-Style terrain, but were deterred by the aging code and missing features? This mod aims to solve that problem.
 
-Eventually 1.13!
+## Versions
+Minecraft
+* 1.12.2
 
-Dependencies
-============
+And Eventually 1.13!
 
-Forge and Minecraft 1.12.2 are currently required.
+## Dependencies
+Forge and Minecraft 1.12.2 are currently required
+
+## Modpack Use
+This mod (Beta+) is free to use in any modpack with the author's (mrburgerUS) permission.
+
+## Credits
+* [McJty](https://github.com/McJty)
+My biggest inspiration for modding, the god-AI of all modern Minecraft modding.
+* [ted80](https://github.com/ted80)
+Ported much of the basic noise pattern functions I based this mod on. Maker of OWG, the predecessor to this mod
+
+## TO DO
+* Add Configuration file based features
+* Add Configuration GUI if possible.
