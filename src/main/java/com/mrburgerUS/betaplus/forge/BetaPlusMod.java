@@ -8,8 +8,8 @@ public class BetaPlusMod
 {
 	//Definitions
 	static final String MODID = "betaplus";
-	static final String NAME = "Beta Terrain Plus";
-	static final String VERSION = "0.1";
+	static final String NAME = "Beta+";
+	static final String VERSION = "0.2";
 
 	//Event Loaders
 	@Mod.EventHandler
