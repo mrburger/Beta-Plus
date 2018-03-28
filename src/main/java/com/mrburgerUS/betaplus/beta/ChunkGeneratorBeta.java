@@ -1,6 +1,6 @@
 package com.mrburgerUS.betaplus.beta;
 
-import com.mrburgerUS.betaplus.BetaPlusHelper;
+import com.mrburgerUS.betaplus.BetaPlusSettings;
 import com.mrburgerUS.betaplus.beta.biome.BiomeGenBeta;
 import com.mrburgerUS.betaplus.beta.feature.decoration.*;
 import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenDesertPyramid;
@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
-public class ChunkProviderBeta implements IChunkGenerator
+public class ChunkGeneratorBeta implements IChunkGenerator
 {
 	private final BiomeProviderBeta biomeProvider;
 
@@ -63,13 +63,22 @@ public class ChunkProviderBeta implements IChunkGenerator
 	private MapGenRavine ravineGenerator = new MapGenRavine();
 	private MapGenMineshaft mineshaftGenerator = new MapGenMineshaft();
 	private MapGenStronghold strongholdGenerator = new MapGenStronghold();
-	private WorldGenDesertPyramid desertPyramidGenerator = new WorldGenDesertPyramid();
-	private WorldGenJunglePyramid junglePyramidGenerator = new WorldGenJunglePyramid();
-	private WorldGenIgloo iglooGenerator = new WorldGenIgloo();
+	private WorldGenDesertPyramid desertPyramidGenerator;
+	private WorldGenJunglePyramid junglePyramidGenerator;
+	private WorldGenIgloo iglooGenerator;
+	//Settings
+	public static BetaPlusSettings settings;
+
 
 	//Constructors
-	public ChunkProviderBeta(World world, long seed, boolean mapFeaturesEnabled)
+	public ChunkGeneratorBeta(World world, long seed, String generationOptions)
 	{
+		//If we have options
+		if (generationOptions != null)
+		{
+			settings = BetaPlusSettings.Factory.jsonToSettings(generationOptions).build();
+		}
+
 		worldObj = world;
 		worldObj.setSeaLevel(seaLevel);
 
@@ -84,6 +93,10 @@ public class ChunkProviderBeta implements IChunkGenerator
 		mobSpawnerNoise = new NoiseGeneratorOctavesBeta(rand, 8);
 		biomeProvider = new BiomeProviderBeta(world);
 
+		//Set Generators up
+		desertPyramidGenerator = new WorldGenDesertPyramid(settings.maxDistanceBetweenPyramids);
+		junglePyramidGenerator = new WorldGenJunglePyramid(settings.maxDistanceBetweenPyramids);
+		iglooGenerator = new WorldGenIgloo(settings.maxDistanceBetweenPyramids);
 	}
 
 
@@ -103,7 +116,7 @@ public class ChunkProviderBeta implements IChunkGenerator
 		//Make Caves
 		caveGenerator.generate(worldObj, x, z, primer);
 		//Make Ravines
-		if (BetaPlusHelper.doGenerateRavines)
+		if (settings.useRavines)
 			ravineGenerator.generate(worldObj, x, z, primer);
 
 		//Creates chunk
@@ -119,11 +132,16 @@ public class ChunkProviderBeta implements IChunkGenerator
 
 		//BEGIN STRUCTURES GENERATION
 
-		mineshaftGenerator.generate(worldObj, x, z, primer);
-		strongholdGenerator.generate(worldObj, x, z, primer);
-		desertPyramidGenerator.generate(worldObj, x, z, primer);
-		junglePyramidGenerator.generate(worldObj, x, z, primer);
-		iglooGenerator.generate(worldObj, x, z, primer);
+		if (settings.useMineShafts)
+			mineshaftGenerator.generate(worldObj, x, z, primer);
+		if (settings.useStrongholds)
+			strongholdGenerator.generate(worldObj, x, z, primer);
+		if (settings.useTemples)
+		{
+			desertPyramidGenerator.generate(worldObj, x, z, primer);
+			junglePyramidGenerator.generate(worldObj, x, z, primer);
+			iglooGenerator.generate(worldObj, x, z, primer);
+		}
 
 		//END STRUCTURES GENERATION
 
@@ -150,13 +168,13 @@ public class ChunkProviderBeta implements IChunkGenerator
 		WorldGenSnowLayerBeta.generateSnow(worldObj, cPos);
 
 		//Features
-		if (BetaPlusHelper.doGenerateDungeons)
+		if (settings.useDungeons)
 			WorldGenDungeons.generateDungeons(worldObj, rand, blockPos);
-		if (BetaPlusHelper.doGenerateMineshafts)
+		if (settings.useMineShafts)
 			mineshaftGenerator.generateStructure(worldObj, rand, cPos);
-		if (BetaPlusHelper.doGenerateStrongholds)
+		if (settings.useStrongholds)
 			strongholdGenerator.generateStructure(worldObj, rand, cPos);
-		if (BetaPlusHelper.doGeneratePyramids)
+		if (settings.useTemples)
 		{
 			desertPyramidGenerator.generateStructure(worldObj, rand, cPos);
 			junglePyramidGenerator.generateStructure(worldObj, rand, cPos);
@@ -164,7 +182,7 @@ public class ChunkProviderBeta implements IChunkGenerator
 		}
 
 		//Lakes
-		if (biomeAtPos != Biomes.DESERT && biomeAtPos != Biomes.DESERT_HILLS && this.rand.nextInt(BetaPlusHelper.waterLakeChance) == 0)
+		if (biomeAtPos != Biomes.DESERT && biomeAtPos != Biomes.DESERT_HILLS && this.rand.nextInt(settings.waterLakeChance) == 0)
 		{
 			int i1 = this.rand.nextInt(16) + 8;
 			int j1 = this.rand.nextInt(256);
@@ -203,13 +221,13 @@ public class ChunkProviderBeta implements IChunkGenerator
 	@Override
 	public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position, boolean findUnexplored)
 	{
-		if ("Stronghold".equals(structureName) && strongholdGenerator != null)
+		if ("Stronghold".equals(structureName) && strongholdGenerator != null && settings.useStrongholds)
 			return strongholdGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
-		else if ("Pyramid".equals(structureName) && desertPyramidGenerator != null)
+		else if ("Pyramid".equals(structureName) && desertPyramidGenerator != null && settings.useTemples)
 			return desertPyramidGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
-		else if ("Jungle_Temple".equals(structureName) && junglePyramidGenerator != null)
+		else if ("Jungle_Temple".equals(structureName) && junglePyramidGenerator != null && settings.useTemples)
 			return junglePyramidGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
-		else if ("Igloo".equals(structureName) && iglooGenerator != null)
+		else if ("Igloo".equals(structureName) && iglooGenerator != null && settings.useTemples)
 			return iglooGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
 		return null;
 	}
@@ -463,21 +481,17 @@ public class ChunkProviderBeta implements IChunkGenerator
 							}
 
 							// FILLS IN OCEAN + BEACH BIOMES
-							if ((y < seaLevel + 1 && y > seaLevel - (BetaPlusHelper.seaDepth / 2)) && (topBlock == Blocks.SAND || fillerBlock == Blocks.GRAVEL) && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.desert.handle && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.swampland.handle)
+							if ((y < seaLevel + 1 && y > seaLevel - (settings.seaDepth / 2)) && (topBlock == Blocks.SAND || fillerBlock == Blocks.GRAVEL) && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.desert.handle && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.swampland.handle)
 							{
 								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.beach.handle;
 							}
-							else if (y <= seaLevel - BetaPlusHelper.seaDepth)
+							else if (y <= seaLevel - settings.seaDepth)
 							{
 								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.deepOcean.handle;
 							}
 							else if (y < seaLevel - 1 && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.swampland.handle)
 							{
 								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.ocean.handle;
-							}
-							else
-							{
-								continue;
 							}
 							// END OF FILLING OCEANS
 

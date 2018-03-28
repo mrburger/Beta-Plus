@@ -1,6 +1,6 @@
 package com.mrburgerUS.betaplus.beta.feature.structure;
 
-import com.mrburgerUS.betaplus.BetaPlusHelper;
+import com.mrburgerUS.betaplus.beta.ChunkGeneratorBeta;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.monster.EntitySkeleton;
@@ -26,7 +26,7 @@ public class WorldGenDungeons extends WorldGenerator
 	//Methods
 	public static void generateDungeons(World world, Random random, BlockPos pos)
 	{
-		for (int i = 0; i < BetaPlusHelper.dungeonChance; ++i)
+		for (int i = 0; i < ChunkGeneratorBeta.settings.dungeonChance; ++i)
 		{
 			int xRand = pos.getX() + random.nextInt(16) + 8;
 			int yRand = random.nextInt(128);

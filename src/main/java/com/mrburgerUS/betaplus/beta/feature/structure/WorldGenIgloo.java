@@ -1,6 +1,5 @@
 package com.mrburgerUS.betaplus.beta.feature.structure;
 
-import com.mrburgerUS.betaplus.BetaPlusHelper;
 import com.mrburgerUS.betaplus.beta.biome.BiomeGenBeta;
 import net.minecraft.init.Blocks;
 import net.minecraft.server.MinecraftServer;
@@ -28,12 +27,13 @@ public class WorldGenIgloo extends MapGenStructure
 {
 	//Fields
 	private String structureName = "Igloo";
-	private int maxDistanceBetweenPyramids = BetaPlusHelper.maxDistanceBetweenPyramids;
+	private int maxDistanceBetweenPyramids;
 
-	public WorldGenIgloo()
+	public WorldGenIgloo(int distance)
 	{
 		MapGenStructureIO.registerStructure(Start.class, structureName);
 		MapGenStructureIO.registerStructureComponent(Igloo.class, structureName);
+		maxDistanceBetweenPyramids = distance;
 	}
 
 	@Override

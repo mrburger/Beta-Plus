@@ -1,6 +1,5 @@
 package com.mrburgerUS.betaplus.beta.feature.structure;
 
-import com.mrburgerUS.betaplus.BetaPlusHelper;
 import com.mrburgerUS.betaplus.beta.biome.BiomeGenBeta;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
@@ -20,13 +19,14 @@ import java.util.Random;
 public class WorldGenJunglePyramid extends MapGenStructure
 {
 	//Fields
-	private int maxDistanceBetweenPyramids = BetaPlusHelper.maxDistanceBetweenPyramids;
+	private int maxDistanceBetweenPyramids;
 	private String structureName = "Jungle_Temple";
 
-	public WorldGenJunglePyramid()
+	public WorldGenJunglePyramid(int distance)
 	{
 		MapGenStructureIO.registerStructure(WorldGenJunglePyramid.Start.class, structureName);
 		MapGenStructureIO.registerStructureComponent(JunglePyramid.class, structureName);
+		maxDistanceBetweenPyramids = distance;
 	}
 
 	@Override

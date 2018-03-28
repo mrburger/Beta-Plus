@@ -1,6 +1,5 @@
 package com.mrburgerUS.betaplus.beta.feature.structure;
 
-import com.mrburgerUS.betaplus.BetaPlusHelper;
 import com.mrburgerUS.betaplus.beta.biome.BiomeGenBeta;
 import net.minecraft.block.BlockSandStone;
 import net.minecraft.block.BlockStairs;
@@ -28,12 +27,13 @@ public class WorldGenDesertPyramid extends MapGenStructure
 {
 	//Fields
 	private String structureName = "Pyramid";
-	private int maxDistanceBetweenPyramids = BetaPlusHelper.maxDistanceBetweenPyramids;
+	private int maxDistanceBetweenPyramids;
 
-	public WorldGenDesertPyramid()
+	public WorldGenDesertPyramid(int distance)
 	{
 		MapGenStructureIO.registerStructure(WorldGenDesertPyramid.Start.class, structureName);
 		MapGenStructureIO.registerStructureComponent(DesertPyramid.class, structureName);
+		maxDistanceBetweenPyramids = distance;
 	}
 
 	@Override
@@ -87,13 +87,7 @@ public class WorldGenDesertPyramid extends MapGenStructure
 	@Override
 	protected StructureStart getStructureStart(int chunkX, int chunkZ)
 	{
-		//return new Start(this.rand, chunkX, world.getHeight(chunkX * 16, chunkZ * 16), chunkZ);
-		int y = world.getHeight(chunkX * 16 + 8, chunkZ * 16 + 8);
-		if (y == 0)
-		{
-			y = 100;
-		}
-		return new Start(this.rand, chunkX, y, chunkZ, world.getBiome(new BlockPos(chunkX * 16 + 8, 0, chunkZ * 16 + 8)));
+		return new Start(this.rand, chunkX, 0, chunkZ, world.getBiome(new BlockPos(chunkX * 16 + 8, 0, chunkZ * 16 + 8)));
 	}
 
 	public static class Start extends StructureStart
