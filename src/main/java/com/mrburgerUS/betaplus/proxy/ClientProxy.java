@@ -2,7 +2,9 @@ package com.mrburgerUS.betaplus.proxy;
 
 
 import com.mrburgerUS.betaplus.beta.biome.color.GrassColorBeta;
+import com.mrburgerUS.betaplus.beta.biome.color.LeavesColorBeta;
 import com.mrburgerUS.betaplus.beta.biome.color.ReedColorBeta;
+import com.mrburgerUS.betaplus.beta.biome.color.WaterColorBeta;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.init.Blocks;
@@ -30,13 +32,14 @@ public class ClientProxy extends CommonProxy
 		registerColors(colors);
 	}
 
-	private static void registerColors(BlockColors c)
+	private static void registerColors(BlockColors colors)
 	{
-		c.registerBlockColorHandler(new GrassColorBeta(), Blocks.GRASS);
-		c.registerBlockColorHandler(new GrassColorBeta(), Blocks.TALLGRASS);
-		c.registerBlockColorHandler(new GrassColorBeta(), Blocks.DOUBLE_PLANT);
-		c.registerBlockColorHandler(new ReedColorBeta(), Blocks.REEDS);
-		//c.registerBlockColorHandler(new LeavesColorBeta(), Blocks.LEAVES);
-		//c.registerBlockColorHandler(new LeavesColorBeta(), Blocks.LEAVES2);
+		colors.registerBlockColorHandler(new GrassColorBeta(), Blocks.GRASS);
+		colors.registerBlockColorHandler(new GrassColorBeta(), Blocks.TALLGRASS);
+		colors.registerBlockColorHandler(new GrassColorBeta(), Blocks.DOUBLE_PLANT);
+		colors.registerBlockColorHandler(new ReedColorBeta(), Blocks.REEDS);
+		colors.registerBlockColorHandler(new WaterColorBeta(), Blocks.WATER);
+		colors.registerBlockColorHandler(new LeavesColorBeta(), Blocks.LEAVES);
+		//colors.registerBlockColorHandler(new LeavesColorBeta2(), Blocks.LEAVES2);
 	}
 }

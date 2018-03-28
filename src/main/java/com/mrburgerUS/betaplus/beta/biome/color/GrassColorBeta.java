@@ -23,7 +23,7 @@ public class GrassColorBeta implements IBlockColor
 		{
 			return ((BiomeProviderBeta) provider).getGrassColor(pos);
 		}
-		//return BiomeColorHelper.getGrassColorAtPos(worldIn, pos);
+
 		return 0;
 	}
 }

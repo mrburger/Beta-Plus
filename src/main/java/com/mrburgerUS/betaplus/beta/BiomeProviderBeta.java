@@ -69,6 +69,7 @@ public class BiomeProviderBeta extends BiomeProvider
 		int counter = 0;
 		for (int i = 0; i < width; ++i)
 		{
+
 			for (int j = 0; j < height; ++j)
 			{
 				double var9 = octave3Array[counter] * 1.1 + 0.5;
@@ -78,7 +79,8 @@ public class BiomeProviderBeta extends BiomeProvider
 				oneHundredth = 0.002;
 				point99 = 1.0 - oneHundredth;
 				double var17 = (humidity[counter] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
-				if ((var15 = 1.0 - (1.0 - var15) * (1.0 - var15)) < 0.0)
+				var15 = 1.0 - (1.0 - var15) * (1.0 - var15);
+				if (var15 < 0.0)
 				{
 					var15 = 0.0;
 				}
@@ -137,7 +139,7 @@ public class BiomeProviderBeta extends BiomeProvider
 	{
 		findBiomeArray(blockPos.getX(), blockPos.getZ(), 1, 1);
 		double temperature = this.temperature[0];
-		double humidity = this.humidity[0] - 0.25D; //We'll Remove just a wee bit of Number
+		double humidity = this.humidity[0]; //We'll Remove just a wee bit of Number (for looks)
 		//Resets Temp within Bounds
 		if (temperature > 1.0)
 			temperature = 1.0;
@@ -147,8 +149,9 @@ public class BiomeProviderBeta extends BiomeProvider
 		if (humidity > 1.0)
 			humidity = 1.0;
 		else if (humidity < 0.0)
+		{
 			humidity = 0.0;
-
+		}
 		return ColorizerGrass.getGrassColor(temperature, humidity);
 	}
 

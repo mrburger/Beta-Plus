@@ -126,7 +126,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		for (int i = 0; i < biomes.length; ++i)
 		{
 			//Set Biomes
-			biomes[i] = ((byte) Biome.getIdForBiome(biomesForGeneration[(i & 15) << 4 | i >> 4 & 15]));
+			//biomes[i] = ((byte) Biome.getIdForBiome(biomesForGeneration[(i & 15) << 4 | i >> 4 & 15]));
 		}
 
 
@@ -198,8 +198,6 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 			(new WorldGenLakes(Blocks.LAVA)).generate(worldObj, this.rand, blockPos.add(addX, addY, addZ));
 		}
 
-		//Custom Decorate
-		//decorate(worldObj, rand, blockPos, biomeAtPos);
 
 		//Spawn Passive Entities
 		WorldEntitySpawner.performWorldGenSpawning(worldObj, biomeAtPos, posX + 8, posZ + 8, 16, 16, this.rand);
