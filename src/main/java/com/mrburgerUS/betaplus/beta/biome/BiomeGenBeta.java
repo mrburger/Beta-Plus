@@ -108,7 +108,7 @@ public enum BiomeGenBeta implements BetaPlusBiome
 		{
 			betaBiome = desert;
 		}
-		else if (humidity > 0.5 && temperature < 0.45)
+		else if (humidity > 0.5 && temperature < 0.5)
 		{
 			betaBiome = roofForest;
 		}
@@ -152,4 +152,5 @@ public enum BiomeGenBeta implements BetaPlusBiome
 		}
 		return BiomeGenBeta.plains;
 	}
+
 }

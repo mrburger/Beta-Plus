@@ -34,8 +34,8 @@ public class ClientProxy extends CommonProxy
 
 	private static void registerColors(BlockColors colors)
 	{
-		colors.registerBlockColorHandler(new GrassColorBeta(), Blocks.GRASS);
-		colors.registerBlockColorHandler(new GrassColorBeta(), Blocks.TALLGRASS);
+		//colors.registerBlockColorHandler(new GrassColorBeta(), Blocks.GRASS);
+		//colors.registerBlockColorHandler(new GrassColorBeta(), Blocks.TALLGRASS);
 		colors.registerBlockColorHandler(new GrassColorBeta(), Blocks.DOUBLE_PLANT);
 		colors.registerBlockColorHandler(new ReedColorBeta(), Blocks.REEDS);
 		colors.registerBlockColorHandler(new WaterColorBeta(), Blocks.WATER);

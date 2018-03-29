@@ -21,7 +21,7 @@ public class GrassColorBeta implements IBlockColor
 		BiomeProvider provider = Minecraft.getMinecraft().world.getBiomeProvider();
 		if (provider instanceof BiomeProviderBeta)
 		{
-			return ((BiomeProviderBeta) provider).getGrassColor(pos);
+			return ((BiomeProviderBeta) provider).getGrassColor2(pos);
 		}
 
 		return 0;

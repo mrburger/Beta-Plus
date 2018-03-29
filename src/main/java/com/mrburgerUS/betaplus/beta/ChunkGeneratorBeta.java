@@ -3,10 +3,7 @@ package com.mrburgerUS.betaplus.beta;
 import com.mrburgerUS.betaplus.BetaPlusSettings;
 import com.mrburgerUS.betaplus.beta.biome.BiomeGenBeta;
 import com.mrburgerUS.betaplus.beta.feature.decoration.*;
-import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenDesertPyramid;
-import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenDungeons;
-import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenIgloo;
-import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenJunglePyramid;
+import com.mrburgerUS.betaplus.beta.feature.structure.*;
 import com.mrburgerUS.betaplus.beta.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EnumCreatureType;
@@ -66,6 +63,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 	private WorldGenDesertPyramid desertPyramidGenerator;
 	private WorldGenJunglePyramid junglePyramidGenerator;
 	private WorldGenIgloo iglooGenerator;
+	private WorldGenSwampHut swampHutGenerator;
 	//Settings
 	public static BetaPlusSettings settings;
 
@@ -97,6 +95,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		desertPyramidGenerator = new WorldGenDesertPyramid(settings.maxDistanceBetweenPyramids);
 		junglePyramidGenerator = new WorldGenJunglePyramid(settings.maxDistanceBetweenPyramids);
 		iglooGenerator = new WorldGenIgloo(settings.maxDistanceBetweenPyramids);
+		swampHutGenerator = new WorldGenSwampHut(settings.maxDistanceBetweenPyramids);
 	}
 
 
@@ -141,6 +140,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 			desertPyramidGenerator.generate(worldObj, x, z, primer);
 			junglePyramidGenerator.generate(worldObj, x, z, primer);
 			iglooGenerator.generate(worldObj, x, z, primer);
+			swampHutGenerator.generate(worldObj, x, z, primer);
 		}
 
 		//END STRUCTURES GENERATION
@@ -179,6 +179,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 			desertPyramidGenerator.generateStructure(worldObj, rand, cPos);
 			junglePyramidGenerator.generateStructure(worldObj, rand, cPos);
 			iglooGenerator.generateStructure(worldObj, rand, cPos);
+			swampHutGenerator.generateStructure(worldObj, rand, cPos);
 		}
 
 		//Lakes
@@ -227,6 +228,8 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 			return junglePyramidGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
 		else if ("Igloo".equals(structureName) && iglooGenerator != null && settings.useTemples)
 			return iglooGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
+		else if ("Swamp_Hut".equals(structureName) && swampHutGenerator != null && settings.useTemples)
+			return swampHutGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
 		return null;
 	}
 
@@ -323,8 +326,8 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 			values = new double[var5 * var6 * var7];
 		}
 		double noiseFactor = 684.412;
-		double[] temps = biomeProvider.temperature;
-		double[] humidities = biomeProvider.humidity;
+		double[] temps = biomeProvider.temperatures;
+		double[] humidities = biomeProvider.humidities;
 		octaveArr4 = octaves6.generateNoiseOctaves(octaveArr4, var2, var4, var5, var7, 1.121, 1.121, 0.5);
 		octaveArr5 = octaves7.generateNoiseOctaves(octaveArr5, var2, var4, var5, var7, 200.0, 200.0, 0.5);
 		octaveArr1 = octaves3.generateNoiseOctaves(octaveArr1, var2, 0, var4, var5, var6, var7, noiseFactor / 80.0, noiseFactor / 160.0, noiseFactor / 80.0);
