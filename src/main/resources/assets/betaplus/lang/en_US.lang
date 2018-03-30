@@ -1,1 +1,4 @@
-generator.beta_plus=Beta Plus
+generator.BETA_PLUS=Beta+
+generator.BETA_PLUS.info=Beta Terrain, Modern Features
+
+createWorld.customize.custom.useOldCaves=Use Old Caves

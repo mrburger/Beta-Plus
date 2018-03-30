@@ -1,11 +1,10 @@
 package com.mrburgerUS.betaplus.beta;
 
+import com.mrburgerUS.betaplus.BetaPlusSettings;
 import com.mrburgerUS.betaplus.beta.biome.BiomeGenBeta;
 import com.mrburgerUS.betaplus.beta.feature.decoration.*;
-import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenDesertPyramid;
-import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenDungeons;
-import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenIgloo;
-import com.mrburgerUS.betaplus.beta.feature.structure.WorldGenJunglePyramid;
+import com.mrburgerUS.betaplus.beta.feature.structure.*;
+import com.mrburgerUS.betaplus.beta.feature.terrain.MapGenCaves;
 import com.mrburgerUS.betaplus.beta.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EnumCreatureType;
@@ -28,7 +27,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
-public class ChunkProviderBeta implements IChunkGenerator
+public class ChunkGeneratorBeta implements IChunkGenerator
 {
 	private final BiomeProviderBeta biomeProvider;
 
@@ -37,7 +36,7 @@ public class ChunkProviderBeta implements IChunkGenerator
 	private World worldObj;
 	public static Biome[] biomesForGeneration;
 	public static final int seaLevel = 64;
-	public static final int seaDepth = 5;
+	public static final int highAltitude = 100;
 	//Noise Generators
 	private NoiseGeneratorOctavesBeta octaves1;
 	private NoiseGeneratorOctavesBeta octaves2;
@@ -63,13 +62,24 @@ public class ChunkProviderBeta implements IChunkGenerator
 	private MapGenRavine ravineGenerator = new MapGenRavine();
 	private MapGenMineshaft mineshaftGenerator = new MapGenMineshaft();
 	private MapGenStronghold strongholdGenerator = new MapGenStronghold();
-	private WorldGenDesertPyramid desertPyramidGenerator = new WorldGenDesertPyramid();
-	private WorldGenJunglePyramid junglePyramidGenerator = new WorldGenJunglePyramid();
-	private WorldGenIgloo iglooGenerator = new WorldGenIgloo();
+	private WorldGenDesertPyramid desertPyramidGenerator;
+	private WorldGenJunglePyramid junglePyramidGenerator;
+	private WorldGenIgloo iglooGenerator;
+	private WorldGenSwampHut swampHutGenerator;
+	private WorldGenVillage villageGenerator;
+	//Settings
+	public static BetaPlusSettings settings;
+
 
 	//Constructors
-	public ChunkProviderBeta(World world, long seed, boolean mapFeaturesEnabled)
+	public ChunkGeneratorBeta(World world, long seed, String generationOptions)
 	{
+		//If we have options
+		if (generationOptions != null)
+		{
+			settings = BetaPlusSettings.Factory.jsonToSettings(generationOptions).build();
+		}
+
 		worldObj = world;
 		worldObj.setSeaLevel(seaLevel);
 
@@ -84,6 +94,12 @@ public class ChunkProviderBeta implements IChunkGenerator
 		mobSpawnerNoise = new NoiseGeneratorOctavesBeta(rand, 8);
 		biomeProvider = new BiomeProviderBeta(world);
 
+		//Set Generators up
+		desertPyramidGenerator = new WorldGenDesertPyramid(settings.maxDistanceBetweenPyramids);
+		junglePyramidGenerator = new WorldGenJunglePyramid(settings.maxDistanceBetweenPyramids);
+		iglooGenerator = new WorldGenIgloo(settings.maxDistanceBetweenPyramids);
+		swampHutGenerator = new WorldGenSwampHut(settings.maxDistanceBetweenPyramids);
+		villageGenerator = new WorldGenVillage(9);
 	}
 
 
@@ -101,10 +117,19 @@ public class ChunkProviderBeta implements IChunkGenerator
 		//Add Grass or Sand or Gravel fill
 		replaceBlocksForBiome(x, z, primer, biomesForGeneration);
 		//Make Caves
-		caveGenerator.generate(worldObj, x, z, primer);
+		if (settings.useOldCaves)
+		{
+			new MapGenCaves().generate(worldObj, x, z, primer);
+		}
+		else
+		{
+			caveGenerator.generate(worldObj, x, z, primer);
+		}
 		//Make Ravines
-		ravineGenerator.generate(worldObj, x, z, primer);
+		if (settings.useRavines)
+			ravineGenerator.generate(worldObj, x, z, primer);
 
+		//Creates chunk
 		Chunk chunk = new Chunk(worldObj, primer, x, z);
 
 		byte[] biomes = chunk.getBiomeArray();
@@ -116,17 +141,23 @@ public class ChunkProviderBeta implements IChunkGenerator
 
 
 		//BEGIN STRUCTURES GENERATION
-		if (true)
-		{
+
+		if (settings.useMineShafts)
 			mineshaftGenerator.generate(worldObj, x, z, primer);
+		if (settings.useStrongholds)
 			strongholdGenerator.generate(worldObj, x, z, primer);
+		if (settings.useTemples)
+		{
 			desertPyramidGenerator.generate(worldObj, x, z, primer);
 			junglePyramidGenerator.generate(worldObj, x, z, primer);
 			iglooGenerator.generate(worldObj, x, z, primer);
+			swampHutGenerator.generate(worldObj, x, z, primer);
 		}
-		//END STRUCTURES GENERATION
+		if (settings.useVillages)
 
-		chunk.generateSkylightMap();
+			//END STRUCTURES GENERATION
+
+			chunk.generateSkylightMap();
 		return chunk;
 	}
 
@@ -149,15 +180,22 @@ public class ChunkProviderBeta implements IChunkGenerator
 		WorldGenSnowLayerBeta.generateSnow(worldObj, cPos);
 
 		//Features
-		WorldGenDungeons.generateDungeons(worldObj, rand, blockPos);
-		mineshaftGenerator.generateStructure(worldObj, rand, cPos);
-		strongholdGenerator.generateStructure(worldObj, rand, cPos);
-		desertPyramidGenerator.generateStructure(worldObj, rand, cPos);
-		junglePyramidGenerator.generateStructure(worldObj, rand, cPos);
-		iglooGenerator.generateStructure(worldObj, rand, cPos);
+		if (settings.useDungeons)
+			WorldGenDungeons.generateDungeons(worldObj, rand, blockPos);
+		if (settings.useMineShafts)
+			mineshaftGenerator.generateStructure(worldObj, rand, cPos);
+		if (settings.useStrongholds)
+			strongholdGenerator.generateStructure(worldObj, rand, cPos);
+		if (settings.useTemples)
+		{
+			desertPyramidGenerator.generateStructure(worldObj, rand, cPos);
+			junglePyramidGenerator.generateStructure(worldObj, rand, cPos);
+			iglooGenerator.generateStructure(worldObj, rand, cPos);
+			swampHutGenerator.generateStructure(worldObj, rand, cPos);
+		}
 
 		//Lakes
-		if (biomeAtPos != Biomes.DESERT && biomeAtPos != Biomes.DESERT_HILLS && this.rand.nextInt(20) == 0)
+		if (biomeAtPos != Biomes.DESERT && biomeAtPos != Biomes.DESERT_HILLS && this.rand.nextInt(settings.waterLakeChance) == 0)
 		{
 			int i1 = this.rand.nextInt(16) + 8;
 			int j1 = this.rand.nextInt(256);
@@ -166,15 +204,13 @@ public class ChunkProviderBeta implements IChunkGenerator
 		}
 		//Lava Lakes
 		int addY = this.rand.nextInt(this.rand.nextInt(248) + 8);
-		if (addY < worldObj.getSeaLevel() - 2 || this.rand.nextInt(250) == 0)
+		if (addY < worldObj.getSeaLevel() - 2 || this.rand.nextInt(settings.lavaLakeChance) == 0)
 		{
 			int addX = this.rand.nextInt(16) + 8;
 			int addZ = this.rand.nextInt(16) + 8;
 			(new WorldGenLakes(Blocks.LAVA)).generate(worldObj, this.rand, blockPos.add(addX, addY, addZ));
 		}
 
-		//Custom Decorate
-		//decorate(worldObj, rand, blockPos, biomeAtPos);
 
 		//Spawn Passive Entities
 		WorldEntitySpawner.performWorldGenSpawning(worldObj, biomeAtPos, posX + 8, posZ + 8, 16, 16, this.rand);
@@ -196,19 +232,18 @@ public class ChunkProviderBeta implements IChunkGenerator
 	@Override
 	public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position, boolean findUnexplored)
 	{
-		boolean mapFeatures = true;
-		if (!mapFeatures)
-		{
-			return null;
-		}
-		else if ("Stronghold".equals(structureName) && strongholdGenerator != null)
+		if ("Stronghold".equals(structureName) && strongholdGenerator != null && settings.useStrongholds)
 			return strongholdGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
-		else if ("Pyramid".equals(structureName) && desertPyramidGenerator != null)
+		else if ("Pyramid".equals(structureName) && desertPyramidGenerator != null && settings.useTemples)
 			return desertPyramidGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
-		else if ("Jungle_Temple".equals(structureName) && junglePyramidGenerator != null)
+		else if ("Jungle_Temple".equals(structureName) && junglePyramidGenerator != null && settings.useTemples)
 			return junglePyramidGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
-		else if ("Igloo".equals(structureName) && iglooGenerator != null)
+		else if ("Igloo".equals(structureName) && iglooGenerator != null && settings.useTemples)
 			return iglooGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
+		else if ("Swamp_Hut".equals(structureName) && swampHutGenerator != null && settings.useTemples)
+			return swampHutGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
+		else if ("Village".equals(structureName) && villageGenerator != null && settings.useVillages)
+			return villageGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
 		return null;
 	}
 
@@ -226,7 +261,6 @@ public class ChunkProviderBeta implements IChunkGenerator
 
 
 	//BEGIN OUTSIDE METHODS
-
 
 	//Methods
 	public void generateTerrain(int chunkX, int chunkZ, ChunkPrimer chunk)
@@ -306,8 +340,8 @@ public class ChunkProviderBeta implements IChunkGenerator
 			values = new double[var5 * var6 * var7];
 		}
 		double noiseFactor = 684.412;
-		double[] temps = biomeProvider.temperature;
-		double[] humidities = biomeProvider.humidity;
+		double[] temps = biomeProvider.temperatures;
+		double[] humidities = biomeProvider.humidities;
 		octaveArr4 = octaves6.generateNoiseOctaves(octaveArr4, var2, var4, var5, var7, 1.121, 1.121, 0.5);
 		octaveArr5 = octaves7.generateNoiseOctaves(octaveArr5, var2, var4, var5, var7, 200.0, 200.0, 0.5);
 		octaveArr1 = octaves3.generateNoiseOctaves(octaveArr1, var2, 0, var4, var5, var6, var7, noiseFactor / 80.0, noiseFactor / 160.0, noiseFactor / 80.0);
@@ -461,18 +495,23 @@ public class ChunkProviderBeta implements IChunkGenerator
 								topBlock = Blocks.WATER;
 							}
 
-							// FILLS IN OCEAN + BEACH BIOMES
-							if ((y < seaLevel + 1 && y > seaLevel - (seaDepth / 2)) && (topBlock == Blocks.SAND || fillerBlock == Blocks.GRAVEL) && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.desert.handle)
+							// FILLS IN OCEAN + BEACH + EXTREME HILLS BIOMES
+							if ((y < seaLevel + 1 && y > seaLevel - (settings.seaDepth / 2)) && (topBlock == Blocks.SAND || fillerBlock == Blocks.GRAVEL) && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.desert.handle && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.swampland.handle)
 							{
 								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.beach.handle;
 							}
-							else if (y <= seaLevel - seaDepth)
+							else if (y <= seaLevel - settings.seaDepth)
 							{
 								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.deepOcean.handle;
 							}
-							else if (y < seaLevel - 1)
+							else if (y < seaLevel - 1 && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.swampland.handle)
 							{
 								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.ocean.handle;
+							}
+							//Not working
+							else if (y >= highAltitude)
+							{
+								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.mountain.handle;
 							}
 							// END OF FILLING OCEANS
 

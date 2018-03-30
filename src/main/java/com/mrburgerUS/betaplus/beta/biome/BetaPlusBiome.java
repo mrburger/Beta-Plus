@@ -4,9 +4,9 @@ import net.minecraft.world.biome.Biome;
 
 public interface BetaPlusBiome
 {
-	public String name();
+	String name();
 
-	public Biome getHandle();
+	Biome getHandle();
 
-	public void setHandle(Biome handle);
+	void setHandle(Biome handle);
 }

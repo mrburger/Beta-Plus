@@ -1,22 +1,25 @@
 package com.mrburgerUS.betaplus.forge;
 
 import com.mrburgerUS.betaplus.beta.BiomeProviderBeta;
-import com.mrburgerUS.betaplus.beta.ChunkProviderBeta;
+import com.mrburgerUS.betaplus.beta.ChunkGeneratorBeta;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.gen.IChunkGenerator;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class WorldTypeBetaPlus extends WorldType
 {
 	public static void register()
 	{
+		System.out.println("Registering Beta+");
 		new WorldTypeBetaPlus();
 	}
 
 	private WorldTypeBetaPlus()
 	{
-		super("beta_plus");
+		super("BETA_PLUS");
 	}
 
 	protected WorldTypeBetaPlus(String name)
@@ -26,7 +29,7 @@ public class WorldTypeBetaPlus extends WorldType
 
 	public IChunkGenerator getChunkGenerator(World world, String generatorOptions)
 	{
-		return new ChunkProviderBeta(world, world.getSeed(), true);
+		return new ChunkGeneratorBeta(world, world.getSeed(), generatorOptions);
 	}
 
 	//Added to fix biome structure issues
@@ -34,5 +37,24 @@ public class WorldTypeBetaPlus extends WorldType
 	public BiomeProvider getBiomeProvider(World world)
 	{
 		return new BiomeProviderBeta(world);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean hasInfoNotice()
+	{
+		return true;
+	}
+
+	@SideOnly(Side.CLIENT)
+	public void onCustomizeButton(net.minecraft.client.Minecraft mc, net.minecraft.client.gui.GuiCreateWorld guiCreateWorld)
+	{
+		mc.displayGuiScreen(new GuiCustomizeBeta(guiCreateWorld));
+	}
+
+	@Override
+	public boolean isCustomizable()
+	{
+		return true;
 	}
 }
