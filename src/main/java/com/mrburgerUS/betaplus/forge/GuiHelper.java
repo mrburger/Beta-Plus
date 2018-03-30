@@ -19,6 +19,13 @@ public class GuiHelper
 	static final int mineshaftId = 152;
 	// Button Id of Temple Button
 	static final int templeId = 153;
+	// Button ID for ravines
+	static final int ravineId = 154;
+	// Button ID for old caves
+	static final int oldCaveId = 148;
+	// Button Id for Dungeon button
+	static final int dungeonId = 149;
+
 
 
 	static final int upButton = 200;

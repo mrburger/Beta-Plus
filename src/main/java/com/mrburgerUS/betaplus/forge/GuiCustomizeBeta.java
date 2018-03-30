@@ -72,30 +72,29 @@ public class GuiCustomizeBeta extends GuiScreen implements GuiSlider.FormatHelpe
 	{
 		GuiPageButtonList.GuiListEntry[] entries = new GuiPageButtonList.GuiListEntry[]
 				{
-						//new GuiPageButtonList.GuiButtonEntry(148, I18n.format("createWorld.customize.custom.useCaves"), true, settings.useCaves),
+						new GuiPageButtonList.GuiButtonEntry(GuiHelper.oldCaveId, I18n.format("createWorld.customize.custom.useOldCaves"), true, settingsFactory.useOldCaves),
 						new GuiPageButtonList.GuiButtonEntry(GuiHelper.strongholdId, I18n.format("createWorld.customize.custom.useStrongholds"), true, settingsFactory.useStrongholds),
 						//new GuiPageButtonList.GuiButtonEntry(151, I18n.format("createWorld.customize.custom.useVillages"), true, settings.useVillages),
 						new GuiPageButtonList.GuiButtonEntry(GuiHelper.mineshaftId, I18n.format("createWorld.customize.custom.useMineShafts"), true, settingsFactory.useMineShafts),
 						new GuiPageButtonList.GuiButtonEntry(GuiHelper.templeId, I18n.format("createWorld.customize.custom.useTemples"), true, settingsFactory.useTemples),
 						//new GuiPageButtonList.GuiButtonEntry(210, I18n.format("createWorld.customize.custom.useMonuments"), true, settings.useMonuments),
 						// new GuiPageButtonList.GuiButtonEntry(211, I18n.format("createWorld.customize.custom.useMansions"), true, settings.useMansions),
-						new GuiPageButtonList.GuiButtonEntry(154, I18n.format("createWorld.customize.custom.useRavines"), true, settingsFactory.useRavines),
-						new GuiPageButtonList.GuiButtonEntry(149, I18n.format("createWorld.customize.custom.useDungeons"), true, settingsFactory.useDungeons),
-						new GuiPageButtonList.GuiSlideEntry(157, I18n.format("createWorld.customize.custom.dungeonChance"), true, this, 1.0F, 100.0F, (float) settingsFactory.dungeonChance),
+						new GuiPageButtonList.GuiButtonEntry(GuiHelper.ravineId, I18n.format("createWorld.customize.custom.useRavines"), true, settingsFactory.useRavines),
+						new GuiPageButtonList.GuiButtonEntry(GuiHelper.dungeonId, I18n.format("createWorld.customize.custom.useDungeons"), true, settingsFactory.useDungeons),
+						new GuiPageButtonList.GuiSlideEntry(157, I18n.format("createWorld.customize.custom.dungeonChance"), true, this, 1, 100, (float) settingsFactory.dungeonChance),
 						new GuiPageButtonList.GuiButtonEntry(155, I18n.format("createWorld.customize.custom.useWaterLakes"), true, settingsFactory.useWaterLakes),
-						new GuiPageButtonList.GuiSlideEntry(158, I18n.format("createWorld.customize.custom.waterLakeChance"), true, this, 1.0F, 100.0F, (float) settingsFactory.waterLakeChance),
+						new GuiPageButtonList.GuiSlideEntry(158, I18n.format("createWorld.customize.custom.waterLakeChance"), true, this, 1, 100, (float) settingsFactory.waterLakeChance),
 						new GuiPageButtonList.GuiButtonEntry(156, I18n.format("createWorld.customize.custom.useLavaLakes"), true, settingsFactory.useLavaLakes),
-						new GuiPageButtonList.GuiSlideEntry(159, I18n.format("createWorld.customize.custom.lavaLakeChance"), true, this, 10.0F, 256.0F, (float) settingsFactory.lavaLakeChance),
+						new GuiPageButtonList.GuiSlideEntry(159, I18n.format("createWorld.customize.custom.lavaLakeChance"), true, this, 10, 256, (float) settingsFactory.lavaLakeChance),
 				};
 		list = new GuiPageButtonList(mc, width, height, 32, height - 32, 25, this, new GuiPageButtonList.GuiListEntry[][]{entries});
 	}
 
-	/**
-	 * Handles mouse input.
-	 */
+	@Override
 	public void handleMouseInput() throws IOException
 	{
 		super.handleMouseInput();
+		this.list.handleMouseInput();
 	}
 
 	@Override
@@ -103,6 +102,12 @@ public class GuiCustomizeBeta extends GuiScreen implements GuiSlider.FormatHelpe
 	{
 		switch (id)
 		{
+			case GuiHelper.dungeonId:
+				settingsFactory.useDungeons = value;
+				break;
+			case GuiHelper.oldCaveId:
+				settingsFactory.useOldCaves = value;
+				break;
 			case GuiHelper.strongholdId:
 				settingsFactory.useStrongholds = value;
 				break;
@@ -124,20 +129,6 @@ public class GuiCustomizeBeta extends GuiScreen implements GuiSlider.FormatHelpe
 	public void setEntryValue(int id, float value)
 	{
 		return;
-	}
-
-	public void setEntryValue(int id, String value)
-	{
-		float f = 0.0F;
-
-		try
-		{
-			f = Float.parseFloat(value);
-		}
-		catch (NumberFormatException var5)
-		{
-
-		}
 	}
 
 	private void setSettingsModified(boolean modified)
@@ -266,17 +257,17 @@ public class GuiCustomizeBeta extends GuiScreen implements GuiSlider.FormatHelpe
 		}
 	}
 
-	private void modifyFocusValue(float p_175327_1_)
+	private void modifyFocusValue(float inValue)
 	{
 		Gui gui = this.list.getFocusedControl();
 
 		if (gui instanceof GuiTextField)
 		{
-			float f = p_175327_1_;
+			float f = inValue;
 
 			if (GuiScreen.isShiftKeyDown())
 			{
-				f = p_175327_1_ * 0.1F;
+				f = inValue * 0.1F;
 
 				if (GuiScreen.isCtrlKeyDown())
 				{
@@ -285,7 +276,7 @@ public class GuiCustomizeBeta extends GuiScreen implements GuiSlider.FormatHelpe
 			}
 			else if (GuiScreen.isCtrlKeyDown())
 			{
-				f = p_175327_1_ * 10.0F;
+				f = inValue * 10.0F;
 
 				if (GuiScreen.isAltKeyDown())
 				{
@@ -298,16 +289,16 @@ public class GuiCustomizeBeta extends GuiScreen implements GuiSlider.FormatHelpe
 
 			if (f1 != null)
 			{
-				f1 = f1.floatValue() + f;
+				f1 = f1 + f;
 				int i = guitextfield.getId();
-				String s = String.format("%s: %2.1f", guitextfield.getId(), f1.floatValue());
+				String s = String.format("%s: %2.1f", guitextfield.getId(), f1);
 				guitextfield.setText(s);
 				this.setEntryValue(i, s);
 			}
 		}
 	}
 
-
+	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
 	{
 		super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -318,17 +309,18 @@ public class GuiCustomizeBeta extends GuiScreen implements GuiSlider.FormatHelpe
 		}
 	}
 
+	@Override
 	protected void mouseReleased(int mouseX, int mouseY, int state)
 	{
 		super.mouseReleased(mouseX, mouseY, state);
 
-		if (confirmDismissed)
+		if (this.confirmDismissed)
 		{
-			confirmDismissed = false;
+			this.confirmDismissed = false;
 		}
-		else if (confirmMode == 0)
+		else if (this.confirmMode == 0)
 		{
-			return;
+			this.list.mouseReleased(mouseX, mouseY, state);
 		}
 	}
 
@@ -376,7 +368,7 @@ public class GuiCustomizeBeta extends GuiScreen implements GuiSlider.FormatHelpe
 	@Override
 	public String getText(int id, String name, float value)
 	{
-		return null;
+		return name + ": " + value;
 	}
 
 	private void restoreDefaults()
@@ -384,5 +376,19 @@ public class GuiCustomizeBeta extends GuiScreen implements GuiSlider.FormatHelpe
 		settingsFactory.setDefaults();
 		createPage();
 		setSettingsModified(false);
+	}
+
+	@Override
+	public void setEntryValue(int id, String value)
+	{
+		switch (id)
+		{
+			case GuiHelper.cancelId:
+				break;
+			case GuiHelper.confirmId:
+				break;
+			case GuiHelper.defaultId:
+
+		}
 	}
 }

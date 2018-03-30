@@ -1,8 +1,6 @@
 package com.mrburgerUS.betaplus.proxy;
 
 
-import com.mrburgerUS.betaplus.beta.biome.color.GrassColorBeta;
-import com.mrburgerUS.betaplus.beta.biome.color.LeavesColorBeta;
 import com.mrburgerUS.betaplus.beta.biome.color.ReedColorBeta;
 import com.mrburgerUS.betaplus.beta.biome.color.WaterColorBeta;
 import net.minecraft.client.Minecraft;
@@ -36,10 +34,10 @@ public class ClientProxy extends CommonProxy
 	{
 		//colors.registerBlockColorHandler(new GrassColorBeta(), Blocks.GRASS);
 		//colors.registerBlockColorHandler(new GrassColorBeta(), Blocks.TALLGRASS);
-		colors.registerBlockColorHandler(new GrassColorBeta(), Blocks.DOUBLE_PLANT);
+		//colors.registerBlockColorHandler(new GrassColorBeta(), Blocks.DOUBLE_PLANT);
 		colors.registerBlockColorHandler(new ReedColorBeta(), Blocks.REEDS);
 		colors.registerBlockColorHandler(new WaterColorBeta(), Blocks.WATER);
-		colors.registerBlockColorHandler(new LeavesColorBeta(), Blocks.LEAVES);
+		//colors.registerBlockColorHandler(new LeavesColorBeta(), Blocks.LEAVES);
 		//colors.registerBlockColorHandler(new LeavesColorBeta2(), Blocks.LEAVES2);
 	}
 }

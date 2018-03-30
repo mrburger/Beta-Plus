@@ -75,10 +75,7 @@ public class WorldGenIgloo extends MapGenStructure
 
 		if (i == k && j == l)
 		{
-			if (world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == BiomeGenBeta.tundra.handle)
-			{
-				return true;
-			}
+			return world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == BiomeGenBeta.tundra.handle;
 		}
 
 		return false;

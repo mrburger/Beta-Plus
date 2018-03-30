@@ -20,25 +20,21 @@ public class LeavesColorBeta implements IBlockColor
 	public int colorMultiplier(IBlockState state, @Nullable IBlockAccess worldIn, @Nullable BlockPos pos, int tintIndex)
 	{
 		BlockPlanks.EnumType variantType = state.getValue(BlockOldLeaf.VARIANT);
-		if (variantType == BlockPlanks.EnumType.BIRCH)
+		switch (variantType)
 		{
-			return ColorizerFoliage.getFoliageColorBirch();
-		}
-		else if (variantType == BlockPlanks.EnumType.SPRUCE)
-		{
-			return ColorizerFoliage.getFoliageColorPine();
-		}
-		else if (variantType == BlockPlanks.EnumType.OAK)
-		{
-			BiomeProvider provider = Minecraft.getMinecraft().world.getBiomeProvider();
-			if (provider instanceof BiomeProviderBeta && pos != null)
-			{
-				return ColorizerFoliage.getFoliageColor(0.5, 0.5);
-			}
-		}
-		else
-		{
-			return ColorizerFoliage.getFoliageColorBasic();
+			case BIRCH:
+				return ColorizerFoliage.getFoliageColorBirch();
+			case SPRUCE:
+				return ColorizerFoliage.getFoliageColorPine();
+			case OAK:
+				BiomeProvider provider = Minecraft.getMinecraft().world.getBiomeProvider();
+				if (provider instanceof BiomeProviderBeta && pos != null)
+				{
+					return ColorizerFoliage.getFoliageColor(0.5, 0.5);
+				}
+				break;
+			default:
+				return ColorizerFoliage.getFoliageColorBasic();
 		}
 		return 0;
 	}

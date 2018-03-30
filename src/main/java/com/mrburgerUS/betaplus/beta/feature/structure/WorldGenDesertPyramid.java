@@ -75,10 +75,7 @@ public class WorldGenDesertPyramid extends MapGenStructure
 
 		if (i == k && j == l)
 		{
-			if (world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == BiomeGenBeta.desert.handle)
-			{
-				return true;
-			}
+			return world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == BiomeGenBeta.desert.handle;
 		}
 
 		return false;

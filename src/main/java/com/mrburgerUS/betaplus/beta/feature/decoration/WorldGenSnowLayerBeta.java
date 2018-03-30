@@ -45,12 +45,9 @@ public class WorldGenSnowLayerBeta
 		{
 			if (pos.getY() >= 0 && pos.getY() < 256 && world.getLightFor(EnumSkyBlock.BLOCK, pos) < 10)
 			{
-				IBlockState iblockstate1 = world.getBlockState(pos);
+				IBlockState state = world.getBlockState(pos);
 
-				if (iblockstate1.getBlock().isAir(iblockstate1, world, pos) && Blocks.SNOW_LAYER.canPlaceBlockAt(world, pos))
-				{
-					return true;
-				}
+				return state.getBlock().isAir(state, world, pos) && Blocks.SNOW_LAYER.canPlaceBlockAt(world, pos);
 			}
 
 			return false;

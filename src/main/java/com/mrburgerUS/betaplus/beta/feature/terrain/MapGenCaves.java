@@ -46,7 +46,7 @@ public class MapGenCaves extends MapGenBase
 			var4 += (double) (MathHelper.cos(var11) * var31);
 			var6 += (double) var32;
 			var8 += (double) (MathHelper.sin(var11) * var31);
-			var12 = chance1 ? (var12 *= 0.92f) : (var12 *= 0.7f);
+			var12 = chance1 ? var12 * 0.92f : var12 * 0.7f;
 			var12 += var22 * 0.1f;
 			var11 += var21 * 0.1f;
 			var22 *= 0.9f;

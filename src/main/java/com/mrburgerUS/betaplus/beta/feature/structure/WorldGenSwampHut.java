@@ -75,10 +75,7 @@ public class WorldGenSwampHut extends MapGenStructure
 
 		if (i == k && j == l)
 		{
-			if (world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == BiomeGenBeta.swampland.handle)
-			{
-				return true;
-			}
+			return world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == BiomeGenBeta.swampland.handle;
 		}
 
 		return false;

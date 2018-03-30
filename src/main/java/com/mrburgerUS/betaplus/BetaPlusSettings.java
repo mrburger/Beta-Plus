@@ -17,6 +17,8 @@ public class BetaPlusSettings
 	public final boolean useMineShafts;
 	// Whether to generate Strongholds
 	public final boolean useStrongholds;
+	// Whether to generate Villages
+	public final boolean useVillages;
 	// Whether to generate Pyramids (Scattered Features)
 	public final boolean useTemples;
 	//Max Jungle Temple, Desert Pyramid, and other structures distances.
@@ -35,6 +37,8 @@ public class BetaPlusSettings
 	public final int lavaLakeChance;
 	// Minimum depth to be considered "Deep Ocean"
 	public final int seaDepth;
+	// Which cave Generator to use
+	public final boolean useOldCaves;
 
 
 	private BetaPlusSettings(BetaPlusSettings.Factory settingsFactory)
@@ -51,6 +55,8 @@ public class BetaPlusSettings
 		useLavaLakes = settingsFactory.useLavaLakes;
 		lavaLakeChance = settingsFactory.lavaLakeChance;
 		seaDepth = settingsFactory.seaDepth;
+		useVillages = settingsFactory.useVillages;
+		useOldCaves = settingsFactory.useOldCaves;
 	}
 
 	public static class Factory
@@ -69,26 +75,12 @@ public class BetaPlusSettings
 		public boolean useLavaLakes = true;
 		public int lavaLakeChance = 256;
 		public int seaDepth = 5;
+		public boolean useVillages = true;
+		public boolean useOldCaves = false;
 
 		public Factory()
 		{
 			setDefaults();
-		}
-
-		public void setDefaults()
-		{
-			useDungeons = true;
-			dungeonChance = 8;
-			useMineShafts = true;
-			useStrongholds = true;
-			useTemples = true;
-			maxDistanceBetweenPyramids = 24;
-			useRavines = true;
-			useWaterLakes = true;
-			waterLakeChance = 20;
-			useLavaLakes = true;
-			lavaLakeChance = 256;
-			seaDepth = 5;
 		}
 
 		public static Factory jsonToSettings(String options)
@@ -105,16 +97,38 @@ public class BetaPlusSettings
 				}
 				catch (Exception e)
 				{
-					System.out.println("EXCEPTION OPTIONS");
+					System.out.println("EXCEPTION WITH WORLD OPTIONS");
 					return new Factory();
 				}
 			}
 		}
 
+		public void setDefaults()
+		{
+			useDungeons = true;
+			dungeonChance = 8;
+			useMineShafts = true;
+			useStrongholds = true;
+			useTemples = true;
+			maxDistanceBetweenPyramids = 24;
+			useRavines = true;
+			useWaterLakes = true;
+			waterLakeChance = 20;
+			useLavaLakes = true;
+			lavaLakeChance = 256;
+			seaDepth = 5;
+			useVillages = true;
+			useOldCaves = false;
+		}
+
+		public String toString()
+		{
+			return JSON_ADAPTER.toJson(this);
+		}
+
 		public BetaPlusSettings build()
 		{
-			//Testing
-			return new BetaPlusSettings(new Factory());
+			return new BetaPlusSettings(this);
 		}
 	}
 
@@ -126,7 +140,7 @@ public class BetaPlusSettings
 			BetaPlusSettings.Factory betaPlusFactory = new BetaPlusSettings.Factory();
 			try
 			{
-				//chunkgeneratorsettings$factory.useCaves = JsonUtils.getBoolean(jsonobject, "useCaves", chunkgeneratorsettings$factory.useCaves);
+				betaPlusFactory.useOldCaves = JsonUtils.getBoolean(jsonobject, "useOldCaves", betaPlusFactory.useOldCaves);
 				betaPlusFactory.useDungeons = JsonUtils.getBoolean(jsonobject, "useDungeons", betaPlusFactory.useDungeons);
 				betaPlusFactory.dungeonChance = JsonUtils.getInt(jsonobject, "dungeonChance", betaPlusFactory.dungeonChance);
 				betaPlusFactory.useStrongholds = JsonUtils.getBoolean(jsonobject, "useStrongholds", betaPlusFactory.useStrongholds);
@@ -153,19 +167,20 @@ public class BetaPlusSettings
 		{
 			JsonObject jsonobject = new JsonObject();
 
-			jsonobject.addProperty("useDungeons", Boolean.valueOf(factory.useDungeons));
-			jsonobject.addProperty("dungeonChance", Integer.valueOf(factory.dungeonChance));
-			jsonobject.addProperty("useStrongholds", Boolean.valueOf(factory.useStrongholds));
+			jsonobject.addProperty("useOldCaves", factory.useOldCaves);
+			jsonobject.addProperty("useDungeons", factory.useDungeons);
+			jsonobject.addProperty("dungeonChance", factory.dungeonChance);
+			jsonobject.addProperty("useStrongholds", factory.useStrongholds);
 			//jsonobject.addProperty("useVillages", Boolean.valueOf(settingsFactory.useVillages));
-			jsonobject.addProperty("useMineShafts", Boolean.valueOf(factory.useMineShafts));
-			jsonobject.addProperty("useTemples", Boolean.valueOf(factory.useTemples));
+			jsonobject.addProperty("useMineShafts", factory.useMineShafts);
+			jsonobject.addProperty("useTemples", factory.useTemples);
 			//jsonobject.addProperty("useMonuments", Boolean.valueOf(settingsFactory.useMonuments));
 			//jsonobject.addProperty("useMansions", Boolean.valueOf(settingsFactory.useMansions));
-			jsonobject.addProperty("useRavines", Boolean.valueOf(factory.useRavines));
-			jsonobject.addProperty("useWaterLakes", Boolean.valueOf(factory.useWaterLakes));
-			jsonobject.addProperty("waterLakeChance", Integer.valueOf(factory.waterLakeChance));
-			jsonobject.addProperty("useLavaLakes", Boolean.valueOf(factory.useLavaLakes));
-			jsonobject.addProperty("lavaLakeChance", Integer.valueOf(factory.lavaLakeChance));
+			jsonobject.addProperty("useRavines", factory.useRavines);
+			jsonobject.addProperty("useWaterLakes", factory.useWaterLakes);
+			jsonobject.addProperty("waterLakeChance", factory.waterLakeChance);
+			jsonobject.addProperty("useLavaLakes", factory.useLavaLakes);
+			jsonobject.addProperty("lavaLakeChance", factory.lavaLakeChance);
 			return jsonobject;
 		}
 	}

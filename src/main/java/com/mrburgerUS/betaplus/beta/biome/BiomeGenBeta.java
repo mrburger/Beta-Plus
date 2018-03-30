@@ -23,7 +23,9 @@ public enum BiomeGenBeta implements BetaPlusBiome
 	deepOcean(Biomes.DEEP_OCEAN),
 	beach(Biomes.BEACH),
 	roofForest(Biomes.ROOFED_FOREST),
-	iceSpikes(Biomes.MUTATED_ICE_FLATS);
+	mountain(Biomes.EXTREME_HILLS),
+	iceSpikes(Biomes.MUTATED_ICE_FLATS),
+	megaTaiga(Biomes.REDWOOD_TAIGA);
 
 	//Overrides
 	@Override
@@ -45,12 +47,12 @@ public enum BiomeGenBeta implements BetaPlusBiome
 	private static final BiomeGenBeta[] biomeLookupTable;
 
 	//Constructors
-	private BiomeGenBeta(Biome handle)
+	BiomeGenBeta(Biome handle)
 	{
 		this(handle, (Block) Blocks.GRASS, Blocks.DIRT);
 	}
 
-	private BiomeGenBeta(Biome biomeHandle, Block top, Block filler)
+	BiomeGenBeta(Biome biomeHandle, Block top, Block filler)
 	{
 		handle = biomeHandle;
 		topBlock = top;
@@ -84,10 +86,12 @@ public enum BiomeGenBeta implements BetaPlusBiome
 		return biomeLookupTable[var4 + var5 * 64];
 	}
 
+	/*
 	public static BiomeGenBeta getBiome(float temperature, float humidity)
 	{
 		return temperature < 0.1f ? tundra : (humidity < 0.2f ? (temperature < 0.5f ? tundra : (temperature < 0.95f ? savanna : desert)) : (humidity > 0.5f && temperature < 0.7f ? swampland : (temperature < 0.5f ? taiga : (temperature < 0.97f ? (humidity < 0.35f ? shrubland : forest) : (humidity < 0.45f ? plains : ((humidity *= temperature) < 0.9f ? seasonalForest : rainforest))))));
 	}
+	*/
 
 	public static BiomeGenBeta getBiomeNew(float temperature, float humidity)
 	{
@@ -96,7 +100,7 @@ public enum BiomeGenBeta implements BetaPlusBiome
 		{
 			betaBiome = iceSpikes;
 		}
-		else if (humidity < 0.2 && temperature < 0.5)
+		else if (humidity < 0.15 && temperature < 0.5)
 		{
 			betaBiome = tundra;
 		}
@@ -108,17 +112,21 @@ public enum BiomeGenBeta implements BetaPlusBiome
 		{
 			betaBiome = desert;
 		}
-		else if (humidity > 0.5 && temperature < 0.5)
+		else if (humidity > 0.5 && temperature < 0.45)
 		{
 			betaBiome = roofForest;
 		}
-		else if (humidity > 0.5 && temperature < 0.7)
+		else if (humidity > 0.6 && temperature < 0.7)
 		{
 			betaBiome = swampland;
 		}
 		else if (humidity > 0.5 && temperature < 0.5)
 		{
 			betaBiome = taiga;
+		}
+		else if (humidity > 0.5 && temperature < 0.65)
+		{
+			betaBiome = megaTaiga;
 		}
 		else if (temperature < 0.97 && humidity < 0.35)
 		{
@@ -132,7 +140,7 @@ public enum BiomeGenBeta implements BetaPlusBiome
 		{
 			betaBiome = plains;
 		}
-		else if ((humidity *= temperature) < 0.9)
+		else if ((humidity * temperature) < 0.9)
 		{
 			betaBiome = seasonalForest;
 		}

@@ -13,12 +13,13 @@ public class WorldTypeBetaPlus extends WorldType
 {
 	public static void register()
 	{
+		System.out.println("Registering Beta+");
 		new WorldTypeBetaPlus();
 	}
 
 	private WorldTypeBetaPlus()
 	{
-		super("beta_plus");
+		super("BETA_PLUS");
 	}
 
 	protected WorldTypeBetaPlus(String name)
@@ -52,9 +53,8 @@ public class WorldTypeBetaPlus extends WorldType
 	}
 
 	@Override
-	//Disabled until 0.25
 	public boolean isCustomizable()
 	{
-		return false;
+		return true;
 	}
 }

@@ -7,11 +7,11 @@ public class ServerProxy extends CommonProxy
 {
 	public void preInit(FMLPreInitializationEvent event)
 	{
-
+		super.preInit(event);
 	}
 
 	public void init(FMLInitializationEvent event)
 	{
-
+		super.init(event);
 	}
 }
