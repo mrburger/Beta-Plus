@@ -2,7 +2,9 @@ package com.mrburgerUS.betaplus.beta;
 
 import com.mrburgerUS.betaplus.BetaPlusSettings;
 import com.mrburgerUS.betaplus.beta.biome.BiomeGenBeta;
-import com.mrburgerUS.betaplus.beta.feature.decoration.*;
+import com.mrburgerUS.betaplus.beta.biome.MesaBetaHelper;
+import com.mrburgerUS.betaplus.beta.feature.decoration.WorldGenMinableBeta;
+import com.mrburgerUS.betaplus.beta.feature.decoration.WorldGenSnowLayerBeta;
 import com.mrburgerUS.betaplus.beta.feature.structure.*;
 import com.mrburgerUS.betaplus.beta.feature.terrain.MapGenCaves;
 import com.mrburgerUS.betaplus.beta.noise.NoiseGeneratorOctavesBeta;
@@ -19,6 +21,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraft.world.gen.MapGenRavine;
+import net.minecraft.world.gen.NoiseGeneratorPerlin;
 import net.minecraft.world.gen.feature.WorldGenLakes;
 import net.minecraft.world.gen.structure.MapGenMineshaft;
 import net.minecraft.world.gen.structure.MapGenStronghold;
@@ -36,7 +39,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 	private World worldObj;
 	public static Biome[] biomesForGeneration;
 	public static final int seaLevel = 64;
-	public static final int highAltitude = 100;
+	public static final int highAltitude = 112;
 	//Noise Generators
 	private NoiseGeneratorOctavesBeta octaves1;
 	private NoiseGeneratorOctavesBeta octaves2;
@@ -45,7 +48,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 	private NoiseGeneratorOctavesBeta octaves5;
 	private NoiseGeneratorOctavesBeta octaves6;
 	private NoiseGeneratorOctavesBeta octaves7;
-	private NoiseGeneratorOctavesBeta mobSpawnerNoise;
+	private NoiseGeneratorPerlin mesaNoise; //I DONT CARE THAT IM MIXING IT
 	//Noise Arrays
 	private double[] octaveArr1;
 	private double[] octaveArr2;
@@ -91,7 +94,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		octaves5 = new NoiseGeneratorOctavesBeta(rand, 4);
 		octaves6 = new NoiseGeneratorOctavesBeta(rand, 10);
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
-		mobSpawnerNoise = new NoiseGeneratorOctavesBeta(rand, 8);
+		mesaNoise = new NoiseGeneratorPerlin(this.rand, 4);
 		biomeProvider = new BiomeProviderBeta(world);
 
 		//Set Generators up
@@ -99,7 +102,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		junglePyramidGenerator = new WorldGenJunglePyramid(settings.maxDistanceBetweenPyramids);
 		iglooGenerator = new WorldGenIgloo(settings.maxDistanceBetweenPyramids);
 		swampHutGenerator = new WorldGenSwampHut(settings.maxDistanceBetweenPyramids);
-		villageGenerator = new WorldGenVillage(9);
+		villageGenerator = new WorldGenVillage(48);
 	}
 
 
@@ -154,6 +157,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 			swampHutGenerator.generate(worldObj, x, z, primer);
 		}
 		if (settings.useVillages)
+			villageGenerator.generate(worldObj, x, z, primer);
 
 			//END STRUCTURES GENERATION
 
@@ -193,6 +197,8 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 			iglooGenerator.generateStructure(worldObj, rand, cPos);
 			swampHutGenerator.generateStructure(worldObj, rand, cPos);
 		}
+		if (settings.useVillages)
+			villageGenerator.generateStructure(worldObj, rand, cPos);
 
 		//Lakes
 		if (biomeAtPos != Biomes.DESERT && biomeAtPos != Biomes.DESERT_HILLS && this.rand.nextInt(settings.waterLakeChance) == 0)
@@ -495,7 +501,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 								topBlock = Blocks.WATER;
 							}
 
-							// FILLS IN OCEAN + BEACH + EXTREME HILLS BIOMES
+							// FILLS IN OCEAN + BEACH + EXTREME HILLS BIOMES + MESA SAND
 							if ((y < seaLevel + 1 && y > seaLevel - (settings.seaDepth / 2)) && (topBlock == Blocks.SAND || fillerBlock == Blocks.GRAVEL) && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.desert.handle && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.swampland.handle)
 							{
 								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.beach.handle;
@@ -508,20 +514,29 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 							{
 								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.ocean.handle;
 							}
-							//Not working
 							else if (y >= highAltitude)
 							{
 								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.mountain.handle;
 							}
-							// END OF FILLING OCEANS
+							// END OF FILLING OCEANS, BEACHS, EXTREME HILLS
 
 
 							// Sets top & filler Blocks
 							checkVal = stoneN;
 							if (y >= seaLevel - 1)
 							{
-								chunk.setBlockState(x, y, z, topBlock.getDefaultState());
-								continue;
+								// IF a Mesa
+								if (biomesForGeneration[(x << 4 | z)] == BiomeGenBeta.mesa.handle && topBlock == Blocks.SAND)
+								{
+									//MESA BANDS
+									double[] depthBuffer = mesaNoise.getRegion(null, (double) (x * 16), (double) (z * 16), 16, 16, 0.0625D, 0.0625D, 1.0D);
+									MesaBetaHelper.genTerrainBlocks(worldObj, rand, chunk, x, z, depthBuffer[x + z * 16]);
+								}
+								else
+								{
+									chunk.setBlockState(x, y, z, topBlock.getDefaultState());
+									continue;
+								}
 							}
 							chunk.setBlockState(x, y, z, fillerBlock.getDefaultState());
 							continue;
@@ -538,27 +553,5 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 				}
 			}
 		}
-	}
-
-	private static void decorate(World world, Random random, BlockPos blockPos, Biome biome)
-	{
-		int posX = blockPos.getX();
-		int posZ = blockPos.getZ();
-
-		//Add Trees
-		WorldGenTreesBeta.generateTrees(world, random, blockPos, biome);
-
-		//Add Flowers
-		WorldGenFlowersBeta.generateFlowers(world, random, posX, posZ);
-
-		//Add Grass
-		WorldGenTallGrassBeta.generateTallGrass(world, random, posX, posZ);
-		if (biome == BiomeGenBeta.desert.handle)
-		{
-			WorldGenDeadBushBeta.generateBush(world, random, blockPos);
-		}
-
-		//Add Ores
-		WorldGenMinableBeta.generateOres(world, random, posX / 16, posZ / 16);
 	}
 }

@@ -15,7 +15,7 @@ public enum BiomeGenBeta implements BetaPlusBiome
 	savanna(Biomes.SAVANNA),
 	shrubland(Biomes.PLAINS),
 	taiga(Biomes.COLD_TAIGA),
-	desert(Biomes.DESERT, (Block) Blocks.SAND, (Block) Blocks.SAND),
+	desert(Biomes.DESERT, Blocks.SAND, Blocks.SAND),
 	plains(Biomes.PLAINS),
 	tundra(Biomes.ICE_PLAINS),
 	//New Enums
@@ -25,7 +25,8 @@ public enum BiomeGenBeta implements BetaPlusBiome
 	roofForest(Biomes.ROOFED_FOREST),
 	mountain(Biomes.EXTREME_HILLS),
 	iceSpikes(Biomes.MUTATED_ICE_FLATS),
-	megaTaiga(Biomes.REDWOOD_TAIGA);
+	megaTaiga(Biomes.REDWOOD_TAIGA),
+	mesa(Biomes.MESA, Blocks.SAND, Blocks.HARDENED_CLAY);
 
 	//Overrides
 	@Override
@@ -49,7 +50,7 @@ public enum BiomeGenBeta implements BetaPlusBiome
 	//Constructors
 	BiomeGenBeta(Biome handle)
 	{
-		this(handle, (Block) Blocks.GRASS, Blocks.DIRT);
+		this(handle, Blocks.GRASS, Blocks.DIRT);
 	}
 
 	BiomeGenBeta(Biome biomeHandle, Block top, Block filler)
@@ -74,25 +75,27 @@ public enum BiomeGenBeta implements BetaPlusBiome
 			for (int j = 0; j < 64; ++j)
 			{
 				//EDITED
-				biomeLookupTable[i + j * 64] = getBiomeNew((float) i / 63.0f, (float) j / 63.0f);
+				biomeLookupTable[i + j * 64] = getBiomeBetaPlus((float) i / 63.0f, (float) j / 63.0f);
 			}
 		}
 	}
 
 	public static BiomeGenBeta getBiomeFromLookup(double temperature, double humidity)
 	{
-		int var4 = (int) (temperature * 63.0);
-		int var5 = (int) (humidity * 63.0);
-		return biomeLookupTable[var4 + var5 * 64];
+		int i = (int) (temperature * 63.0);
+		int j = (int) (humidity * 63.0);
+		return biomeLookupTable[i + j * 64];
 	}
 
-	/*
-	public static BiomeGenBeta getBiome(float temperature, float humidity)
+
+	//Original, Ripped from Beta.
+	public static BiomeGenBeta getBiomeOld(float temperature, float humidity)
 	{
 		return temperature < 0.1f ? tundra : (humidity < 0.2f ? (temperature < 0.5f ? tundra : (temperature < 0.95f ? savanna : desert)) : (humidity > 0.5f && temperature < 0.7f ? swampland : (temperature < 0.5f ? taiga : (temperature < 0.97f ? (humidity < 0.35f ? shrubland : forest) : (humidity < 0.45f ? plains : ((humidity *= temperature) < 0.9f ? seasonalForest : rainforest))))));
 	}
-	*/
 
+
+	// Old, used in 0.2
 	public static BiomeGenBeta getBiomeNew(float temperature, float humidity)
 	{
 		BiomeGenBeta betaBiome;
@@ -161,4 +164,70 @@ public enum BiomeGenBeta implements BetaPlusBiome
 		return BiomeGenBeta.plains;
 	}
 
+
+	public static BiomeGenBeta getBiomeBetaPlus(float temperature, float humidity)
+	{
+		humidity *= temperature;
+		if (temperature < 0.1)
+		{
+			return iceSpikes;
+		}
+		//Mesas? In MY house?
+		else if (temperature > 0.98 && humidity < 0.025)
+		{
+			return mesa;
+		}
+		else if (humidity < 0.2)
+		{
+			if (temperature < 0.5)
+			{
+				return tundra;
+			}
+			else if (temperature < 0.9)
+			{
+				return savanna;
+			}
+			else
+				return desert;
+		}
+		else if (humidity > 0.55 && temperature < 0.7)
+		{
+			if (temperature < 0.6)
+			{
+				return roofForest;
+			}
+			else
+				return swampland;
+		}
+		else if (temperature < 0.5)
+		{
+			if (humidity < 0.35)
+				return taiga;
+			else
+				return megaTaiga;
+		}
+		else if (temperature < 0.97)
+		{
+			if (humidity < 0.35)
+			{
+				return plains;
+			}
+			else
+			{
+				return forest;
+			}
+		}
+		else if (humidity < 0.45)
+		{
+			return plains;
+		}
+		else if (humidity < 0.9)
+		{
+			return seasonalForest;
+		}
+		else
+		{
+			return rainforest;
+		}
+	}
 }

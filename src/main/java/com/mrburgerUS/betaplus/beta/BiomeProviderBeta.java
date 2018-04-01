@@ -76,16 +76,16 @@ public class BiomeProviderBeta extends BiomeProvider
 				double var9 = noise[counter] * 1.1 + 0.5;
 				double oneHundredth = 0.01;
 				double point99 = 1.0 - oneHundredth;
-				double var15 = (temperatures[counter] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
+				double temperatureVal = (temperatures[counter] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
 				oneHundredth = 0.002;
 				point99 = 1.0 - oneHundredth;
-				double var17 = (humidities[counter] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
-				var15 = 1.0 - (1.0 - var15) * (1.0 - var15);
-				var15 = MathHelper.clamp(var15, 0.0, 1.0);
-				var17 = MathHelper.clamp(var17, 0.0, 1.0);
-				temperatures[counter] = var15;
-				humidities[counter] = var17;
-				biomeBases[counter++] = BiomeGenBeta.getBiomeFromLookup(var15, var17).handle;
+				double humidityVal = (humidities[counter] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
+				temperatureVal = 1.0 - (1.0 - temperatureVal) * (1.0 - temperatureVal);
+				temperatureVal = MathHelper.clamp(temperatureVal, 0.0, 1.0);
+				humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
+				temperatures[counter] = temperatureVal;
+				humidities[counter] = humidityVal;
+				biomeBases[counter++] = BiomeGenBeta.getBiomeFromLookup(temperatureVal, humidityVal).handle;
 			}
 		}
 		return biomeBases;

@@ -12,7 +12,7 @@ import java.util.Random;
 
 public class WorldGenVillage extends MapGenStructure
 {
-	public static List<BiomeGenBeta> VILLAGE_SPAWN_BIOMES = Arrays.<BiomeGenBeta>asList(BiomeGenBeta.desert, BiomeGenBeta.shrubland);
+	public static List<BiomeGenBeta> VILLAGE_SPAWN_BIOMES = Arrays.<BiomeGenBeta>asList(BiomeGenBeta.desert, BiomeGenBeta.plains);
 
 	private int size;
 	private int distance;
@@ -21,7 +21,7 @@ public class WorldGenVillage extends MapGenStructure
 	{
 		this.distance = dist;
 		//Temporary
-		this.size = 100;
+		this.size = 0;
 	}
 
 	public String getStructureName()
