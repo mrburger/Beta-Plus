@@ -26,7 +26,9 @@ public enum BiomeGenBeta implements BetaPlusBiome
 	mountain(Biomes.EXTREME_HILLS),
 	iceSpikes(Biomes.MUTATED_ICE_FLATS),
 	megaTaiga(Biomes.REDWOOD_TAIGA),
-	mesa(Biomes.MESA, Blocks.SAND, Blocks.HARDENED_CLAY);
+	mesa(Biomes.MESA, Blocks.SAND, Blocks.HARDENED_CLAY),
+	birchForest(Biomes.BIRCH_FOREST),
+	flowerPlains(Biomes.MUTATED_PLAINS);
 
 	//Overrides
 	@Override
@@ -75,7 +77,7 @@ public enum BiomeGenBeta implements BetaPlusBiome
 			for (int j = 0; j < 64; ++j)
 			{
 				//EDITED
-				biomeLookupTable[i + j * 64] = getBiomeBetaPlus((float) i / 63.0f, (float) j / 63.0f);
+				biomeLookupTable[i + j * 64] = getBiome3((float) i / 63.0f, (float) j / 63.0f);
 			}
 		}
 	}
@@ -165,6 +167,7 @@ public enum BiomeGenBeta implements BetaPlusBiome
 	}
 
 
+	//0.2.1
 	public static BiomeGenBeta getBiomeBetaPlus(float temperature, float humidity)
 	{
 		humidity *= temperature;
@@ -173,7 +176,7 @@ public enum BiomeGenBeta implements BetaPlusBiome
 			return iceSpikes;
 		}
 		//Mesas? In MY house?
-		else if (temperature > 0.98 && humidity < 0.025)
+		else if (temperature > 0.9825 && humidity < 0.02)
 		{
 			return mesa;
 		}
@@ -192,7 +195,7 @@ public enum BiomeGenBeta implements BetaPlusBiome
 		}
 		else if (humidity > 0.55 && temperature < 0.7)
 		{
-			if (temperature < 0.6)
+			if (temperature < 0.65)
 			{
 				return roofForest;
 			}
@@ -229,5 +232,68 @@ public enum BiomeGenBeta implements BetaPlusBiome
 		{
 			return rainforest;
 		}
+	}
+
+	//0.3, Needs TWEAKING
+	private static BiomeGenBeta getBiome3(double temperature, double humidity)
+	{
+		humidity *= temperature;
+		if (temperature < 0.5)
+		{
+			if ((temperature < 0.1))
+			{
+				return iceSpikes;
+			}
+			if (humidity < 0.2)
+			{
+				return tundra;
+			}
+			return taiga;
+		}
+		if (temperature < 0.9375)
+		{
+			if (humidity < 0.2)
+			{
+				if (temperature > 0.8)
+				{
+					return savanna;
+				}
+				return plains;
+			}
+			if (humidity > 0.7)
+			{
+				return swampland;
+			}
+			if (humidity > 0.6)
+			{
+				return roofForest;
+			}
+			if (temperature < 0.7)
+			{
+				return megaTaiga;
+			}
+			if (humidity < 0.3)
+			{
+				if (humidity > 0.23)
+				{
+					return birchForest;
+				}
+				return seasonalForest;
+			}
+			return forest;
+		}
+		if (humidity < 0.2)
+		{
+			if (temperature > 0.98 && humidity < 0.02)
+			{
+				return mesa;
+			}
+			return desert;
+		}
+		if (humidity > 0.75D)
+		{
+			return rainforest;
+		}
+		return plains;
 	}
 }

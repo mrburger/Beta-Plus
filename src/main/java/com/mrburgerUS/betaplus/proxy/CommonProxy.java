@@ -2,6 +2,7 @@ package com.mrburgerUS.betaplus.proxy;
 
 import com.mrburgerUS.betaplus.forge.WorldTypeBetaPlus;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 public class CommonProxy
@@ -12,6 +13,11 @@ public class CommonProxy
 	}
 
 	public void init(FMLInitializationEvent event)
+	{
+
+	}
+
+	public void postInit(FMLPostInitializationEvent event)
 	{
 	}
 }

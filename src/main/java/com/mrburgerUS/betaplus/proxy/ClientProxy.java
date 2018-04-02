@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 @Mod.EventBusSubscriber(Side.CLIENT)
@@ -20,6 +21,12 @@ public class ClientProxy extends CommonProxy
 	{
 		super.init(event);
 		ClientProxy.generateBetaColors();
+	}
+
+	@Override
+	public void postInit(FMLPostInitializationEvent event)
+	{
+		super.postInit(event);
 	}
 
 

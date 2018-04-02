@@ -6,6 +6,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.ColorizerGrass;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeProvider;
 
@@ -25,7 +26,7 @@ public class BiomeProviderBeta extends BiomeProvider
 	public Biome[] biomeBaseArray;
 	private List<Biome> SPAWN_BIOMES = Arrays.asList(BiomeGenBeta.beach.handle, BiomeGenBeta.desert.handle);
 
-	public BiomeProviderBeta(World world)
+	public BiomeProviderBeta(World world, WorldType type)
 	{
 		octave1 = new NoiseGeneratorOctavesOld(new Random(world.getSeed() * 9871), 4);
 		octave2 = new NoiseGeneratorOctavesOld(new Random(world.getSeed() * 39811), 4);

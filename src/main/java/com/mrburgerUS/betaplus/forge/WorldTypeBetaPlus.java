@@ -36,7 +36,7 @@ public class WorldTypeBetaPlus extends WorldType
 	@Override
 	public BiomeProvider getBiomeProvider(World world)
 	{
-		return new BiomeProviderBeta(world);
+		return new BiomeProviderBeta(world, this);
 	}
 
 	@Override

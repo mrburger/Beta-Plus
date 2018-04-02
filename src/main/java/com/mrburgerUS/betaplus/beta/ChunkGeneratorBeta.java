@@ -36,10 +36,10 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 
 	//Fields
 	private Random rand;
-	private World worldObj;
+	public World worldObj;
 	public static Biome[] biomesForGeneration;
 	public static final int seaLevel = 64;
-	public static final int highAltitude = 112;
+	public static final int highAltitude = 116;
 	//Noise Generators
 	private NoiseGeneratorOctavesBeta octaves1;
 	private NoiseGeneratorOctavesBeta octaves2;
@@ -95,7 +95,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		octaves6 = new NoiseGeneratorOctavesBeta(rand, 10);
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
 		mesaNoise = new NoiseGeneratorPerlin(this.rand, 4);
-		biomeProvider = new BiomeProviderBeta(world);
+		biomeProvider = new BiomeProviderBeta(world, world.getWorldType());
 
 		//Set Generators up
 		desertPyramidGenerator = new WorldGenDesertPyramid(settings.maxDistanceBetweenPyramids);
