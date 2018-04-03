@@ -86,7 +86,7 @@ public class BiomeProviderBeta extends BiomeProvider
 				humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
 				temperatures[counter] = temperatureVal;
 				humidities[counter] = humidityVal;
-				biomeBases[counter++] = BiomeGenBeta.getBiomeFromLookup(temperatureVal, humidityVal).handle;
+				biomeBases[counter++] = BiomeGenBeta.getBiomeFromLookup(temperatureVal, humidityVal);
 			}
 		}
 		return biomeBases;

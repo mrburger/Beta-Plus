@@ -30,7 +30,7 @@ public class NoiseGeneratorOctavesBeta
 		return returnVal;
 	}
 
-	public double[] generateNoiseOctaves(double[] doubles, double var2, double var4, double var6, int var8, int var9, int var10, double var11, double var13, double var15)
+	public double[] generateNoiseOctaves(double[] doubles, double xC, double var4, double var6, int var8, int var9, int var10, double var11, double var13, double var15)
 	{
 		if (doubles == null)
 		{
@@ -46,7 +46,7 @@ public class NoiseGeneratorOctavesBeta
 		double descendingMult = 1.0D;
 		for (int i = 0; i < boundNum; i++)
 		{
-			generatorCollection[i].func_805_a(doubles, var2, var4, var6, var8, var9, var10, var11 * descendingMult, var13 * descendingMult, var15 * descendingMult, descendingMult);
+			generatorCollection[i].generate(doubles, xC, var4, var6, var8, var9, var10, var11 * descendingMult, var13 * descendingMult, var15 * descendingMult, descendingMult);
 			descendingMult /= 2.0D;
 		}
 		return doubles;

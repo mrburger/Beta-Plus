@@ -74,7 +74,7 @@ public class BetaPlusSettings
 		public int waterLakeChance = 20;
 		public boolean useLavaLakes = true;
 		public int lavaLakeChance = 256;
-		public int seaDepth = 5;
+		public int seaDepth = 7;
 		public boolean useVillages = true;
 		public boolean useOldCaves = false;
 
@@ -116,7 +116,7 @@ public class BetaPlusSettings
 			waterLakeChance = 20;
 			useLavaLakes = true;
 			lavaLakeChance = 256;
-			seaDepth = 5;
+			seaDepth = 7;
 			useVillages = true;
 			useOldCaves = false;
 		}

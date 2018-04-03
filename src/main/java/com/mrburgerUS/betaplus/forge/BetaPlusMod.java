@@ -13,7 +13,7 @@ public class BetaPlusMod
 	//Definitions
 	static final String MODID = "betaplus";
 	static final String NAME = "Beta+";
-	static final String VERSION = "0.2.1";
+	static final String VERSION = "0.3";
 
 	@SidedProxy(clientSide = "com.mrburgerUS.betaplus.proxy.ClientProxy", serverSide = "com.mrburgerUS.betaplus.proxy.ServerProxy")
 	public static CommonProxy proxy;

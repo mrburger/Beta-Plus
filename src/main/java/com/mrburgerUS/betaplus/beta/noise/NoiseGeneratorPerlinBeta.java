@@ -103,9 +103,7 @@ public class NoiseGeneratorPerlinBeta extends NoiseGenerator
 		return generateNoise(d, d1, 0.0D);
 	}
 
-	public void func_805_a(double ad[], double d, double d1, double d2,
-						   int i, int j, int k, double d3, double d4,
-						   double d5, double d6)
+	public void generate(double doubles[], double x, double z, double d2, int i, int j, int k, double d3, double d4, double d5, double d6)
 	{
 		if (j == 1)
 		{
@@ -119,7 +117,7 @@ public class NoiseGeneratorPerlinBeta extends NoiseGenerator
 			double d12 = 1.0D / d6;
 			for (int i4 = 0; i4 < i; i4++)
 			{
-				double d14 = (d + (double) i4) * d3 + xCoord;
+				double d14 = (x + (double) i4) * d3 + xCoord;
 				int j4 = (int) d14;
 				if (d14 < (double) j4)
 				{
@@ -146,7 +144,7 @@ public class NoiseGeneratorPerlinBeta extends NoiseGenerator
 					double d9 = lerp(d17, func_4110_a(permutations[j1], d14, d19), grad(permutations[l1], d14 - 1.0D, 0.0D, d19));
 					double d11 = lerp(d17, grad(permutations[j1 + 1], d14, 0.0D, d19 - 1.0D), grad(permutations[l1 + 1], d14 - 1.0D, 0.0D, d19 - 1.0D));
 					double d23 = lerp(d21, d9, d11);
-					ad[j3++] += d23 * d12;
+					doubles[j3++] += d23 * d12;
 				}
 
 			}
@@ -162,7 +160,7 @@ public class NoiseGeneratorPerlinBeta extends NoiseGenerator
 		double d18 = 0.0D;
 		for (int i5 = 0; i5 < i; i5++)
 		{
-			double d20 = (d + (double) i5) * d3 + xCoord;
+			double d20 = (x + (double) i5) * d3 + xCoord;
 			int k5 = (int) d20;
 			if (d20 < (double) k5)
 			{
@@ -184,7 +182,7 @@ public class NoiseGeneratorPerlinBeta extends NoiseGenerator
 				double d25 = d24 * d24 * d24 * (d24 * (d24 * 6D - 15D) + 10D);
 				for (int i7 = 0; i7 < j; i7++)
 				{
-					double d26 = (d1 + (double) i7) * d4 + yCoord;
+					double d26 = (z + (double) i7) * d4 + yCoord;
 					int j7 = (int) d26;
 					if (d26 < (double) j7)
 					{
@@ -210,7 +208,7 @@ public class NoiseGeneratorPerlinBeta extends NoiseGenerator
 					double d28 = lerp(d27, d13, d15);
 					double d29 = lerp(d27, d16, d18);
 					double d30 = lerp(d25, d28, d29);
-					ad[i1++] += d30 * d7;
+					doubles[i1++] += d30 * d7;
 				}
 			}
 		}

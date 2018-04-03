@@ -1,14 +1,14 @@
 package com.mrburgerUS.betaplus.beta;
 
 import com.mrburgerUS.betaplus.BetaPlusSettings;
-import com.mrburgerUS.betaplus.beta.biome.BiomeGenBeta;
 import com.mrburgerUS.betaplus.beta.biome.MesaBetaHelper;
-import com.mrburgerUS.betaplus.beta.feature.decoration.WorldGenMinableBeta;
 import com.mrburgerUS.betaplus.beta.feature.decoration.WorldGenSnowLayerBeta;
 import com.mrburgerUS.betaplus.beta.feature.structure.*;
 import com.mrburgerUS.betaplus.beta.feature.terrain.MapGenCaves;
 import com.mrburgerUS.betaplus.beta.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockSand;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
@@ -48,7 +48,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 	private NoiseGeneratorOctavesBeta octaves5;
 	private NoiseGeneratorOctavesBeta octaves6;
 	private NoiseGeneratorOctavesBeta octaves7;
-	private NoiseGeneratorPerlin mesaNoise; //I DONT CARE THAT IM MIXING IT
+	private NoiseGeneratorPerlin surfaceNoise; //I DONT CARE THAT IM MIXING IT
 	//Noise Arrays
 	private double[] octaveArr1;
 	private double[] octaveArr2;
@@ -94,7 +94,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		octaves5 = new NoiseGeneratorOctavesBeta(rand, 4);
 		octaves6 = new NoiseGeneratorOctavesBeta(rand, 10);
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
-		mesaNoise = new NoiseGeneratorPerlin(this.rand, 4);
+		surfaceNoise = new NoiseGeneratorPerlin(this.rand, 4);
 		biomeProvider = new BiomeProviderBeta(world, world.getWorldType());
 
 		//Set Generators up
@@ -117,8 +117,13 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		ChunkPrimer primer = new ChunkPrimer();
 		//Generate Basic Terrain
 		generateTerrain(x, z, primer);
+		//Replace Biomes
+		replaceBiomes(primer);
 		//Add Grass or Sand or Gravel fill
-		replaceBlocksForBiome(x, z, primer, biomesForGeneration);
+		replaceBlocksForBiomeOlder(x, z, primer, biomesForGeneration);
+		//replaceBlocksForBiome(x, z, primer, biomesForGeneration);
+
+
 		//Make Caves
 		if (settings.useOldCaves)
 		{
@@ -159,9 +164,9 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		if (settings.useVillages)
 			villageGenerator.generate(worldObj, x, z, primer);
 
-			//END STRUCTURES GENERATION
+		//END STRUCTURES GENERATION
 
-			chunk.generateSkylightMap();
+		chunk.generateSkylightMap();
 		return chunk;
 	}
 
@@ -177,10 +182,6 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 
 		//Decorate Vanilla Plus
 		biomeAtPos.decorate(worldObj, rand, blockPos);
-		if (biomeAtPos == BiomeGenBeta.seasonalForest.handle)
-		{
-			WorldGenMinableBeta.generateOre(worldObj, rand, x, z, 1, 16, 4, Blocks.EMERALD_ORE.getDefaultState());
-		}
 		WorldGenSnowLayerBeta.generateSnow(worldObj, cPos);
 
 		//Features
@@ -201,7 +202,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 			villageGenerator.generateStructure(worldObj, rand, cPos);
 
 		//Lakes
-		if (biomeAtPos != Biomes.DESERT && biomeAtPos != Biomes.DESERT_HILLS && this.rand.nextInt(settings.waterLakeChance) == 0)
+		if (biomeAtPos != Biomes.DESERT && biomeAtPos != Biomes.DESERT_HILLS && this.rand.nextInt(settings.waterLakeChance) == 0 && settings.useWaterLakes)
 		{
 			int i1 = this.rand.nextInt(16) + 8;
 			int j1 = this.rand.nextInt(256);
@@ -210,7 +211,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		}
 		//Lava Lakes
 		int addY = this.rand.nextInt(this.rand.nextInt(248) + 8);
-		if (addY < worldObj.getSeaLevel() - 2 || this.rand.nextInt(settings.lavaLakeChance) == 0)
+		if (addY < worldObj.getSeaLevel() - 2 || this.rand.nextInt(settings.lavaLakeChance) == 0 && settings.useLavaLakes)
 		{
 			int addX = this.rand.nextInt(16) + 8;
 			int addZ = this.rand.nextInt(16) + 8;
@@ -272,7 +273,6 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 	public void generateTerrain(int chunkX, int chunkZ, ChunkPrimer chunk)
 	{
 		int four = 4;
-		int sixtyFour = 64;
 		int var8 = four + 1;
 		int seventeen = 17;
 		int fiver = four + 1;
@@ -310,7 +310,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 							for (int n = 0; n < 4; ++n)
 							{
 								Block block = null;
-								if (k * 8 + l < sixtyFour)
+								if (k * 8 + l < seaLevel)
 								{
 									//Removed Ice Gen from Here
 									block = Blocks.WATER;
@@ -430,7 +430,8 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		return values;
 	}
 
-	public void replaceBlocksForBiome(int chunkX, int chunkZ, ChunkPrimer chunk, Biome[] biomes)
+
+	public void replaceBlocksForBiomeOlder(int chunkX, int chunkZ, ChunkPrimer chunkPrimer, Biome[] biomes)
 	{
 		double thirtySecond = 0.03125;
 		this.sandNoise = this.octaves4.generateNoiseOctaves(this.sandNoise, chunkX * 16, chunkZ * 16, 0.0, 16, 16, 1, thirtySecond, thirtySecond, 1.0);
@@ -440,24 +441,24 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		{
 			for (int x = 0; x < 16; ++x)
 			{
-				BiomeGenBeta biome = BiomeGenBeta.getBiomeBeta(biomes[z + x * 16]);
+				Biome biome = biomes[z + x * 16];
 				boolean sandN = this.sandNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 0.0;
 				boolean gravelN = this.gravelNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 3.0;
 				int stoneN = (int) (this.stoneNoise[z + x * 16] / 3.0 + 3.0 + this.rand.nextDouble() * 0.25);
 				int checkVal = -1;
-				Block topBlock = biome.topBlock;
-				Block fillerBlock = biome.fillerBlock;
+				IBlockState topBlock = biome.topBlock;
+				IBlockState fillerBlock = biome.fillerBlock;
 
 				// GO from Top to bottom of world
 				for (int y = 127; y >= 0; --y)
 				{
 					if (y <= this.rand.nextInt(5))
 					{
-						chunk.setBlockState(x, y, z, Blocks.BEDROCK.getDefaultState());
+						chunkPrimer.setBlockState(x, y, z, Blocks.BEDROCK.getDefaultState());
 					}
 					else
 					{
-						Block block = chunk.getBlockState(x, y, z).getBlock();
+						Block block = chunkPrimer.getBlockState(x, y, z).getBlock();
 
 						if (block == Blocks.AIR)
 						{
@@ -472,8 +473,8 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 						{
 							if (stoneN <= 0)
 							{
-								topBlock = Blocks.AIR;
-								fillerBlock = Blocks.STONE;
+								topBlock = Blocks.AIR.getDefaultState();
+								fillerBlock = Blocks.STONE.getDefaultState();
 							}
 							else if (y >= seaLevel - 4 && y <= seaLevel + 1)
 							{
@@ -481,77 +482,114 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 								fillerBlock = biome.fillerBlock;
 								if (gravelN)
 								{
-									topBlock = Blocks.AIR;
+									topBlock = Blocks.AIR.getDefaultState();
 								}
 								if (gravelN)
 								{
-									fillerBlock = Blocks.GRAVEL;
+									fillerBlock = Blocks.GRAVEL.getDefaultState();
 								}
 								if (sandN)
 								{
-									topBlock = Blocks.SAND;
+									topBlock = Blocks.SAND.getDefaultState();
 								}
 								if (sandN)
 								{
-									fillerBlock = Blocks.SAND;
+									fillerBlock = Blocks.SAND.getDefaultState();
 								}
 							}
-							if (y < seaLevel && topBlock == Blocks.AIR)
+							if (y < seaLevel && topBlock == Blocks.AIR.getDefaultState())
 							{
-								topBlock = Blocks.WATER;
+								topBlock = Blocks.WATER.getDefaultState();
 							}
 
-							// FILLS IN OCEAN + BEACH + EXTREME HILLS BIOMES + MESA SAND
-							if ((y < seaLevel + 1 && y > seaLevel - (settings.seaDepth / 2)) && (topBlock == Blocks.SAND || fillerBlock == Blocks.GRAVEL) && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.desert.handle && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.swampland.handle)
+							//Inject Beaches
+							if ((y < seaLevel + 1 && y > seaLevel - 3) && (topBlock == Blocks.SAND.getDefaultState() || fillerBlock == Blocks.GRAVEL.getDefaultState()) && biomesForGeneration[(x << 4 | z)] != Biomes.DESERT && biomesForGeneration[(x << 4 | z)] != Biomes.SWAMPLAND)
 							{
-								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.beach.handle;
+								biomesForGeneration[(x << 4 | z)] = Biomes.BEACH;
 							}
-							else if (y <= seaLevel - settings.seaDepth)
-							{
-								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.deepOcean.handle;
-							}
-							else if (y < seaLevel - 1 && biomesForGeneration[(x << 4 | z)] != BiomeGenBeta.swampland.handle)
-							{
-								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.ocean.handle;
-							}
-							else if (y >= highAltitude)
-							{
-								biomesForGeneration[(x << 4 | z)] = BiomeGenBeta.mountain.handle;
-							}
-							// END OF FILLING OCEANS, BEACHS, EXTREME HILLS
 
 
 							// Sets top & filler Blocks
 							checkVal = stoneN;
 							if (y >= seaLevel - 1)
 							{
-								// IF a Mesa
-								if (biomesForGeneration[(x << 4 | z)] == BiomeGenBeta.mesa.handle && topBlock == Blocks.SAND)
+								//Catch Mesas
+								if (biome == Biomes.MESA)
 								{
-									//MESA BANDS
-									double[] depthBuffer = mesaNoise.getRegion(null, (double) (x * 16), (double) (z * 16), 16, 16, 0.0625D, 0.0625D, 1.0D);
-									MesaBetaHelper.genTerrainBlocks(worldObj, rand, chunk, x, z, depthBuffer[x + z * 16]);
+									if (y > seaLevel + 1)
+										topBlock = MesaBetaHelper.getBand(x, y, z, worldObj.getSeed());
+									else
+									{
+										topBlock = Blocks.SAND.getDefaultState().withProperty(BlockSand.VARIANT, BlockSand.EnumType.RED_SAND);
+										fillerBlock = Blocks.SAND.getDefaultState().withProperty(BlockSand.VARIANT, BlockSand.EnumType.RED_SAND);
+									}
 								}
-								else
-								{
-									chunk.setBlockState(x, y, z, topBlock.getDefaultState());
-									continue;
-								}
+
+
+								chunkPrimer.setBlockState(x, y, z, topBlock);
+								continue;
 							}
-							chunk.setBlockState(x, y, z, fillerBlock.getDefaultState());
+							chunkPrimer.setBlockState(x, y, z, fillerBlock);
 							continue;
 
 						}
-						if (checkVal <= 0) continue;
-						chunk.setBlockState(x, y, z, fillerBlock.getDefaultState());
-						if (--checkVal != 0 || fillerBlock != Blocks.SAND) continue;
-						checkVal = this.rand.nextInt(4);
-						fillerBlock = Blocks.SANDSTONE;
+
+						//Catch Mesa Again
+						if (biome == Biomes.MESA)
+						{
+							fillerBlock = MesaBetaHelper.getBand(x, y + 1, z, worldObj.getSeed());
+						}
+
+						if (checkVal <= 0)
+							continue;
+						chunkPrimer.setBlockState(x, y, z, fillerBlock);
+						if (--checkVal != 0 || fillerBlock != Blocks.SAND)
+							continue;
+
+						checkVal = rand.nextInt(4);
+						fillerBlock = Blocks.SANDSTONE.getDefaultState();
 
 
 					} //END OF Y LOOP
 				}
 			}
 		}
+	}
+
+	//Replace ALL Biomes EXCEPT BEACHES (they are handled as injections)
+	private void replaceBiomes(ChunkPrimer primer)
+	{
+		for (int z = 0; z < 16; ++z)
+		{
+
+			for (int x = 0; x < 16; ++x)
+			{
+				int yVal = getSolidHeightY(x, z, primer);
+				if (yVal > highAltitude)
+				{
+					biomesForGeneration[(x << 4 | z)] = Biomes.EXTREME_HILLS_WITH_TREES;
+				}
+				else if (yVal < seaLevel - 2)
+				{
+					if (yVal < seaLevel - settings.seaDepth)
+						biomesForGeneration[(x << 4 | z)] = Biomes.DEEP_OCEAN;
+					else
+						biomesForGeneration[(x << 4 | z)] = Biomes.OCEAN;
+				}
+			}
+		}
+	}
+
+	private static int getSolidHeightY(int x, int z, ChunkPrimer primer)
+	{
+		for (int y = 130; y >= 0; --y)
+		{
+			Block block = primer.getBlockState(x, y, z).getBlock();
+			if (block != Blocks.AIR && block.getDefaultState().isOpaqueCube())
+			{
+				return y;
+			}
+		}
+		return 0;
 	}
 }

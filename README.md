@@ -22,5 +22,6 @@ My biggest inspiration for modding, the god-AI of all modern Minecraft modding.
 Ported much of the basic noise pattern functions I based this mod on. Maker of OWG, the predecessor to this mod
 
 ## TO DO
-* Add Configuration file based features
-* Add Configuration GUI if possible.
+* Finish Configuration GUI
+* Allow modded biome spawning
+* Fix Vanilla Biome Methods
