@@ -74,18 +74,19 @@ public class GuiCustomizeBeta extends GuiScreen implements GuiSlider.FormatHelpe
 				{
 						new GuiPageButtonList.GuiButtonEntry(GuiHelper.oldCaveId, I18n.format("createWorld.customize.custom.useOldCaves"), true, settingsFactory.useOldCaves),
 						new GuiPageButtonList.GuiButtonEntry(GuiHelper.strongholdId, I18n.format("createWorld.customize.custom.useStrongholds"), true, settingsFactory.useStrongholds),
-						//new GuiPageButtonList.GuiButtonEntry(151, I18n.format("createWorld.customize.custom.useVillages"), true, settings.useVillages),
+						new GuiPageButtonList.GuiButtonEntry(GuiHelper.villageId, I18n.format("createWorld.customize.custom.useVillages"), true, settingsFactory.useVillages),
 						new GuiPageButtonList.GuiButtonEntry(GuiHelper.mineshaftId, I18n.format("createWorld.customize.custom.useMineShafts"), true, settingsFactory.useMineShafts),
 						new GuiPageButtonList.GuiButtonEntry(GuiHelper.templeId, I18n.format("createWorld.customize.custom.useTemples"), true, settingsFactory.useTemples),
 						//new GuiPageButtonList.GuiButtonEntry(210, I18n.format("createWorld.customize.custom.useMonuments"), true, settings.useMonuments),
 						// new GuiPageButtonList.GuiButtonEntry(211, I18n.format("createWorld.customize.custom.useMansions"), true, settings.useMansions),
 						new GuiPageButtonList.GuiButtonEntry(GuiHelper.ravineId, I18n.format("createWorld.customize.custom.useRavines"), true, settingsFactory.useRavines),
 						new GuiPageButtonList.GuiButtonEntry(GuiHelper.dungeonId, I18n.format("createWorld.customize.custom.useDungeons"), true, settingsFactory.useDungeons),
-						new GuiPageButtonList.GuiSlideEntry(157, I18n.format("createWorld.customize.custom.dungeonChance"), true, this, 1, 100, (float) settingsFactory.dungeonChance),
-						new GuiPageButtonList.GuiButtonEntry(155, I18n.format("createWorld.customize.custom.useWaterLakes"), true, settingsFactory.useWaterLakes),
-						new GuiPageButtonList.GuiSlideEntry(158, I18n.format("createWorld.customize.custom.waterLakeChance"), true, this, 1, 100, (float) settingsFactory.waterLakeChance),
-						new GuiPageButtonList.GuiButtonEntry(156, I18n.format("createWorld.customize.custom.useLavaLakes"), true, settingsFactory.useLavaLakes),
+						new GuiPageButtonList.GuiSlideEntry(GuiHelper.dungeonChance, I18n.format("createWorld.customize.custom.dungeonChance"), true, this, 1, 100, (float) settingsFactory.dungeonChance),
+						new GuiPageButtonList.GuiButtonEntry(GuiHelper.useWaterLakesId, I18n.format("createWorld.customize.custom.useWaterLakes"), true, settingsFactory.useWaterLakes),
+						new GuiPageButtonList.GuiSlideEntry(GuiHelper.waterChanceId, I18n.format("createWorld.customize.custom.waterLakeChance"), true, this, 1, 100, (float) settingsFactory.waterLakeChance),
+						new GuiPageButtonList.GuiButtonEntry(GuiHelper.useLavaLakesId, I18n.format("createWorld.customize.custom.useLavaLakes"), true, settingsFactory.useLavaLakes),
 						new GuiPageButtonList.GuiSlideEntry(159, I18n.format("createWorld.customize.custom.lavaLakeChance"), true, this, 10, 256, (float) settingsFactory.lavaLakeChance),
+						new GuiPageButtonList.GuiSlideEntry(GuiHelper.generatorId, I18n.format("createWorld.customize.custom.generatorType"), true, this, 0, 1, settingsFactory.generatorType)
 				};
 		list = new GuiPageButtonList(mc, width, height, 32, height - 32, 25, this, new GuiPageButtonList.GuiListEntry[][]{entries});
 	}
@@ -115,7 +116,6 @@ public class GuiCustomizeBeta extends GuiScreen implements GuiSlider.FormatHelpe
 				settingsFactory.useMineShafts = value;
 				break;
 			case GuiHelper.templeId:
-				System.out.println("I work");
 				settingsFactory.useTemples = value;
 				break;
 			default:
@@ -128,7 +128,16 @@ public class GuiCustomizeBeta extends GuiScreen implements GuiSlider.FormatHelpe
 	@Override
 	public void setEntryValue(int id, float value)
 	{
-		return;
+		switch (id)
+		{
+			case GuiHelper.generatorId:
+				settingsFactory.generatorType = Math.round(value);
+				break;
+			default:
+				break;
+		}
+
+		setSettingsModified(true);
 	}
 
 	private void setSettingsModified(boolean modified)
@@ -368,7 +377,16 @@ public class GuiCustomizeBeta extends GuiScreen implements GuiSlider.FormatHelpe
 	@Override
 	public String getText(int id, String name, float value)
 	{
-		return name + ": " + value;
+		switch (id)
+		{
+			case GuiHelper.generatorId:
+				if (value > 0.5)
+					return String.format("%s: %s", name, I18n.format("betaplus.modded"));
+				else
+					return String.format("%s: %s", name, I18n.format("betaplus.default"));
+			default:
+				return String.format("%s: %1.1f", name, value);
+		}
 	}
 
 	private void restoreDefaults()

@@ -39,6 +39,8 @@ public class BetaPlusSettings
 	public final int seaDepth;
 	// Which cave Generator to use
 	public final boolean useOldCaves;
+	// Which Biome Generator to use
+	public final int generatorType;
 
 
 	private BetaPlusSettings(BetaPlusSettings.Factory settingsFactory)
@@ -57,6 +59,7 @@ public class BetaPlusSettings
 		seaDepth = settingsFactory.seaDepth;
 		useVillages = settingsFactory.useVillages;
 		useOldCaves = settingsFactory.useOldCaves;
+		generatorType = settingsFactory.generatorType;
 	}
 
 	public static class Factory
@@ -77,6 +80,7 @@ public class BetaPlusSettings
 		public int seaDepth = 7;
 		public boolean useVillages = true;
 		public boolean useOldCaves = false;
+		public int generatorType = 0;
 
 		public Factory()
 		{
@@ -119,6 +123,7 @@ public class BetaPlusSettings
 			seaDepth = 7;
 			useVillages = true;
 			useOldCaves = false;
+			generatorType = 0;
 		}
 
 		public String toString()
@@ -154,6 +159,7 @@ public class BetaPlusSettings
 				betaPlusFactory.waterLakeChance = JsonUtils.getInt(jsonobject, "waterLakeChance", betaPlusFactory.waterLakeChance);
 				betaPlusFactory.useLavaLakes = JsonUtils.getBoolean(jsonobject, "useLavaLakes", betaPlusFactory.useLavaLakes);
 				betaPlusFactory.lavaLakeChance = JsonUtils.getInt(jsonobject, "lavaLakeChance", betaPlusFactory.lavaLakeChance);
+				betaPlusFactory.generatorType = JsonUtils.getInt(jsonobject, "generatorType", betaPlusFactory.generatorType);
 			}
 			catch (Exception e)
 			{
@@ -168,6 +174,7 @@ public class BetaPlusSettings
 			JsonObject jsonobject = new JsonObject();
 
 			jsonobject.addProperty("useOldCaves", factory.useOldCaves);
+			jsonobject.addProperty("generatorType", factory.generatorType);
 			jsonobject.addProperty("useDungeons", factory.useDungeons);
 			jsonobject.addProperty("dungeonChance", factory.dungeonChance);
 			jsonobject.addProperty("useStrongholds", factory.useStrongholds);

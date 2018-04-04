@@ -54,7 +54,7 @@ public class BiomeSelectBeta implements IBiomeSelect
 		}
 		if (humidity < 0.2)
 		{
-			if (temperature > 0.98 && humidity < 0.01)
+			if (temperature > 0.98 && humidity == 0)
 			{
 				return Biomes.MESA;
 			}

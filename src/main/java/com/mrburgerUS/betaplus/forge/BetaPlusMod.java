@@ -7,13 +7,12 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = BetaPlusMod.MODID, name = BetaPlusMod.NAME, version = BetaPlusMod.VERSION, acceptableRemoteVersions = "*")
+@Mod(modid = BetaPlusMod.MODID, name = BetaPlusMod.NAME, acceptableRemoteVersions = "*")
 public class BetaPlusMod
 {
 	//Definitions
 	static final String MODID = "betaplus";
 	static final String NAME = "Beta+";
-	static final String VERSION = "0.3";
 
 	@SidedProxy(clientSide = "com.mrburgerUS.betaplus.proxy.ClientProxy", serverSide = "com.mrburgerUS.betaplus.proxy.ServerProxy")
 	public static CommonProxy proxy;

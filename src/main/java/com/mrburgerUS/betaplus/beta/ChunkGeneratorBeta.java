@@ -95,7 +95,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		octaves6 = new NoiseGeneratorOctavesBeta(rand, 10);
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
 		surfaceNoise = new NoiseGeneratorPerlin(this.rand, 4);
-		biomeProvider = new BiomeProviderBeta(world, world.getWorldType());
+		biomeProvider = new BiomeProviderBeta(world, settings.generatorType);
 
 		//Set Generators up
 		desertPyramidGenerator = new WorldGenDesertPyramid(settings.maxDistanceBetweenPyramids);
