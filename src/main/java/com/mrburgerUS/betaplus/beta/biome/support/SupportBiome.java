@@ -30,6 +30,12 @@ public class SupportBiome
 		{
 			BOPSupport.init();
 		}
+
+		//Add AbyssalCraft
+		if (Loader.isModLoaded("abyssalcraft"))
+		{
+			ACSupport.init();
+		}
 	}
 
 	private static void addDefaults()
