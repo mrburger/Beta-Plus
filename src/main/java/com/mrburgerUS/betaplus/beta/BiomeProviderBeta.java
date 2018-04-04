@@ -1,7 +1,10 @@
 package com.mrburgerUS.betaplus.beta;
 
 import com.mrburgerUS.betaplus.beta.biome.BiomeGenBeta;
+import com.mrburgerUS.betaplus.beta.biome.support.SupportBiome;
 import com.mrburgerUS.betaplus.beta.noise.NoiseGeneratorOctavesOld;
+import com.mrburgerUS.betaplus.beta.noise.PerlinNoise;
+import com.mrburgerUS.betaplus.beta.noise.VoronoiNoiseGenerator;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.ColorizerGrass;
@@ -10,7 +13,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeProvider;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -23,13 +26,38 @@ public class BiomeProviderBeta extends BiomeProvider
 	public double[] humidities;
 	public double[] noise;
 	public Biome[] biomeBaseArray;
-	private List<Biome> SPAWN_BIOMES = Arrays.asList(BiomeGenBeta.beach.handle, BiomeGenBeta.desert.handle);
+	public final int biomeSetting;
 
-	public BiomeProviderBeta(World world)
+	//Added in 0.3
+	public static ArrayList<Biome> snowBiomesList = new ArrayList<>();
+	public static ArrayList<Biome> coldBiomesList = new ArrayList<>();
+	public static ArrayList<Biome> hotBiomesList = new ArrayList<>();
+	public static ArrayList<Biome> wetBiomesList = new ArrayList<>();
+	public static ArrayList<Biome> smallBiomesList = new ArrayList<>();
+
+	//Noise for custom
+	PerlinNoise perlinNoise;
+	VoronoiNoiseGenerator voronoiNoise;
+
+
+	public BiomeProviderBeta(World world, int biomeType)
 	{
 		octave1 = new NoiseGeneratorOctavesOld(new Random(world.getSeed() * 9871), 4);
 		octave2 = new NoiseGeneratorOctavesOld(new Random(world.getSeed() * 39811), 4);
 		octave3 = new NoiseGeneratorOctavesOld(new Random(world.getSeed() * 543321), 2);
+		biomeSetting = biomeType;
+
+		//0.3
+		perlinNoise = new PerlinNoise(world.getSeed());
+		voronoiNoise = new VoronoiNoiseGenerator(world.getSeed(), (short) 0);
+
+		if (biomeSetting == 1)
+		{
+			snowBiomesList.addAll(SupportBiome.snowBiomes);
+			coldBiomesList.addAll(SupportBiome.coldBiomes);
+			hotBiomesList.addAll(SupportBiome.hotBiomes);
+			wetBiomesList.addAll(SupportBiome.wetBiomes);
+		}
 	}
 
 	public Biome[] findBiomeArray(int xPos, int zPos, int width, int depth)
@@ -42,7 +70,7 @@ public class BiomeProviderBeta extends BiomeProvider
 	@Override
 	public List<Biome> getBiomesToSpawnIn()
 	{
-		return SPAWN_BIOMES;
+		return null;
 	}
 
 	@Override
@@ -68,26 +96,74 @@ public class BiomeProviderBeta extends BiomeProvider
 		humidities = octave2.generateOctaves(humidities, xChunk, zChunk, width, width, 0.05000000074505806, 0.05000000074505806, 0.3333333333333333);
 		noise = octave3.generateOctaves(noise, xChunk, zChunk, width, width, 0.25, 0.25, 0.5882352941176471);
 		int counter = 0;
-		for (int i = 0; i < width; ++i)
+		for (int x = 0; x < width; ++x)
 		{
 
-			for (int j = 0; j < height; ++j)
+			for (int z = 0; z < height; ++z)
 			{
 				double var9 = noise[counter] * 1.1 + 0.5;
 				double oneHundredth = 0.01;
 				double point99 = 1.0 - oneHundredth;
-				double var15 = (temperatures[counter] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
+				double temperatureVal = (temperatures[counter] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
 				oneHundredth = 0.002;
 				point99 = 1.0 - oneHundredth;
-				double var17 = (humidities[counter] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
-				var15 = 1.0 - (1.0 - var15) * (1.0 - var15);
-				var15 = MathHelper.clamp(var15, 0.0, 1.0);
-				var17 = MathHelper.clamp(var17, 0.0, 1.0);
-				temperatures[counter] = var15;
-				humidities[counter] = var17;
-				biomeBases[counter++] = BiomeGenBeta.getBiomeFromLookup(var15, var17).handle;
+				double humidityVal = (humidities[counter] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
+				temperatureVal = 1.0 - (1.0 - temperatureVal) * (1.0 - temperatureVal);
+				temperatureVal = MathHelper.clamp(temperatureVal, 0.0, 1.0);
+				humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
+				temperatures[counter] = temperatureVal;
+				humidities[counter] = humidityVal;
+				biomeBases[counter++] = BiomeGenBeta.getBiomeFromLookup(temperatureVal, humidityVal);
 			}
 		}
+
+		//If BiomeType is set to modded, allow biomes to Overwrite
+		if (biomeSetting == 1)
+		{
+			double randomSelect;
+			float offsetX;
+			float offsetZ;
+			double vNoise;
+			float scaleFactor = 30;
+
+			int counter2 = 0;
+			for (int x = 0; x < width; x++)
+			{
+				for (int z = 0; z < height; z++)
+				{
+					offsetX = perlinNoise.noise2((xChunk + x) / scaleFactor, ((zChunk + z) / scaleFactor)) * 80 + perlinNoise.noise2((xChunk + x) / 7, (zChunk + z) / 7) * 20;
+					offsetZ = perlinNoise.noise2((xChunk + x) / scaleFactor, ((zChunk + z) / scaleFactor)) * 80 + perlinNoise.noise2((xChunk + x - 1000) / 7, (xChunk + x) / 7) * 20;
+					vNoise = (voronoiNoise.noise((xChunk + x + offsetX + 1000) / 1000D, (zChunk + z - offsetZ) / 1000D, 1) * 0.5f) + 0.5f;
+					randomSelect = (voronoiNoise.noise((xChunk + x + offsetX + 2000) / 180, (zChunk + z - offsetZ) / 180, 1) * 0.5) + 0.5;
+					randomSelect = MathHelper.clamp(randomSelect, 0, 0.9999999);
+
+					//Biome Selection in Quarters
+					if (vNoise < 0.25)
+					{
+						randomSelect *= snowBiomesList.size();
+						biomeBases[counter2++] = snowBiomesList.get((int) randomSelect);
+					}
+					else if (vNoise < 0.5)
+					{
+						randomSelect *= coldBiomesList.size();
+						biomeBases[counter2++] = coldBiomesList.get((int) randomSelect);
+					}
+					else if (vNoise < 0.75)
+					{
+						randomSelect *= hotBiomesList.size();
+						biomeBases[counter2++] = hotBiomesList.get((int) randomSelect);
+					}
+					else
+					{
+						randomSelect *= wetBiomesList.size();
+						biomeBases[counter2++] = wetBiomesList.get((int) randomSelect);
+					}
+				}
+			}
+		}
+
+
+
 		return biomeBases;
 	}
 

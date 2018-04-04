@@ -1,5 +1,6 @@
 package com.mrburgerUS.betaplus.forge;
 
+import com.mrburgerUS.betaplus.BetaPlusSettings;
 import com.mrburgerUS.betaplus.beta.BiomeProviderBeta;
 import com.mrburgerUS.betaplus.beta.ChunkGeneratorBeta;
 import net.minecraft.world.World;
@@ -36,7 +37,8 @@ public class WorldTypeBetaPlus extends WorldType
 	@Override
 	public BiomeProvider getBiomeProvider(World world)
 	{
-		return new BiomeProviderBeta(world);
+		int biomeType = BetaPlusSettings.Factory.jsonToSettings(world.getWorldInfo().getGeneratorOptions()).generatorType;
+		return new BiomeProviderBeta(world, biomeType);
 	}
 
 	@Override

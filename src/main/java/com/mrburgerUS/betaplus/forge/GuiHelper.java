@@ -25,6 +25,16 @@ public class GuiHelper
 	static final int oldCaveId = 148;
 	// Button Id for Dungeon button
 	static final int dungeonId = 149;
+	//Button Id for Villages
+	static final int villageId = 151;
+	//Button id for Biome Type
+	static final int generatorId = 1001;
+	// Chance for Dungeon
+	static final int dungeonChance = 157;
+	// Use water lakes
+	static final int useWaterLakesId = 155;
+	static final int waterChanceId = 158;
+	static final int useLavaLakesId = 156;
 
 
 

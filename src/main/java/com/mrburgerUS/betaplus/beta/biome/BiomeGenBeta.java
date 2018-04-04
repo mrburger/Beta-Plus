@@ -1,5 +1,6 @@
 package com.mrburgerUS.betaplus.beta.biome;
 
+import com.mrburgerUS.betaplus.beta.biome.support.BiomeSelectBeta;
 import net.minecraft.block.Block;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
@@ -15,7 +16,7 @@ public enum BiomeGenBeta implements BetaPlusBiome
 	savanna(Biomes.SAVANNA),
 	shrubland(Biomes.PLAINS),
 	taiga(Biomes.COLD_TAIGA),
-	desert(Biomes.DESERT, (Block) Blocks.SAND, (Block) Blocks.SAND),
+	desert(Biomes.DESERT, Blocks.SAND, Blocks.SAND),
 	plains(Biomes.PLAINS),
 	tundra(Biomes.ICE_PLAINS),
 	//New Enums
@@ -25,7 +26,10 @@ public enum BiomeGenBeta implements BetaPlusBiome
 	roofForest(Biomes.ROOFED_FOREST),
 	mountain(Biomes.EXTREME_HILLS),
 	iceSpikes(Biomes.MUTATED_ICE_FLATS),
-	megaTaiga(Biomes.REDWOOD_TAIGA);
+	megaTaiga(Biomes.REDWOOD_TAIGA),
+	mesa(Biomes.MESA, Blocks.SAND, Blocks.HARDENED_CLAY),
+	birchForest(Biomes.BIRCH_FOREST),
+	flowerPlains(Biomes.MUTATED_PLAINS);
 
 	//Overrides
 	@Override
@@ -44,12 +48,12 @@ public enum BiomeGenBeta implements BetaPlusBiome
 	public Biome handle;
 	public final Block topBlock;
 	public final Block fillerBlock;
-	private static final BiomeGenBeta[] biomeLookupTable;
+	private static final Biome[] biomeLookupTable;
 
 	//Constructors
 	BiomeGenBeta(Biome handle)
 	{
-		this(handle, (Block) Blocks.GRASS, Blocks.DIRT);
+		this(handle, Blocks.GRASS, Blocks.DIRT);
 	}
 
 	BiomeGenBeta(Biome biomeHandle, Block top, Block filler)
@@ -62,7 +66,7 @@ public enum BiomeGenBeta implements BetaPlusBiome
 	//Initialize
 	static
 	{
-		biomeLookupTable = new BiomeGenBeta[4096];
+		biomeLookupTable = new Biome[4096];
 		BiomeGenBeta.generateBiomeLookup();
 	}
 
@@ -74,91 +78,19 @@ public enum BiomeGenBeta implements BetaPlusBiome
 			for (int j = 0; j < 64; ++j)
 			{
 				//EDITED
-				biomeLookupTable[i + j * 64] = getBiomeNew((float) i / 63.0f, (float) j / 63.0f);
+				biomeLookupTable[i + j * 64] = BiomeSelectBeta.getBiome((float) i / 63.0f, (float) j / 63.0f);
 			}
 		}
 	}
 
-	public static BiomeGenBeta getBiomeFromLookup(double temperature, double humidity)
+	//Gets Value
+	public static Biome getBiomeFromLookup(double temperature, double humidity)
 	{
-		int var4 = (int) (temperature * 63.0);
-		int var5 = (int) (humidity * 63.0);
-		return biomeLookupTable[var4 + var5 * 64];
+		int i = (int) (temperature * 63.0);
+		int j = (int) (humidity * 63.0);
+		return biomeLookupTable[i + j * 64];
 	}
 
-	/*
-	public static BiomeGenBeta getBiome(float temperature, float humidity)
-	{
-		return temperature < 0.1f ? tundra : (humidity < 0.2f ? (temperature < 0.5f ? tundra : (temperature < 0.95f ? savanna : desert)) : (humidity > 0.5f && temperature < 0.7f ? swampland : (temperature < 0.5f ? taiga : (temperature < 0.97f ? (humidity < 0.35f ? shrubland : forest) : (humidity < 0.45f ? plains : ((humidity *= temperature) < 0.9f ? seasonalForest : rainforest))))));
-	}
-	*/
 
-	public static BiomeGenBeta getBiomeNew(float temperature, float humidity)
-	{
-		BiomeGenBeta betaBiome;
-		if (temperature < 0.1)
-		{
-			betaBiome = iceSpikes;
-		}
-		else if (humidity < 0.15 && temperature < 0.5)
-		{
-			betaBiome = tundra;
-		}
-		else if (humidity < 0.2 && temperature < 0.95)
-		{
-			betaBiome = savanna;
-		}
-		else if (humidity < 0.2 && temperature > 0.95)
-		{
-			betaBiome = desert;
-		}
-		else if (humidity > 0.5 && temperature < 0.45)
-		{
-			betaBiome = roofForest;
-		}
-		else if (humidity > 0.6 && temperature < 0.7)
-		{
-			betaBiome = swampland;
-		}
-		else if (humidity > 0.5 && temperature < 0.5)
-		{
-			betaBiome = taiga;
-		}
-		else if (humidity > 0.5 && temperature < 0.65)
-		{
-			betaBiome = megaTaiga;
-		}
-		else if (temperature < 0.97 && humidity < 0.35)
-		{
-			betaBiome = shrubland;
-		}
-		else if (temperature < 0.97)
-		{
-			betaBiome = forest;
-		}
-		else if (humidity < 0.45)
-		{
-			betaBiome = plains;
-		}
-		else if ((humidity * temperature) < 0.9)
-		{
-			betaBiome = seasonalForest;
-		}
-		else
-		{
-			betaBiome = rainforest;
-		}
-		return betaBiome;
-	}
-
-	public static BiomeGenBeta getBiomeBeta(Biome biome)
-	{
-		for (BiomeGenBeta biomeBeta : BiomeGenBeta.values())
-		{
-			if (biomeBeta.handle == biome)
-				return biomeBeta;
-		}
-		return BiomeGenBeta.plains;
-	}
 
 }
