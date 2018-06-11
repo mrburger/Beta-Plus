@@ -1,4 +1,4 @@
-package com.mrburgerus.betaplus;
+package com.mrburgerus.betaplus.util;
 
 public final class MathHelper
 {
