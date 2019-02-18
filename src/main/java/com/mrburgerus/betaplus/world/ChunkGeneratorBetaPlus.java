@@ -8,7 +8,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
@@ -19,7 +18,10 @@ import net.minecraft.world.WorldEntitySpawner;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.*;
+import net.minecraft.world.gen.AbstractChunkGenerator;
+import net.minecraft.world.gen.GenerationStage;
+import net.minecraft.world.gen.OverworldGenSettings;
+import net.minecraft.world.gen.WorldGenRegion;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.structure.SwampHutStructure;
 
@@ -59,7 +61,6 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator
 	private double[] stoneNoise = new double[256];
 	// New Fields
 	private BiomeProviderBetaPlus biomeProviderS;
-	private double[] oceanNoise;
 	private final PhantomSpawner phantomSpawner = new PhantomSpawner();
 
 	public ChunkGeneratorBetaPlus(IWorld world, BiomeProviderBetaPlus biomeProvider)
@@ -105,40 +106,6 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator
 		chunkIn.setBiomes(convertBiomeArray(biomesForGeneration));
 
 		chunkIn.setStatus(ChunkStatus.BASE);
-	}
-
-	/* THIS IS WORK IN PROGRESS */
-	/* This Method is for making oceans DEEP, bro. */
-	private void deepenOceans2(IChunk chunkIn)
-	{
-		// Get Positions, create Noise.
-		int xStart = chunkIn.getPos().getXStart();
-		int zStart = chunkIn.getPos().getZStart();
-		//oceanNoise = surfaceNoise.generateRegion(xStart, seaLevel);
-		for (int xV = 0; xV < 16; ++xV)
-		{
-			for (int zV = 0; zV < 16; ++zV)
-			{
-				int x = xStart + xV;
-				int z = zStart + zV;
-				int y = getSolidHeightY(x, z, chunkIn);
-				if (y < seaLevel - 2)
-				{
-					// Deepen Oceans
-					//int deepen = rand.nextInt(8);
-					double scaleFactor = 4;
-					//double deepen = Math.abs(surfaceNoise.generateNoise(x, seaLevel, z) * scaleFactor);
-					// surfaceNoise.generateNoise(x, y, z)
-					double depth = ((seaLevel - y) * (0.25 + surfaceNoise.generateNoise(x, y, z)));
-					System.out.println("Ymin: " + Math.round(seaLevel - depth));
-					for (int yV = y; yV > Math.round(seaLevel - depth); --yV)
-					{
-						//System.out.println("REPLACE: " + x + ", " + yV + ", " + z);
-						chunkIn.setBlockState(new BlockPos(x, yV, z), Blocks.WATER.getDefaultState(), false);
-					}
-				}
-			}
-		}
 	}
 
 	@Override

@@ -12,9 +12,9 @@ apply plugin: 'net.minecraftforge.gradle'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 
-version = '1.0'
-group = 'com.yourname.modid' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'modid'
+version = '0.4a'
+group = 'com.mrburgerus.betaplus' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = 'betaplus'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
@@ -81,12 +81,12 @@ dependencies {
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
     manifest {
-        attributes(["Specification-Title": "examplemod",
-                    "Specification-Vendor": "examplemodsareus",
+        attributes(["Specification-Title": "betaplus",
+                    "Specification-Vendor": "betaplusvendor",
                     "Specification-Version": "24.0", // We are version 1 of the modlauncher specification
                     "Implementation-Title": project.name,
                     "Implementation-Version": "${version}",
-                    "Implementation-Vendor" :"examplemodsareus",
+                    "Implementation-Vendor" :"betaplusvendor",
                     "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")],)
     }
 }
