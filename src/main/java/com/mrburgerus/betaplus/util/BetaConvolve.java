@@ -27,9 +27,6 @@ public class BetaConvolve
 				processedArr[r][c] = sumKernel(expandedArr, gaussArr, r + centerK, c + centerK);
 			}
 		}
-		//JavaApplication1.printArray(expandedArr);
-		//JavaApplication1.printArray(gaussArr);
-
 		return processedArr;
 	}
 
