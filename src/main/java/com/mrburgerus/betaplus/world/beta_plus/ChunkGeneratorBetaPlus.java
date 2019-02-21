@@ -3,7 +3,7 @@ package com.mrburgerus.betaplus.world.beta_plus;
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.BetaPlusDeepenOcean;
 import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
-import com.mrburgerus.betaplus.world.biome.BiomeProviderBetaPlus;
+import com.mrburgerus.betaplus.world.biome.BiomeProviderBetaPlusOld;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
@@ -60,7 +60,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 	private double[] gravelNoise = new double[256];
 	private double[] stoneNoise = new double[256];
 	// New Fields
-	private BiomeProviderBetaPlus biomeProviderS;
+	private BiomeProviderBetaPlusOld biomeProviderS;
 	private final PhantomSpawner phantomSpawner = new PhantomSpawner();
 	private final BetaPlusGenSettings settings;
 	private static final int chunkSize = 16;
@@ -71,7 +71,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 	private static double octaveArr22[];
 	private static double octaveArr32[];
 
-	public ChunkGeneratorBetaPlus(IWorld world, BiomeProviderBetaPlus biomeProvider, BetaPlusGenSettings settingsIn)
+	public ChunkGeneratorBetaPlus(IWorld world, BiomeProviderBetaPlusOld biomeProvider, BetaPlusGenSettings settingsIn)
 	{
 		super(world, biomeProvider);
 		this.settings = settingsIn;
@@ -84,8 +84,8 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		surfaceNoise = new NoiseGeneratorOctavesBeta(rand, 4);
 		scaleNoise = new NoiseGeneratorOctavesBeta(rand, 10);
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
-		//BetaPlus.LOGGER.info("Created Chunk Generator");
 		biomeProviderS = biomeProvider;
+		BetaPlus.LOGGER.info("Created Chunk Generator");
 	}
 
 	/* This Method is an Analog to generateChunk, albeit HEAVILY modified! */
@@ -103,7 +103,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		setBlocksInChunk(chunkIn);
 		BetaPlusDeepenOcean.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize());
 		// Replace Biomes
-		//this.replaceBiomes(chunkIn);
+		this.replaceBiomes(chunkIn);
 
 		// Replace Blocks (DIRT & SAND & STUFF)
 		replaceBlocksForBiome(x, z, chunkIn, BiomeGenBetaPlus.convertBiomeTable(biomesForGeneration));
@@ -301,7 +301,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		int xPos = pos.getX() & 15; // Gets pos in Chunk
 		int zPos = pos.getZ() & 15; // Gets z pos in Chunk
 		int yVal = -1;
-		hNoiseSim = octaveSim(hNoiseSim, chunkX * 4, chunkZ * 4, 5, 17, 5, world.getSeed(), world.getRandom());
+		hNoiseSim = octaveSim(hNoiseSim, chunkX * 4, chunkZ * 4, 5, 17, 5, world.getSeed(), new Random(world.getSeed()));
 		for (int i = 0; i < 4; ++i)
 		{
 			for (int j = 0; j < 4; ++j)
@@ -370,7 +370,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		{
 			for (int t = 0; t < zChunkSize; t++)
 			{
-				hNoiseSim = octaveSim(hNoiseSim, (chunkX + s) * 4, (chunkZ + t) * 4, 5, 17, 5, world.getSeed(), world.getRandom());
+				hNoiseSim = octaveSim(hNoiseSim, (chunkX + s) * 4, (chunkZ + t) * 4, 5, 17, 5, world.getSeed(), new Random(world.getSeed()));
 				for (int i = 0; i < 4; ++i)
 				{
 					for (int j = 0; j < 4; ++j)
@@ -425,6 +425,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 				}
 			}
 		}
+		BetaPlus.LOGGER.info("Finished: " + chunkX + ", " + chunkZ);
 		return output;
 	}
 

@@ -178,9 +178,9 @@ public class VoronoiNoiseGenerator
 			return getDistance(xDist, zDist);
 		}
 
-		else return ((double) VoronoiNoiseGenerator.valueNoise2D(
+		else return VoronoiNoiseGenerator.valueNoise2D(
 				(int) (Math.floor(xCandidate)),
-				(int) (Math.floor(zCandidate)), seed));
+				(int) (Math.floor(zCandidate)), seed);
 	}
 
 	public double noise(double x, double y, double z, double frequency)
@@ -243,10 +243,10 @@ public class VoronoiNoiseGenerator
 			return getDistance(xDist, yDist, zDist);
 		}
 
-		else return ((double) VoronoiNoiseGenerator.valueNoise3D(
+		else return VoronoiNoiseGenerator.valueNoise3D(
 				(int) (Math.floor(xCandidate)),
 				(int) (Math.floor(yCandidate)),
-				(int) (Math.floor(zCandidate)), seed));
+				(int) (Math.floor(zCandidate)), seed);
 
 	}
 

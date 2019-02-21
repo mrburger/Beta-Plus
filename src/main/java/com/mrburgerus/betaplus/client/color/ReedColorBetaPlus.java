@@ -1,6 +1,6 @@
 package com.mrburgerus.betaplus.client.color;
 
-import com.mrburgerus.betaplus.world.biome.BiomeProviderBetaPlus;
+import com.mrburgerus.betaplus.world.biome.BiomeProviderBetaPlusOld;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.IBlockColor;
@@ -19,7 +19,7 @@ public class ReedColorBetaPlus implements IBlockColor
 	public int getColor(IBlockState iBlockState, @Nullable IWorldReaderBase iWorldReaderBase, @Nullable BlockPos blockPos, int i)
 	{
 		BiomeProvider provider = Minecraft.getInstance().getIntegratedServer().getWorld(DimensionType.OVERWORLD).getChunkProvider().chunkGenerator.getBiomeProvider();
-		if (provider instanceof BiomeProviderBetaPlus)
+		if (provider instanceof BiomeProviderBetaPlusOld)
 		{
 			return -1;
 		}

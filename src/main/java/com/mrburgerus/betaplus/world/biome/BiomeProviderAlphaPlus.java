@@ -37,7 +37,7 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	@Override
 	public List<Biome> getBiomesToSpawnIn()
 	{
-		return Lists.newArrayList(new Biome[]{this.biome});
+		return Lists.newArrayList(this.biome);
 	}
 
 	@Nullable

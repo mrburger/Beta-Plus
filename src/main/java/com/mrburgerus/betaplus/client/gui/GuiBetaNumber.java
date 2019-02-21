@@ -1,6 +1,6 @@
 package com.mrburgerus.betaplus.client.gui;
 
-import com.mrburgerus.betaplus.world.beta_plus.ChunkGeneratorBetaPlus;
+import com.mrburgerus.betaplus.world.beta_plus.WorldTypeBetaPlus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.world.dimension.DimensionType;
@@ -26,7 +26,7 @@ public class GuiBetaNumber extends Gui
 		Minecraft mc = Minecraft.getInstance();
 		// Check if we are in Beta+ World
 		/* Don't Call Client-side, returns null */
-		if(mc.getIntegratedServer().getWorld(DimensionType.OVERWORLD).getChunkProvider().chunkGenerator instanceof ChunkGeneratorBetaPlus);
+		if(mc.getIntegratedServer().getWorld(DimensionType.OVERWORLD).getWorldType() instanceof WorldTypeBetaPlus)
 		{
 			if (event.getType() != RenderGameOverlayEvent.ElementType.EXPERIENCE)
 			{

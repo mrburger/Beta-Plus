@@ -231,19 +231,19 @@ public class PerlinNoise
 		float t = x + (float) N;
 		int bx0 = ((int) t) & BM;
 		int bx1 = (bx0 + 1) & BM;
-		float rx0 = (float) (t - (int) t);
+		float rx0 = t - (int) t;
 		float rx1 = rx0 - 1;
 
 		t = y + (float) N;
 		int by0 = ((int) t) & BM;
 		int by1 = (by0 + 1) & BM;
-		float ry0 = (float) (t - (int) t);
+		float ry0 = t - (int) t;
 		float ry1 = ry0 - 1;
 
 		t = z + (float) N;
 		int bz0 = ((int) t) & BM;
 		int bz1 = (bz0 + 1) & BM;
-		float rz0 = (float) (t - (int) t);
+		float rz0 = t - (int) t;
 		float rz1 = rz0 - 1;
 
 		int i = p[bx0];

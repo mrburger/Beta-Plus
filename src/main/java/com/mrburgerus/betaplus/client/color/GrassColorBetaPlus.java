@@ -1,6 +1,6 @@
 package com.mrburgerus.betaplus.client.color;
 
-import com.mrburgerus.betaplus.world.biome.BiomeProviderBetaPlus;
+import com.mrburgerus.betaplus.world.biome.BiomeProviderBetaPlusOld;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.IBlockColor;
@@ -22,9 +22,10 @@ public class GrassColorBetaPlus implements IBlockColor
 		// Modified (It's so long!)
 		BiomeProvider provider = Minecraft.getInstance().getIntegratedServer().getWorld(DimensionType.OVERWORLD).getChunkProvider().chunkGenerator.getBiomeProvider();
 		// If we are in a Beta+ world
-		if (provider instanceof BiomeProviderBetaPlus)
+		if (provider instanceof BiomeProviderBetaPlusOld)
 		{
-			return ((BiomeProviderBetaPlus) provider).getGrassColor(pos);
+			//return ((BiomeProviderBetaPlusOld) provider).getGrassColor(pos);
+			return -1;
 		}
 
 		return 0;
