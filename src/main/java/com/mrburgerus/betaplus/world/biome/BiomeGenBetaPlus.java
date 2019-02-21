@@ -19,8 +19,11 @@ public enum BiomeGenBetaPlus implements BetaPlusBiome
 	plains(Biomes.PLAINS),
 	tundra(Biomes.SNOWY_TUNDRA),
 	//New Enums
-	ocean(Biomes.OCEAN),
-	deepOcean(Biomes.DEEP_OCEAN),
+	warmOcean(Biomes.WARM_OCEAN),
+	lukewarmOcean(Biomes.LUKEWARM_OCEAN),
+	deepLukewarmOcean(Biomes.DEEP_LUKEWARM_OCEAN),
+	coldOcean(Biomes.COLD_OCEAN),
+	deepColdOcean(Biomes.DEEP_COLD_OCEAN),
 	beach(Biomes.BEACH),
 	roofForest(Biomes.DARK_FOREST),
 	mountain(Biomes.WOODED_MOUNTAINS),

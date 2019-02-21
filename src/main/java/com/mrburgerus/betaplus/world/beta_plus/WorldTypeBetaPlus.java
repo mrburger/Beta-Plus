@@ -21,7 +21,8 @@ public class WorldTypeBetaPlus extends WorldType
 	@Override
 	public IChunkGenerator<?> createChunkGenerator(World world)
 	{
-		return new ChunkGeneratorBetaPlus(world, new BiomeProviderBetaPlus(world), new BetaPlusGenSettings());
+		BetaPlusGenSettings settings = new BetaPlusGenSettings();
+		return new ChunkGeneratorBetaPlus(world, new BiomeProviderBetaPlus(world, settings), settings);
 	}
 
 	@Override
