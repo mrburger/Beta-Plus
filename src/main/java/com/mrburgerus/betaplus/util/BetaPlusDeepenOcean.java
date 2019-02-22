@@ -33,7 +33,7 @@ public class BetaPlusDeepenOcean
 			for (int zV = 0; zV < depthValues[xV].length; ++zV)
 			{
 				// Should eventually have some call to the Seed, like rand.nextDouble()
-				depthValues[xV][zV] = depthValues[xV][zV] * (2.975 + (random.nextDouble() * 0.125));
+				depthValues[xV][zV] = depthValues[xV][zV] * (2.85 + (random.nextDouble() * 0.125));
 			}
 		}
 		// Gaussian BLUR

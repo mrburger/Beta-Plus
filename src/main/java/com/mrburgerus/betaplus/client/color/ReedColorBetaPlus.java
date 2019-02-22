@@ -1,5 +1,6 @@
 package com.mrburgerus.betaplus.client.color;
 
+import com.mrburgerus.betaplus.world.alpha_plus.WorldTypeAlphaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.WorldTypeBetaPlus;
 import com.mrburgerus.betaplus.world.biome.BiomeProviderBetaPlus;
 import net.minecraft.block.state.IBlockState;
@@ -20,6 +21,10 @@ public class ReedColorBetaPlus implements IBlockColor
 	public int getColor(IBlockState iBlockState, @Nullable IWorldReaderBase iWorldReaderBase, @Nullable BlockPos blockPos, int i)
 	{
 		if (Minecraft.getInstance().getIntegratedServer().getWorld(DimensionType.OVERWORLD).getWorldType() instanceof WorldTypeBetaPlus)
+		{
+			return -1;
+		}
+		if (Minecraft.getInstance().getIntegratedServer().getWorld(DimensionType.OVERWORLD).getWorldType() instanceof WorldTypeAlphaPlus)
 		{
 			return -1;
 		}

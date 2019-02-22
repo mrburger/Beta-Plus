@@ -95,8 +95,8 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		// Written similarly to "generateTerrain" from earlier versions.
 		setBlocksInChunk(chunkIn);
 		BetaPlusDeepenOcean.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize());
-		// Replace Biomes
-		this.replaceBiomes(chunkIn);
+		// Replace Biomes (Oceans)
+		//this.replaceBiomes(chunkIn);
 
 		// Replace Blocks (DIRT & SAND & STUFF)
 		replaceBlocksForBiome(x, z, chunkIn, BiomeGenBetaPlus.convertBiomeTable(biomesForGeneration));
