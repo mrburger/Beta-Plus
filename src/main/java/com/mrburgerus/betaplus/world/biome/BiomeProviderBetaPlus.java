@@ -1,12 +1,13 @@
 package com.mrburgerus.betaplus.world.biome;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesOld;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.GrassColors;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.provider.BiomeProvider;
@@ -20,24 +21,21 @@ import java.util.Set;
 public class BiomeProviderBetaPlus extends BiomeProvider
 {
 	// Fields
-	private NoiseGeneratorOctavesOld octave1;
-	private NoiseGeneratorOctavesOld octave2;
-	private NoiseGeneratorOctavesOld octave3;
+	private NoiseGeneratorOctavesOld temperatureOctave;
+	private NoiseGeneratorOctavesOld humidityOctave;
+	private NoiseGeneratorOctavesOld noiseOctave;
 	public double[] temperatures;
 	public double[] humidities;
 	public double[] noise;
 	public Biome[] genBiomes; // Formerly biomeBaseArray, not fully a Gen Layer?
-	private final Biome[] biomes;
+	private static final Biome[] biomes = buildBiomesList();
 	// New Fields
-	//private final BiomeCache cache = new BiomeCache(this);
-
 
 	public BiomeProviderBetaPlus(World world)
 	{
-		biomes = buildBiomesList();
-		octave1 = new NoiseGeneratorOctavesOld(new Random(world.getSeed() * 9871), 4);
-		octave2 = new NoiseGeneratorOctavesOld(new Random(world.getSeed() * 39811), 4);
-		octave3 = new NoiseGeneratorOctavesOld(new Random(world.getSeed() * 543321), 2);
+		temperatureOctave = new NoiseGeneratorOctavesOld(new Random(world.getSeed() * 9871), 4);
+		humidityOctave = new NoiseGeneratorOctavesOld(new Random(world.getSeed() * 39811), 4);
+		noiseOctave = new NoiseGeneratorOctavesOld(new Random(world.getSeed() * 543321), 2);
 	}
 
 	/* Builds Possible Biome List */
@@ -52,83 +50,6 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		return biomeSet.toArray(new Biome[biomeSet.size()]);
 	}
 
-	/* Similar to GenLayer.generateBiomes() */
-	/* MERGED FOR 1.13 with getBiomesForGeneration */
-	public Biome[] generateBiomesTrue(int startX, int startZ, int xSize, int zSize)
-	{
-		if (genBiomes == null || genBiomes.length < xSize * zSize)
-		{
-			genBiomes = new Biome[xSize * zSize];
-		}
-		temperatures = octave1.generateOctaves(temperatures, (double) startX, (double) startZ, xSize, xSize, 0.02500000037252903, 0.02500000037252903, 0.25);
-		humidities = octave2.generateOctaves(humidities, (double) startX, (double) startZ, xSize, xSize, 0.05000000074505806, 0.05000000074505806, 0.3333333333333333);
-		noise = octave3.generateOctaves(noise, (double) startX, (double) startZ, xSize, xSize, 0.25, 0.25, 0.5882352941176471);
-		int counter = 0;
-		for (int x = 0; x < xSize; ++x)
-		{
-
-			for (int z = 0; z < zSize; ++z)
-			{
-				double var9 = noise[counter] * 1.1 + 0.5;
-				double oneHundredth = 0.01;
-				double point99 = 1.0 - oneHundredth;
-				double temperatureVal = (temperatures[counter] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
-				oneHundredth = 0.002;
-				point99 = 1.0 - oneHundredth;
-				double humidityVal = (humidities[counter] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
-				temperatureVal = 1.0 - (1.0 - temperatureVal) * (1.0 - temperatureVal);
-				temperatureVal = MathHelper.clamp(temperatureVal, 0.0, 1.0);
-				humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
-				temperatures[counter] = temperatureVal;
-				humidities[counter] = humidityVal;
-				genBiomes[counter++] = BiomeGenBetaPlus.getBiomeFromLookup(temperatureVal, humidityVal);
-			}
-		}
-		return genBiomes;
-	}
-
-	/* Similar to GenLayer.generateBiomes() */
-	/* MERGED FOR 1.13 with getBiomesForGeneration */
-	// Not Working Fully
-	public Biome[] generateBiomesOld(int startX, int startZ, int xSize, int zSize)
-	{
-		Biome[] biomeArr = new Biome[xSize * zSize];
-		if (genBiomes == null || genBiomes.length < xSize * zSize)
-		{
-			genBiomes = new Biome[xSize * zSize];
-		}
-		// Decreasing someVal increases biome size.
-		double someVal = 0.01;
-		//double someVal = 0.02500000037252903;
-		double mult = 1.5; // 2 Originally
-		temperatures = octave1.generateOctaves(temperatures, (double) startX, (double) startZ, xSize, xSize, someVal, someVal, 0.25);
-		humidities = octave2.generateOctaves(humidities, (double) startX, (double) startZ, xSize, xSize, someVal * mult, someVal * mult, 0.3333333333333333);
-		noise = octave3.generateOctaves(noise, (double) startX, (double) startZ, xSize, xSize, 0.25, 0.25, 0.5882352941176471);
-		int counter = 0;
-		for (int x = 0; x < xSize; ++x)
-		{
-
-			for (int z = 0; z < zSize; ++z)
-			{
-				double var9 = noise[counter] * 1.1 + 0.5;
-				double oneHundredth = 0.01;
-				double point99 = 1.0 - oneHundredth;
-				double temperatureVal = (temperatures[counter] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
-				oneHundredth = 0.002;
-				point99 = 1.0 - oneHundredth;
-				double humidityVal = (humidities[counter] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
-				temperatureVal = 1.0 - (1.0 - temperatureVal) * (1.0 - temperatureVal);
-				temperatureVal = MathHelper.clamp(temperatureVal, 0.0, 1.0);
-				humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
-				temperatures[counter] = temperatureVal;
-				humidities[counter] = humidityVal;
-				biomeArr[counter] = BiomeGenBetaPlus.getBiomeFromLookup(temperatureVal, humidityVal);
-				counter++;
-			}
-		}
-		return biomeArr;
-	}
-
 	public Biome[] generateBiomes(int startX, int startZ, int xSize, int zSize)
 	{
 		Biome[] biomeArr = new Biome[xSize * zSize];
@@ -136,9 +57,9 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		double someVal = 0.01;
 		//double someVal = 0.02500000037252903;
 		double mult = 1.5; // 2 Originally
-		temperatures = octave1.generateOctaves(temperatures, (double) startX, (double) startZ, xSize, xSize, someVal, someVal, 0.25);
-		humidities = octave2.generateOctaves(humidities, (double) startX, (double) startZ, xSize, xSize, someVal * mult, someVal * mult, 0.3333333333333333);
-		noise = octave3.generateOctaves(noise, (double) startX, (double) startZ, xSize, xSize, 0.25, 0.25, 0.5882352941176471);
+		temperatures = temperatureOctave.generateOctaves(temperatures, (double) startX, (double) startZ, xSize, xSize, someVal, someVal, 0.25);
+		humidities = humidityOctave.generateOctaves(humidities, (double) startX, (double) startZ, xSize, xSize, someVal * mult, someVal * mult, 0.3333333333333333);
+		noise = noiseOctave.generateOctaves(noise, (double) startX, (double) startZ, xSize, xSize, 0.25, 0.25, 0.5882352941176471);
 		int counter = 0;
 		for (int x = 0; x < xSize; ++x)
 		{
@@ -161,30 +82,8 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				counter++;
 			}
 		}
-		// If issue
-		if (biomeArr[0] == null)
-		{
-			BetaPlus.LOGGER.warn("Issue with Biome Array!");
-		}
-
-
+		//BetaPlus.LOGGER.info("Biome Finished Generating: " + startX + ", " + startZ);
 		return biomeArr;
-	}
-
-	// Converts Biomes for usage in other functions
-	// NOT USED
-	public Biome[] convertBiomes(int startX, int startZ, int xSize, int zSize)
-	{
-		Biome[] abiome = this.generateBiomes(startX, startZ, xSize, zSize);
-		// Now Shift around
-		for(int i = 0; i < zSize; ++i)
-		{
-			for(int j = 0; j < xSize; ++j)
-			{
-				abiome[j + i * xSize] = BiomeGenBetaPlus.getBiomeFromLookup(0, 0); //For Test
-			}
-		}
-		return abiome;
 	}
 
 	//BEGIN OVERRIDES
@@ -192,7 +91,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	@Override
 	public List<Biome> getBiomesToSpawnIn()
 	{
-		return BiomeProvider.BIOMES_TO_SPAWN_IN;
+		return Lists.newArrayList(BiomeGenBetaPlus.beach.handle, BiomeGenBetaPlus.desert.handle);
 	}
 
 	@Override
@@ -229,7 +128,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 
 	/* Copied From OverworldBiomeProvider & Modified. */
 	@Override
-	public BlockPos findBiomePosition(int x, int z, int range, List<Biome> biomes, Random random)
+	public BlockPos findBiomePosition(int x, int z, int range, List<Biome> biomeList, Random random)
 	{
 		int i = x - range >> 2;
 		int j = z - range >> 2;
@@ -237,7 +136,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		int l = z + range >> 2;
 		int xSize = k - i + 1;
 		int zSize = l - j + 1;
-		Biome[] abiome = this.generateBiomes(i, j, xSize, zSize);
+		Biome[] biomeArr = this.generateBiomes(i, j, xSize, zSize);
 		BlockPos blockpos = null;
 		int k1 = 0;
 
@@ -245,7 +144,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 			int i2 = i + counter % xSize << 2;
 			int j2 = j + counter / xSize << 2;
 			// If the input list of biomes has
-			if (biomes.contains(abiome[counter]))
+			if (biomeList.contains(biomeArr[counter]))
 			{
 				if (blockpos == null || random.nextInt(k1 + 1) == 0) {
 					blockpos = new BlockPos(i2, 0, j2);
@@ -268,9 +167,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 			{
 				if (biome.hasStructure(param1))
 				{
-					System.out.println("We have structure: " + biome.getDisplayName().getString() + " " + param1.toString());
 					return true;
-					//return false;
 				}
 			}
 
@@ -295,7 +192,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	}
 
 
-	// Working Feb 16, 2019
+	// Working Feb 21, 2019
 	public double[] getClimateValuesatPos(BlockPos pos)
 	{
 		//Copied Over
@@ -303,22 +200,10 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		int startZ = pos.getZ();
 		int xSize = 1;
 
-		temperatures = octave1.generateOctaves(temperatures, startX, startZ, xSize, xSize, 0.02500000037252903, 0.02500000037252903, 0.25);
-		humidities = octave2.generateOctaves(humidities, startX, startZ, xSize, xSize, 0.05000000074505806, 0.05000000074505806, 0.3333333333333333);
-		noise = octave3.generateOctaves(noise, startX, startZ, xSize, xSize, 0.25, 0.25, 0.5882352941176471);
+		temperatures = temperatureOctave.generateOctaves(temperatures, startX, startZ, xSize, xSize, 0.02500000037252903, 0.02500000037252903, 0.25);
+		humidities = humidityOctave.generateOctaves(humidities, startX, startZ, xSize, xSize, 0.05000000074505806, 0.05000000074505806, 0.3333333333333333);
 
-		int counter = 0;
-		double var9 = noise[counter] * 1.1 + 0.5;
-		double oneHundredth = 0.01;
-		double point99 = 1.0 - oneHundredth;
-		double temperatureVal = (temperatures[counter] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
-		oneHundredth = 0.002;
-		point99 = 1.0 - oneHundredth;
-		double humidityVal = (humidities[counter] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
-		temperatureVal = 1.0 - (1.0 - temperatureVal) * (1.0 - temperatureVal);
-		temperatureVal = MathHelper.clamp(temperatureVal, 0.0, 1.0);
-		humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
-		double[] returnVal = {temperatureVal, humidityVal};
+		double[] returnVal = {temperatures[0], humidities[0]};
 		return returnVal;
 	}
 
@@ -328,7 +213,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		double[] climate = this.getClimateValuesatPos(pos);
 		double temperature = climate[0];
 		//return BiomeGenBetaPlus.getBiomeFromLookup(temperature, climate[1]);
-		if (temperature < BetaPlusSelectBiome.coldValue / 2)
+		if (temperature < BetaPlusSelectBiome.frozenValue)
 		{
 			if(isDeep)
 			{
@@ -340,21 +225,22 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		{
 			return Biomes.WARM_OCEAN;
 		}
-		else if (temperature < BetaPlusSelectBiome.coldValue)
-		{
-			if(isDeep)
-			{
-				return Biomes.DEEP_COLD_OCEAN;
-			}
-			return Biomes.COLD_OCEAN;
-		}
-		else
+		else if (temperature > BetaPlusSelectBiome.warmVal)
 		{
 			if(isDeep)
 			{
 				return Biomes.DEEP_LUKEWARM_OCEAN;
 			}
 			return Biomes.LUKEWARM_OCEAN;
+
+		}
+		else
+		{
+			if(isDeep)
+			{
+				return Biomes.DEEP_COLD_OCEAN;
+			}
+			return Biomes.COLD_OCEAN;
 		}
 	}
 
@@ -367,5 +253,10 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		}
 		return Biomes.BEACH;
 	}
-}
 
+	public int getGrassColorBeta(BlockPos pos)
+	{
+		double[] climate = getClimateValuesatPos(pos);
+		return GrassColors.get(climate[0], climate[1]);
+	}
+}

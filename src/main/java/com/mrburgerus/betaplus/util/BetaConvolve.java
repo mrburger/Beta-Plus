@@ -1,7 +1,7 @@
 package com.mrburgerus.betaplus.util;
 
 
-// WORKING FEB 17, 2019
+// HAS ISSUES, NOT MATHEMATICALLY CORRECT.
 public class BetaConvolve
 {
 	/* Convolves a Square 2D Matrix. */
@@ -50,20 +50,36 @@ public class BetaConvolve
 	}
 
 	/* Initializes a Gaussian Blur Square */
-	private static double[][] initGaussSquare(int kernelSize, double mult)
+	/* Fixed Feb 20, 2019 (Incorrect Implementation) */
+	private static double[][] initGaussSquare(int kernelSize, double sigma)
 	{
 		int centerK = (kernelSize - 1) / 2; // Center Position of Kernel
 		double[][] gaussRet = new double[kernelSize][kernelSize];
+		double sumElem = 0;
 		for (int r = 0; r < gaussRet.length; r++)
 		{
 			for (int c = 0; c < gaussRet[r].length; c++)
 			{
-				int power =  Math.abs(centerK - r) + Math.abs(centerK - c) + 2; // Plus 2 because centered is n^2
-				gaussRet[r][c] = 1.0 / Math.pow(mult, power);
+				// X and Y distance
+				int dX2 = (r - centerK) * (r - centerK);
+				int dY2 = (c - centerK) * (c - centerK);
+				int dist = dX2 + dY2;
+				// Standard Gaussian Distribution
+				gaussRet[r][c] = Math.exp(-dist / (2 * sigma * sigma));
+				sumElem += gaussRet[r][c];
 			}
 		}
 
-		return gaussRet;
+		double[][] out = new double[gaussRet.length][gaussRet[0].length];
+		for (int r = 0; r < gaussRet.length; r++)
+		{
+			for (int c = 0; c < gaussRet[r].length; c++)
+			{
+				out[r][c] = gaussRet[r][c] / sumElem;
+			}
+		}
+
+		return out;
 	}
 
 	/* Expands a Square Array with Edges */

@@ -1,18 +1,20 @@
 package com.mrburgerus.betaplus.util;
 
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.ChunkGeneratorBetaPlus;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.IChunk;
 
+import java.util.Random;
+
 public class BetaPlusDeepenOcean
 {
-	public static void deepenOcean(IChunk chunk, ChunkGeneratorBetaPlus generator)
+	public static void deepenOcean(IChunk chunk, Random random, int seaLevel, int smoothSize)
 	{
 		// Get X and Z start
 		int xStart = chunk.getPos().getXStart();
 		int zStart = chunk.getPos().getZStart();
-		int seaLevel = generator.getSettings().getSeaLevel();
 
 		// Create 2-D Map of Y-Depth in Chunk
 		double[][] depthValues = new double[16][16];
@@ -30,11 +32,12 @@ public class BetaPlusDeepenOcean
 		{
 			for (int zV = 0; zV < depthValues[xV].length; ++zV)
 			{
-				depthValues[xV][zV] = depthValues[xV][zV] * 1.55;
+				// Should eventually have some call to the Seed, like rand.nextDouble()
+				depthValues[xV][zV] = depthValues[xV][zV] * (2.975 + (random.nextDouble() * 0.125));
 			}
 		}
 		// Gaussian BLUR
-		double[][] newDepths = BetaConvolve.convolve2DSquare(depthValues, generator.getSettings().getOceanSmoothSize(), 2f);
+		double[][] newDepths = BetaConvolve.convolve2DSquare(depthValues, smoothSize, 2f);
 
 
 		// Now Process These Values
@@ -46,6 +49,7 @@ public class BetaPlusDeepenOcean
 				int yNew = seaLevel - (int) newDepths[xV][zV];
 				if (yNew < y && y < seaLevel) // We are Deep, yo.
 				{
+					//BetaPlus.LOGGER.info("Deepening Ocean");
 					// We Are "Underwater"
 					for(int yV = y; yV > yNew; --yV)
 					{

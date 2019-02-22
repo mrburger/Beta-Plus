@@ -10,6 +10,7 @@ public class BetaPlusSelectBiome
 	static double frozenValue = 0.15;
 	static double hotValue = 0.9375;
 	static double veryHotVal = 0.985;
+	static double warmVal = 0.8;
 
 
 	// ORIGINAL GANGSTA
@@ -32,7 +33,7 @@ public class BetaPlusSelectBiome
 		{
 			if (humidity < 0.2)
 			{
-				if (temperature > 0.8)
+				if (temperature > warmVal)
 				{
 					return BiomeGenBetaPlus.savanna.handle;
 				}
@@ -46,7 +47,7 @@ public class BetaPlusSelectBiome
 			{
 				return BiomeGenBetaPlus.seasonalForest.handle;
 			}
-			if (temperature < 0.7)
+			if (temperature < 0.675) // Modified
 			{
 				return BiomeGenBetaPlus.megaTaiga.handle;
 			}

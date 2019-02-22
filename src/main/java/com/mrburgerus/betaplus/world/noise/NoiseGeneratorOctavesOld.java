@@ -6,11 +6,11 @@ public class NoiseGeneratorOctavesOld
 		extends NoiseGenerator
 {
 	private NoiseGenerator2[] generatorCollection;
-	private int field_4233_b;
+	private int bound;
 
 	public NoiseGeneratorOctavesOld(Random random, int bound1)
 	{
-		field_4233_b = bound1;
+		bound = bound1;
 		generatorCollection = new NoiseGenerator2[bound1];
 		for (int var3 = 0; var3 < bound1; var3++)
 		{
@@ -41,7 +41,7 @@ public class NoiseGeneratorOctavesOld
 		}
 		double mult1 = 1.0D;
 		double mult2 = 1.0D;
-		for (int i = 0; i < field_4233_b; i++)
+		for (int i = 0; i < bound; i++)
 		{
 			generatorCollection[i].noiseBounder1(doubles, xChunk, zChunk, xSize, zSize, var8 * mult2, var10 * mult2, 0.55D / mult1);
 			mult2 *= amplitude2;
@@ -50,3 +50,4 @@ public class NoiseGeneratorOctavesOld
 		return doubles;
 	}
 }
+

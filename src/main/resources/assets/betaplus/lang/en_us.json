@@ -4,5 +4,7 @@
   "generator.BETA_PLUS": "Beta+",
   "generator.BETA_PLUS.info": "Beta Terrain, Deeper Oceans and Modern Structures",
   "generator.BETA_EXT": "Beta+ Extended",
-  "generator.BETA_EXT.info": "Beta+, Extended Biome Suite"
+  "generator.BETA_EXT.info": "Beta+, Extended Biome Suite",
+  "generator.ALPHA": "Alpha",
+  "generator.ALPHA.info": "Alpha Terrain, deeper oceans"
 }
