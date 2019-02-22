@@ -32,7 +32,8 @@ public class GrassColorBetaPlus implements IBlockColor
 			//return 10802036;
 			//return 7712841;
 			//return 11131001;
-			return -65281;
+			//return -65281;
+			return 0xABFF67;
 			/* Return -1 Makes grass gray */
 		}
 		if (Minecraft.getInstance().getIntegratedServer().getWorld(DimensionType.OVERWORLD).getWorldType() instanceof WorldTypeBetaPlus)

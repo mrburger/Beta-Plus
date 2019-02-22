@@ -3,9 +3,13 @@ package com.mrburgerus.betaplus.world.biome;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.init.Biomes;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.provider.BiomeProvider;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.feature.structure.Structure;
 
 import javax.annotation.Nullable;
@@ -17,10 +21,19 @@ import java.util.Set;
 public class BiomeProviderAlphaPlus extends BiomeProvider
 {
 	private Biome biome;
+	public static final Biome snowBiome = Biomes.SNOWY_TAIGA;
 
-	public BiomeProviderAlphaPlus(Biome selectedBiome)
+	public BiomeProviderAlphaPlus(boolean isSnowy)
 	{
-		this.biome = selectedBiome;
+		if (isSnowy)
+		{
+			this.biome = snowBiome;
+		}
+		else
+		{
+			this.biome = Biomes.PLAINS;
+		}
+
 	}
 
 	/* Just Like Beta Plus, generates a single biome */

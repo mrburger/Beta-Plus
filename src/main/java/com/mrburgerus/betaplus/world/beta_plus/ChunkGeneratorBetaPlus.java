@@ -1,6 +1,7 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
 import com.mrburgerus.betaplus.BetaPlus;
+import com.mrburgerus.betaplus.util.BetaPlusBiomeReplace;
 import com.mrburgerus.betaplus.util.BetaPlusDeepenOcean;
 import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
 import com.mrburgerus.betaplus.world.biome.BiomeProviderBetaPlus;
@@ -104,7 +105,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		this.replaceBeaches(chunkIn);
 
 		// Set Biomes
-		chunkIn.setBiomes(convertBiomeArray(biomesForGeneration));
+		chunkIn.setBiomes(BetaPlusBiomeReplace.convertBiomeArray(biomesForGeneration));
 
 		chunkIn.setStatus(ChunkStatus.BASE);
 	}
@@ -292,7 +293,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 			{
 				int xPos = iChunk.getPos().getXStart() + x;
 				int zPos = iChunk.getPos().getZStart() + z;
-				int yVal = getSolidHeightY(xPos, zPos, iChunk);
+				int yVal = BetaPlusBiomeReplace.getSolidHeightY(xPos, zPos, iChunk);
 				if (yVal > settings.getHighAltitude())
 				{
 					biomesForGeneration[(x << 4 | z)] = BiomeGenBetaPlus.mountain.handle;
@@ -322,7 +323,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 			{
 				int xPos = chunk.getPos().getXStart() + x;
 				int zPos = chunk.getPos().getZStart() + z;
-				int yVal = getSolidHeightY(xPos, zPos, chunk);
+				int yVal = BetaPlusBiomeReplace.getSolidHeightY(xPos, zPos, chunk);
 				// New Line
 				Biome biome = biomesForGeneration[(x << 4 | z)];
 				//Inject Beaches (MODIFIED)
@@ -533,33 +534,5 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 				}
 			}
 		}
-	}
-
-	public static int getSolidHeightY (int x, int z, IChunk chunk)
-	{
-		for (int y = 130; y >= 0; --y)
-		{
-			Block block = chunk.getBlockState(new BlockPos(x, y, z)).getBlock();
-			if (block != Blocks.AIR && block != Blocks.WATER)
-			{
-				return y;
-			}
-		}
-		return 0;
-	}
-
-	/* Converts Biome Array As Generated to a usable Biome Array */
-	private static Biome[] convertBiomeArray(Biome[] biomesIn)
-	{
-		Biome[] biomesOut = new Biome[biomesIn.length];
-		for (int i = 0; i < biomesOut.length; i++)
-		{
-			//int z = i / 16;
-			//int x = i % 16;
-			int place = (i & 15) << 4 | i >> 4 & 15;
-			//System.out.println(place + " " + x + " " + z + " " + (x << 4 | z));
-			biomesOut[i] = biomesIn[place];
-		}
-		return biomesOut;
 	}
 }

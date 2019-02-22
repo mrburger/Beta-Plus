@@ -1,10 +1,19 @@
 package com.mrburgerus.betaplus.world.alpha_plus;
 
+import com.mrburgerus.betaplus.util.BetaPlusBiomeReplace;
 import com.mrburgerus.betaplus.util.BetaPlusDeepenOcean;
+import com.mrburgerus.betaplus.world.alpha_plus.generators.BasePlacementAlphaPlus;
+import com.mrburgerus.betaplus.world.alpha_plus.generators.WorldGenAlphaTrees;
+import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
+import com.mrburgerus.betaplus.world.biome.BiomeProviderAlphaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlpha;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFalling;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
@@ -12,11 +21,20 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.AbstractChunkGenerator;
+import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.IChunkGenSettings;
 import net.minecraft.world.gen.WorldGenRegion;
+import net.minecraft.world.gen.feature.CompositeFeature;
+import net.minecraft.world.gen.feature.FeatureRadiusConfig;
+import net.minecraft.world.gen.placement.BasePlacement;
+import net.minecraft.world.gen.placement.IPlacementConfig;
+import net.minecraft.world.gen.placement.NoPlacementConfig;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -40,18 +58,26 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	private double[] sandNoise = new double[256];
 	private double[] gravelNoise = new double[256];
 	private double[] stoneNoise = new double[256];
+	// New Fields
+	private final AlphaPlusGenSettings settings;
+	private static final int chunkSize = 16;
+	private BiomeProviderAlphaPlus biomeProviderS;
+	private Biome[] biomesForGeneration;
+	public static final BasePlacement<NoPlacementConfig> ALPHA_TREE = new BasePlacementAlphaPlus();
 
-	public ChunkGeneratorAlphaPlus(IWorld world, BiomeProvider biomeProvider)
+
+	public ChunkGeneratorAlphaPlus(IWorld world, BiomeProviderAlphaPlus biomeProvider, AlphaPlusGenSettings settingsIn)
 	{
 		super(world, biomeProvider);
-		this.rand = new Random(seed);
-		this.field_912_k = new NoiseGeneratorOctavesAlpha(this.rand, 16);
+		this.rand = new Random(seed);this.field_912_k = new NoiseGeneratorOctavesAlpha(this.rand, 16);
 		this.field_911_l = new NoiseGeneratorOctavesAlpha(this.rand, 16);
 		this.field_910_m = new NoiseGeneratorOctavesAlpha(this.rand, 8);
 		this.field_909_n = new NoiseGeneratorOctavesAlpha(this.rand, 4);
 		this.field_908_o = new NoiseGeneratorOctavesAlpha(this.rand, 4);
 		this.field_922_a = new NoiseGeneratorOctavesAlpha(this.rand, 10);
 		this.field_921_b = new NoiseGeneratorOctavesAlpha(this.rand, 16);
+		settings = settingsIn;
+		biomeProviderS = biomeProvider;
 	}
 
 	@Override
@@ -59,18 +85,48 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	{
 		int xPos = iChunk.getPos().x;
 		int zPos =  iChunk.getPos().z;
+		biomesForGeneration = this.biomeProvider.getBiomeBlock(xPos * 16, zPos * 16, 16, 16);
 		setBlocksInChunk(iChunk);
-		Biome[] biomeBlock = this.biomeProvider.getBiomeBlock(xPos * 16, zPos * 16, 16, 16);
-		iChunk.setBiomes(biomeBlock);
-		this.replaceBlocks(iChunk);
 		BetaPlusDeepenOcean.deepenOcean(iChunk, rand, 64, 7);
+		this.replaceBiomes(iChunk);
+
+
+		iChunk.setBiomes(BetaPlusBiomeReplace.convertBiomeArray(biomesForGeneration));
+		this.replaceBlocks(iChunk);
 		iChunk.setStatus(ChunkStatus.BASE);
 	}
 
 	@Override
 	public void decorate(WorldGenRegion region)
 	{
-		super.decorate(region);
+		BlockFalling.fallInstantly = true;
+		int i = region.getMainChunkX();
+		int j = region.getMainChunkZ();
+		int k = i * 16;
+		int l = j * 16;
+		BlockPos blockpos = new BlockPos(k, 0, l);
+		Biome biome = region.getChunk(i + 1, j + 1).getBiomes()[0];
+		SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
+		long longSeed = sharedseedrandom.setDecorationSeed(region.getSeed(), k, l);
+		// Insert Custom Stuff
+		for(GenerationStage.Decoration decoration : GenerationStage.Decoration.values())
+		{
+			/* Hopefully disables all Grass and Trees */
+			if (decoration != GenerationStage.Decoration.VEGETAL_DECORATION)
+			{
+				biome.decorate(decoration, this, region, longSeed, sharedseedrandom, blockpos);
+			}
+			else
+			{
+				// Generate The Trees
+				//Biomes.FOREST.decorate(GenerationStage.Decoration.VEGETAL_DECORATION, this, region, longSeed, sharedseedrandom, blockpos);
+				//new WorldGenAlphaTrees(false).place(null, region, rand, blockpos);
+				biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION).clear();
+				biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION).add(new CompositeFeature<>(new WorldGenAlphaTrees(false), FeatureRadiusConfig.NO_FEATURE_CONFIG, new BasePlacementAlphaPlus(), IPlacementConfig.NO_PLACEMENT_CONFIG));
+			}
+		}
+
+		BlockFalling.fallInstantly = false;
 	}
 
 	@Nullable
@@ -92,9 +148,9 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	}
 
 	@Override
-	public IChunkGenSettings getSettings()
+	public AlphaPlusGenSettings getSettings()
 	{
-		return null;
+		return settings;
 	}
 
 	@Override
@@ -405,4 +461,37 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		}
 	}
 
+
+	//Replace Biomes where necessary
+	/* Does NOT Work for SNOWY WORLDS */
+	private void replaceBiomes(IChunk iChunk)
+	{
+		for (int z = 0; z < chunkSize; ++z)
+		{
+			for (int x = 0; x < chunkSize; ++x)
+			{
+				int xPos = iChunk.getPos().getXStart() + x;
+				int zPos = iChunk.getPos().getZStart() + z;
+				int yVal = BetaPlusBiomeReplace.getSolidHeightY(xPos, zPos, iChunk);
+				if (yVal < 64 - 1)
+				{
+					if(settings.getSnowy())
+					{
+						//Do nothing for now.
+					}
+					else
+					{
+						if (yVal < 64 - 16)
+						{
+							biomesForGeneration[(x << 4 | z)] = Biomes.DEEP_COLD_OCEAN;
+						}
+						else
+						{
+							biomesForGeneration[(x << 4 | z)] = Biomes.COLD_OCEAN;
+						}
+					}
+				}
+			}
+		}
+	}
 }
