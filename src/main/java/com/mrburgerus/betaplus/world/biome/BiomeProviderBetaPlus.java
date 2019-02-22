@@ -2,6 +2,7 @@ package com.mrburgerus.betaplus.world.biome;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesOld;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
@@ -179,7 +180,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	public Set<IBlockState> getSurfaceBlocks()
 	{
 		if (this.topBlocksCache.isEmpty()) {
-			Biome[] var1 = this.biomes;
+			Biome[] var1 = biomes;
 			int var2 = var1.length;
 
 			for(int var3 = 0; var3 < var2; ++var3) {
@@ -202,8 +203,9 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 
 		temperatures = temperatureOctave.generateOctaves(temperatures, startX, startZ, xSize, xSize, 0.02500000037252903, 0.02500000037252903, 0.25);
 		humidities = humidityOctave.generateOctaves(humidities, startX, startZ, xSize, xSize, 0.05000000074505806, 0.05000000074505806, 0.3333333333333333);
+		BetaPlus.LOGGER.info("T: " + temperatures[0] + " H: " + humidities[0]);
 
-		double[] returnVal = {temperatures[0], humidities[0]};
+		double[] returnVal = {MathHelper.clamp(temperatures[0], 0.0, 1.0), MathHelper.clamp(humidities[0], 0.0, 1.0)};
 		return returnVal;
 	}
 

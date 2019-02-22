@@ -158,7 +158,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		int j = region.getMainChunkZ();
 		Biome biome = world.getBiome(new BlockPos(i * chunkSize + 8, 0, j * chunkSize + 8));
 
-		/* MODIFIED!*/
+		/* MODIFIED! */
 		WorldEntitySpawner.performWorldGenSpawning(region, biome, i, j, this.rand);
 	}
 
