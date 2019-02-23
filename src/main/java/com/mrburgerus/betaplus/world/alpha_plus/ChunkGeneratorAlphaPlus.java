@@ -3,10 +3,12 @@ package com.mrburgerus.betaplus.world.alpha_plus;
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.BetaPlusBiomeReplace;
 import com.mrburgerus.betaplus.util.BetaPlusDeepenOcean;
+import com.mrburgerus.betaplus.util.ResourceHelper;
 import com.mrburgerus.betaplus.world.alpha_plus.generators.BasePlacementAlphaPlus;
 import com.mrburgerus.betaplus.world.alpha_plus.generators.WorldGenAlphaTrees;
 import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
 import com.mrburgerus.betaplus.world.biome.BiomeProviderAlphaPlus;
+import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaFrozenOcean;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlpha;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
@@ -16,6 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
@@ -31,8 +34,11 @@ import net.minecraft.world.gen.feature.*;
 import net.minecraft.world.gen.placement.BasePlacement;
 import net.minecraft.world.gen.placement.IPlacementConfig;
 import net.minecraft.world.gen.placement.NoPlacementConfig;
+import net.minecraftforge.common.BiomeManager;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
+import java.rmi.registry.Registry;
 import java.util.*;
 
 public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
@@ -62,12 +68,13 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	private Biome[] biomesForGeneration;
 	public static final BasePlacement<NoPlacementConfig> ALPHA_TREE = new BasePlacementAlphaPlus();
 	private NoiseGeneratorOctavesAlpha treeNoise;
-
+	private static final Biome alphaFrozenOcean = ForgeRegistries.BIOMES.getValue(new ResourceLocation(ResourceHelper.getResourceStringBetaPlus(BiomeAlphaFrozenOcean.name)));
 
 	public ChunkGeneratorAlphaPlus(IWorld world, BiomeProviderAlphaPlus biomeProvider, AlphaPlusGenSettings settingsIn)
 	{
 		super(world, biomeProvider);
-		this.rand = new Random(seed);this.field_912_k = new NoiseGeneratorOctavesAlpha(this.rand, 16);
+		this.rand = new Random(seed);
+		this.field_912_k = new NoiseGeneratorOctavesAlpha(this.rand, 16);
 		this.field_911_l = new NoiseGeneratorOctavesAlpha(this.rand, 16);
 		this.field_910_m = new NoiseGeneratorOctavesAlpha(this.rand, 8);
 		this.field_909_n = new NoiseGeneratorOctavesAlpha(this.rand, 4);
@@ -132,13 +139,15 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 					int xH = minX + rand.nextInt(16);
 					int zH = minZ + rand.nextInt(16);
 					int yH = BetaPlusBiomeReplace.getSolidHeightY(xH, zH, chunk);
-					this.generateTrees(region, rand, xH, yH + 1, zH);
+					/* Trees Decay! */
+					//this.generateTrees(region, rand, xH, yH + 1, zH);
 				}
 				ArrayList<AbstractTreeFeature> removeList = new ArrayList<>();
 				removeList.add(new TallTaigaTreeFeature(false));
 				removeList.add(new PointyTaigaTreeFeature());
 				//BetaPlus.LOGGER.info("Feat: " + biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION).toString());
 				biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION).removeAll(removeList);
+
 				//biome.decorate(GenerationStage.Decoration.VEGETAL_DECORATION, this, region, longSeed, sharedseedrandom, blockpos);
 			}
 		}
@@ -494,17 +503,17 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 				{
 					if(settings.getSnowy())
 					{
-						//Do nothing for now.
+						biomesForGeneration[(x << 4 | z)] = alphaFrozenOcean;
 					}
 					else
 					{
 						if (yVal < 64 - 16)
 						{
-							biomesForGeneration[(x << 4 | z)] = Biomes.DEEP_COLD_OCEAN;
+							biomesForGeneration[(x << 4 | z)] = Biomes.DEEP_OCEAN;
 						}
 						else
 						{
-							biomesForGeneration[(x << 4 | z)] = Biomes.COLD_OCEAN;
+							biomesForGeneration[(x << 4 | z)] = Biomes.OCEAN;
 						}
 					}
 				}
@@ -514,6 +523,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 
 	/* Alpha Tree Generation, because I can */
 	/* This isn't a clean way of doing it */
+	/* Causes Trees to Dissolve? */
 	public boolean generateTrees(WorldGenRegion region, Random random, int baseX, int baseY, int baseZ) {
 		int treeHeight = random.nextInt(3) + 4;
 		boolean flag = true;

@@ -11,13 +11,10 @@ import net.minecraft.world.GrassColors;
 import net.minecraft.world.IWorldReaderBase;
 import net.minecraft.world.biome.BiomeColors;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 
-@OnlyIn(Dist.CLIENT)
-public class GrassColorBetaPlus implements IBlockColor
+public class LeavesColorBetaPlus implements IBlockColor
 {
 	@Override
 	public int getColor(IBlockState iBlockState, @Nullable IWorldReaderBase worldIn, @Nullable BlockPos pos, int i)
@@ -27,15 +24,6 @@ public class GrassColorBetaPlus implements IBlockColor
 		// If we are in an Alpha World
 		if (Minecraft.getInstance().getIntegratedServer().getWorld(DimensionType.OVERWORLD).getWorldType() instanceof WorldTypeAlphaPlus)
 		{
-			//return 9026389;
-			//return 9043797;
-			//return 9895680;
-			//return 10802036;
-			//return 7712841;
-			//return 11131001;
-			//return -65281;
-			//return 0xABFF67;
-			//return 0x32CD32;
 			return 0xA9D879;
 			/* Return -1 Makes grass gray */
 		}
@@ -47,7 +35,6 @@ public class GrassColorBetaPlus implements IBlockColor
 		}
 
 		// Otherwise we are on default.
-		return BiomeColors.getGrassColor(worldIn, pos);
+		return BiomeColors.getFoliageColor(worldIn, pos);
 	}
-
 }

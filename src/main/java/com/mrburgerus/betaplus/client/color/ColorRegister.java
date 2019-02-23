@@ -12,9 +12,9 @@ public class ColorRegister
 {
 	public static void clientSide(final FMLLoadCompleteEvent event)
 	{
-		BetaPlus.LOGGER.info("Fetus Deletus");
-		/* Do Not Enable the Grass Color until Kinks worked out */
-		Minecraft.getInstance().getBlockColors().register(new GrassColorBetaPlus(), Blocks.GRASS_BLOCK, Blocks.GRASS, Blocks.TALL_GRASS, Blocks.FERN, Blocks.LARGE_FERN);
-		Minecraft.getInstance().getBlockColors().register(new ReedColorBetaPlus(), Blocks.SUGAR_CANE);
+		Minecraft mc = Minecraft.getInstance();
+		mc.getBlockColors().register(new GrassColorBetaPlus(), Blocks.GRASS_BLOCK, Blocks.GRASS, Blocks.TALL_GRASS, Blocks.FERN, Blocks.LARGE_FERN);
+		mc.getBlockColors().register(new ReedColorBetaPlus(), Blocks.SUGAR_CANE);
+		mc.getBlockColors().register(new LeavesColorBetaPlus(), Blocks.OAK_LEAVES);
 	}
 }
