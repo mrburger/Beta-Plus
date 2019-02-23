@@ -37,12 +37,12 @@ public class NoiseGeneratorOctavesAlpha extends NoiseGenerator {
         return var1;
     }
 
-    public double func_806_a(double var1, double var3) {
+    public double func_806_a(double xPos, double zPos) {
         double var5 = 0.0D;
         double var7 = 1.0D;
 
         for (int var9 = 0; var9 < this.bound; ++var9) {
-            var5 += this.generatorCollection[var9].generateNoise(var1 * var7, var3 * var7, 0.0) / var7;
+            var5 += this.generatorCollection[var9].generateNoise(xPos * var7, zPos * var7, 0.0) / var7;
             var7 /= 2.0D;
         }
 

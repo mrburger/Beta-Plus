@@ -10,6 +10,8 @@ import com.mrburgerus.betaplus.world.biome.BiomeProviderAlphaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlpha;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
+import net.minecraft.block.trees.OakTree;
+import net.minecraft.block.trees.SpruceTree;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Biomes;
@@ -25,10 +27,7 @@ import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.*;
-import net.minecraft.world.gen.feature.AbstractTreeFeature;
-import net.minecraft.world.gen.feature.CompositeFeature;
-import net.minecraft.world.gen.feature.FeatureRadiusConfig;
-import net.minecraft.world.gen.feature.NoFeatureConfig;
+import net.minecraft.world.gen.feature.*;
 import net.minecraft.world.gen.placement.BasePlacement;
 import net.minecraft.world.gen.placement.IPlacementConfig;
 import net.minecraft.world.gen.placement.NoPlacementConfig;
@@ -127,7 +126,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 				//biome.decorate(GenerationStage.Decoration.VEGETAL_DECORATION, this, region, longSeed, sharedseedrandom, blockpos);
 				IChunk chunk = region.getChunk(chunkX, chunkZ);
 				double var10 = 0.5;
-				int chance = (int) ((this.treeNoise.func_806_a((double) chunkX * var10, (double) chunkZ * var10) / 8.0D + this.rand.nextDouble() * 4.0D + 4.0D) / 3.0D);
+				int chance = (int) ((this.treeNoise.func_806_a((double) chunkX * var10, (double) chunkZ * var10) / 8.0D + this.rand.nextDouble() * 4.0D + 4.0D) / 4.0D);
 				for (int chanceC = 0; chanceC < chance; ++chanceC)
 				{
 					int xH = minX + rand.nextInt(16);
@@ -135,6 +134,12 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 					int yH = BetaPlusBiomeReplace.getSolidHeightY(xH, zH, chunk);
 					this.generateTrees(region, rand, xH, yH + 1, zH);
 				}
+				ArrayList<AbstractTreeFeature> removeList = new ArrayList<>();
+				removeList.add(new TallTaigaTreeFeature(false));
+				removeList.add(new PointyTaigaTreeFeature());
+				//BetaPlus.LOGGER.info("Feat: " + biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION).toString());
+				biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION).removeAll(removeList);
+				//biome.decorate(GenerationStage.Decoration.VEGETAL_DECORATION, this, region, longSeed, sharedseedrandom, blockpos);
 			}
 		}
 

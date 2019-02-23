@@ -13,6 +13,7 @@ import net.minecraft.world.gen.placement.NoPlacementConfig;
 
 import java.util.Random;
 
+/* UNUSED */
 public class BasePlacementAlphaPlus extends BasePlacement<NoPlacementConfig>
 {
 

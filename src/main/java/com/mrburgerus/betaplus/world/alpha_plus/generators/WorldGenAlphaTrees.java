@@ -20,6 +20,8 @@ import net.minecraftforge.fml.common.IWorldGenerator;
 import java.util.Random;
 import java.util.Set;
 
+
+/* UNUSED */
 public class WorldGenAlphaTrees extends AbstractTreeFeature<NoFeatureConfig>
 {
 	//Fields

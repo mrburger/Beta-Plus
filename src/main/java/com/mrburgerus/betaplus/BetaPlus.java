@@ -1,5 +1,6 @@
 package com.mrburgerus.betaplus;
 
+import com.mrburgerus.betaplus.client.color.ColorRegister;
 import com.mrburgerus.betaplus.client.color.GrassColorBetaPlus;
 import com.mrburgerus.betaplus.client.color.ReedColorBetaPlus;
 import com.mrburgerus.betaplus.world.alpha_plus.WorldTypeAlphaPlus;
@@ -8,10 +9,12 @@ import com.mrburgerus.betaplus.world.biome.BiomeProviderAlphaPlus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -30,7 +33,7 @@ public class BetaPlus
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
 
         // Register Client-side features
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSide);
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(ColorRegister::clientSide);
 
 
 		// Register ourselves for server, registry and other game events we are interested in
@@ -41,14 +44,6 @@ public class BetaPlus
     {
 		WorldTypeBetaPlus.register();
 		WorldTypeAlphaPlus.register();
-    }
-
-
-    private void clientSide(final FMLLoadCompleteEvent event)
-    {
-    	/* Do Not Enable the Grass Color until Kinks worked out */
-        Minecraft.getInstance().getBlockColors().register(new GrassColorBetaPlus(), Blocks.GRASS_BLOCK, Blocks.GRASS, Blocks.TALL_GRASS, Blocks.FERN, Blocks.LARGE_FERN);
-        Minecraft.getInstance().getBlockColors().register(new ReedColorBetaPlus(), Blocks.SUGAR_CANE);
     }
 
     /* Turns on Perpetual Snow for Snowy Alpha Worlds */
@@ -63,7 +58,7 @@ public class BetaPlus
         	if (event.getWorld().getWorld().getBiome(spawnBlock) == BiomeProviderAlphaPlus.snowBiome)
 			{
 				/* Turn off Weather, so it snows forever */
-				event.getWorld().getWorld().getGameRules().setOrCreateGameRule("doWeatherCycle", "false", Minecraft.getInstance().getIntegratedServer());
+				event.getWorld().getWorld().getGameRules().setOrCreateGameRule("doWeatherCycle", "false", null);
 				/* Turn on Snow! */
 				event.getWorld().getWorldInfo().setRaining(true);
 			}

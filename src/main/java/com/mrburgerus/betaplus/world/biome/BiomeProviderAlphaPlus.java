@@ -21,7 +21,8 @@ import java.util.Set;
 public class BiomeProviderAlphaPlus extends BiomeProvider
 {
 	private Biome biome;
-	public static final Biome snowBiome = Biomes.SNOWY_TAIGA;
+	/* The tundra works Best */
+	public static final Biome snowBiome = Biomes.SNOWY_TUNDRA;
 
 	public BiomeProviderAlphaPlus(boolean isSnowy)
 	{

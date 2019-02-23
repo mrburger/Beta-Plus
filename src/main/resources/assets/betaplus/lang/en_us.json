@@ -6,5 +6,6 @@
   "generator.BETA_EXT": "Beta+ Extended",
   "generator.BETA_EXT.info": "Beta+, Extended Biome Suite",
   "generator.ALPHA": "Alpha",
-  "generator.ALPHA.info": "Alpha Terrain, deeper oceans"
+  "generator.ALPHA.info": "Alpha Terrain, deeper oceans",
+  "betaplus.isSnowWorld": "Snow World"
 }

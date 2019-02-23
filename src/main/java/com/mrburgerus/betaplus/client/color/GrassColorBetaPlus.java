@@ -10,11 +10,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GrassColors;
 import net.minecraft.world.IWorldReaderBase;
 import net.minecraft.world.biome.BiomeColors;
-import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 
+@OnlyIn(Dist.CLIENT)
 public class GrassColorBetaPlus implements IBlockColor
 {
 	@Override

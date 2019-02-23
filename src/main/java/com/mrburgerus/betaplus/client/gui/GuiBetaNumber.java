@@ -29,7 +29,7 @@ public class GuiBetaNumber extends Gui
 		Minecraft mc = Minecraft.getInstance();
 		// Check if we are in Beta+ World
 		/* Don't Call Client-side, returns null */
-		if(mc.getIntegratedServer().getWorld(DimensionType.OVERWORLD).getWorldType() instanceof WorldTypeBetaPlus)
+		if(mc.world.isRemote && mc.world.getWorld().getWorldType() instanceof WorldTypeBetaPlus)
 		{
 			if (event.getType() != RenderGameOverlayEvent.ElementType.EXPERIENCE)
 			{
@@ -37,7 +37,7 @@ public class GuiBetaNumber extends Gui
 			}
 			mc.fontRenderer.drawStringWithShadow(beta + version, 1.5f, 1.5f, 0xFFFFFF);
 		}
-		if(mc.getIntegratedServer().getWorld(DimensionType.OVERWORLD).getWorldType() instanceof WorldTypeAlphaPlus)
+		if(mc.world.isRemote && mc.world.getWorld().getWorldType() instanceof WorldTypeAlphaPlus)
 		{
 			if (event.getType() != RenderGameOverlayEvent.ElementType.EXPERIENCE)
 			{
