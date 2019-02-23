@@ -1,5 +1,6 @@
 package com.mrburgerus.betaplus.world.alpha_plus;
 
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.BetaPlusBiomeReplace;
 import com.mrburgerus.betaplus.util.BetaPlusDeepenOcean;
 import com.mrburgerus.betaplus.world.alpha_plus.generators.BasePlacementAlphaPlus;
@@ -15,6 +16,7 @@ import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -22,21 +24,17 @@ import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.gen.AbstractChunkGenerator;
-import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.IChunkGenSettings;
-import net.minecraft.world.gen.WorldGenRegion;
+import net.minecraft.world.gen.*;
+import net.minecraft.world.gen.feature.AbstractTreeFeature;
 import net.minecraft.world.gen.feature.CompositeFeature;
 import net.minecraft.world.gen.feature.FeatureRadiusConfig;
+import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraft.world.gen.placement.BasePlacement;
 import net.minecraft.world.gen.placement.IPlacementConfig;
 import net.minecraft.world.gen.placement.NoPlacementConfig;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 {
@@ -64,6 +62,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	private BiomeProviderAlphaPlus biomeProviderS;
 	private Biome[] biomesForGeneration;
 	public static final BasePlacement<NoPlacementConfig> ALPHA_TREE = new BasePlacementAlphaPlus();
+	private NoiseGeneratorOctavesAlpha treeNoise;
 
 
 	public ChunkGeneratorAlphaPlus(IWorld world, BiomeProviderAlphaPlus biomeProvider, AlphaPlusGenSettings settingsIn)
@@ -76,6 +75,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		this.field_908_o = new NoiseGeneratorOctavesAlpha(this.rand, 4);
 		this.field_922_a = new NoiseGeneratorOctavesAlpha(this.rand, 10);
 		this.field_921_b = new NoiseGeneratorOctavesAlpha(this.rand, 16);
+		treeNoise = new NoiseGeneratorOctavesAlpha(this.rand, 8);
 		settings = settingsIn;
 		biomeProviderS = biomeProvider;
 	}
@@ -100,14 +100,14 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	public void decorate(WorldGenRegion region)
 	{
 		BlockFalling.fallInstantly = true;
-		int i = region.getMainChunkX();
-		int j = region.getMainChunkZ();
-		int k = i * 16;
-		int l = j * 16;
-		BlockPos blockpos = new BlockPos(k, 0, l);
-		Biome biome = region.getChunk(i + 1, j + 1).getBiomes()[0];
+		int chunkX = region.getMainChunkX();
+		int chunkZ = region.getMainChunkZ();
+		int minX = chunkX * 16;
+		int minZ = chunkZ * 16;
+		BlockPos blockpos = new BlockPos(minX, 0, minZ);
+		Biome biome = region.getChunk(chunkX + 1, chunkZ + 1).getBiomes()[0];
 		SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
-		long longSeed = sharedseedrandom.setDecorationSeed(region.getSeed(), k, l);
+		long longSeed = sharedseedrandom.setDecorationSeed(region.getSeed(), minX, minZ);
 		// Insert Custom Stuff
 		for(GenerationStage.Decoration decoration : GenerationStage.Decoration.values())
 		{
@@ -121,8 +121,20 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 				// Generate The Trees
 				//Biomes.FOREST.decorate(GenerationStage.Decoration.VEGETAL_DECORATION, this, region, longSeed, sharedseedrandom, blockpos);
 				//new WorldGenAlphaTrees(false).place(null, region, rand, blockpos);
-				biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION).clear();
-				biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION).add(new CompositeFeature<>(new WorldGenAlphaTrees(false), FeatureRadiusConfig.NO_FEATURE_CONFIG, new BasePlacementAlphaPlus(), IPlacementConfig.NO_PLACEMENT_CONFIG));
+				//biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION).clear();
+				//biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION).add(new CompositeFeature<>(new WorldGenAlphaTrees(false), FeatureRadiusConfig.NO_FEATURE_CONFIG, new BasePlacementAlphaPlus(), IPlacementConfig.NO_PLACEMENT_CONFIG));
+				//biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(new WorldGenAlphaTrees(false), FeatureRadiusConfig.NO_FEATURE_CONFIG, new BasePlacementAlphaPlus(), IPlacementConfig.NO_PLACEMENT_CONFIG));
+				//biome.decorate(GenerationStage.Decoration.VEGETAL_DECORATION, this, region, longSeed, sharedseedrandom, blockpos);
+				IChunk chunk = region.getChunk(chunkX, chunkZ);
+				double var10 = 0.5;
+				int chance = (int) ((this.treeNoise.func_806_a((double) chunkX * var10, (double) chunkZ * var10) / 8.0D + this.rand.nextDouble() * 4.0D + 4.0D) / 3.0D);
+				for (int chanceC = 0; chanceC < chance; ++chanceC)
+				{
+					int xH = minX + rand.nextInt(16);
+					int zH = minZ + rand.nextInt(16);
+					int yH = BetaPlusBiomeReplace.getSolidHeightY(xH, zH, chunk);
+					this.generateTrees(region, rand, xH, yH + 1, zH);
+				}
 			}
 		}
 
@@ -494,4 +506,76 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 			}
 		}
 	}
+
+	/* Alpha Tree Generation, because I can */
+	/* This isn't a clean way of doing it */
+	public boolean generateTrees(WorldGenRegion region, Random random, int baseX, int baseY, int baseZ) {
+		int treeHeight = random.nextInt(3) + 4;
+		boolean flag = true;
+		// Check tree Y will be valid
+		if (baseY >= 1 && baseY + treeHeight + 1 <= 128) {
+			for (int y = baseY; y <= baseY + 1 + treeHeight; ++y) {
+				byte var9 = 1;
+				if (y == baseY) {
+					var9 = 0;
+				}
+
+				if (y >= baseY + 1 + treeHeight - 2) {
+					var9 = 2;
+				}
+
+				for (int x = baseX - var9; x <= baseX + var9 && flag; ++x) {
+					for (int z = baseZ - var9; z <= baseZ + var9 && flag; ++z) {
+						if (y >= 0 && y < 128) {
+							Block block = region.getBlockState(new BlockPos(x, y, z)).getBlock();
+							if (block != Blocks.AIR && block != Blocks.OAK_LEAVES) {
+								flag = false;
+							}
+						} else {
+							flag = false;
+						}
+					}
+				}
+			}
+
+			if (!flag) {
+				return false;
+			} else {
+				Block block = region.getBlockState(new BlockPos(baseX, baseY - 1, baseZ)).getBlock();
+				if ((block == Blocks.GRASS_BLOCK|| block == Blocks.DIRT) && baseY < 128 - treeHeight - 1) {
+					region.setBlockState(new BlockPos(baseX, baseY - 1, baseZ), Blocks.DIRT.getDefaultState(), 1);
+
+					for (int y = baseY - 3 + treeHeight; y <= baseY + treeHeight; ++y) {
+						int var19 = y - (baseY + treeHeight);
+						int var21 = 1 - var19 / 2;
+
+						for (int x = baseX - var21; x <= baseX + var21; ++x) {
+							int var13 = x - baseX;
+
+							for (int z = baseZ - var21; z <= baseZ + var21; ++z) {
+								int var15 = z - baseZ;
+								if ((Math.abs(var13) != var21 || Math.abs(var15) != var21 || random.nextInt(2) != 0 && var19 != 0)
+										&& !region.getBlockState(new BlockPos(x, y, z)).isFullCube()) {
+									region.setBlockState(new BlockPos(x, y, z), Blocks.OAK_LEAVES.getDefaultState(), 1);
+								}
+							}
+						}
+					}
+
+					for (int logPos = 0; logPos < treeHeight; ++logPos) {
+						Block logBlock = region.getBlockState(new BlockPos(baseX, baseY + logPos, baseZ)).getBlock();
+						if (logBlock == Blocks.AIR || logBlock == Blocks.OAK_LEAVES) {
+							region.setBlockState(new BlockPos(baseX, baseY + logPos, baseZ), Blocks.OAK_LOG.getDefaultState(), 1);
+						}
+					}
+					return true;
+				} else {
+					return false;
+				}
+			}
+		} else {
+			return false;
+		}
+	}
+
 }
