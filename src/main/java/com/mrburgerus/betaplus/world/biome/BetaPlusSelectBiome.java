@@ -1,25 +1,24 @@
 package com.mrburgerus.betaplus.world.biome;
 
-import net.minecraft.init.Biomes;
 import net.minecraft.world.biome.Biome;
 
 public class BetaPlusSelectBiome
 {
 	// Fields
-	static double coldValue = 0.5;
-	static double frozenValue = 0.15;
-	static double hotValue = 0.9375;
-	static double veryHotVal = 0.985;
-	static double warmVal = 0.8;
+	public static final double COLD_VALUE = 0.5;
+	public static final double FROZEN_VALUE = 0.15;
+	public static final double HOT_VALUE = 0.9375;
+	public static final double VERY_HOT_VAL = 0.985;
+	public static final double WARM_VAL = 0.8;
 
 
 	// ORIGINAL GANGSTA
 	public static Biome getBiome(float temperature, float humidity)
 	{
 		humidity *= temperature;
-		if (temperature < coldValue)
+		if (temperature < COLD_VALUE)
 		{
-			if ((temperature < frozenValue))
+			if ((temperature < FROZEN_VALUE))
 			{
 				return BiomeGenBetaPlus.iceSpikes.handle;
 			}
@@ -29,11 +28,11 @@ public class BetaPlusSelectBiome
 			}
 			return BiomeGenBetaPlus.taiga.handle;
 		}
-		if (temperature < hotValue)
+		if (temperature < HOT_VALUE)
 		{
 			if (humidity < 0.2)
 			{
-				if (temperature > warmVal)
+				if (temperature > WARM_VAL)
 				{
 					return BiomeGenBetaPlus.savanna.handle;
 				}
@@ -63,7 +62,7 @@ public class BetaPlusSelectBiome
 		}
 		if (humidity < 0.2)
 		{
-			if (temperature > veryHotVal && humidity <= 0.0025)
+			if (temperature > VERY_HOT_VAL && humidity <= 0.0025)
 			{
 				return BiomeGenBetaPlus.mesa.handle;
 			}

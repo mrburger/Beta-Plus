@@ -3,7 +3,6 @@ package com.mrburgerus.betaplus.world.alpha_plus;
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.BetaPlusBiomeReplace;
 import com.mrburgerus.betaplus.util.BetaPlusDeepenOcean;
-import com.mrburgerus.betaplus.world.biome.BiomeProviderAlphaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlpha;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
@@ -30,19 +29,19 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 {
 	// Fields
 	private Random rand;
-	private NoiseGeneratorOctavesAlpha field_912_k;
-	private NoiseGeneratorOctavesAlpha field_911_l;
-	private NoiseGeneratorOctavesAlpha field_910_m;
-	private NoiseGeneratorOctavesAlpha field_909_n;
-	private NoiseGeneratorOctavesAlpha field_908_o;
-	public NoiseGeneratorOctavesAlpha field_922_a;
-	public NoiseGeneratorOctavesAlpha field_921_b;
-	private double[] field_906_q;
-	double[] field_919_d;
-	double[] field_918_e;
-	double[] field_917_f;
-	double[] field_916_g;
-	double[] field_915_h;
+	private NoiseGeneratorOctavesAlpha octaves1;
+	private NoiseGeneratorOctavesAlpha octaves2;
+	private NoiseGeneratorOctavesAlpha octaves3;
+	private NoiseGeneratorOctavesAlpha beachBlockNoise;
+	private NoiseGeneratorOctavesAlpha surfaceNoise;
+	public NoiseGeneratorOctavesAlpha octaves4;
+	public NoiseGeneratorOctavesAlpha octaves5;
+	private double[] heightNoise;
+	double[] octave3Arr;
+	double[] octave1Arr;
+	double[] octave2Arr;
+	double[] octave4Arr;
+	double[] octave5Arr;
 	private double[] sandNoise = new double[256];
 	private double[] gravelNoise = new double[256];
 	private double[] stoneNoise = new double[256];
@@ -56,13 +55,14 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	{
 		super(world, biomeProvider);
 		this.rand = new Random(seed);
-		this.field_912_k = new NoiseGeneratorOctavesAlpha(this.rand, 16);
-		this.field_911_l = new NoiseGeneratorOctavesAlpha(this.rand, 16);
-		this.field_910_m = new NoiseGeneratorOctavesAlpha(this.rand, 8);
-		this.field_909_n = new NoiseGeneratorOctavesAlpha(this.rand, 4);
-		this.field_908_o = new NoiseGeneratorOctavesAlpha(this.rand, 4);
-		this.field_922_a = new NoiseGeneratorOctavesAlpha(this.rand, 10);
-		this.field_921_b = new NoiseGeneratorOctavesAlpha(this.rand, 16);
+		/* Declaration Order Matters */
+		this.octaves1 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
+		this.octaves2 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
+		this.octaves3 = new NoiseGeneratorOctavesAlpha(this.rand, 8);
+		this.beachBlockNoise = new NoiseGeneratorOctavesAlpha(this.rand, 4);
+		this.surfaceNoise = new NoiseGeneratorOctavesAlpha(this.rand, 4);
+		this.octaves4 = new NoiseGeneratorOctavesAlpha(this.rand, 10);
+		this.octaves5 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
 		settings = settingsIn;
 		biomeProviderS = biomeProvider;
 	}
@@ -74,12 +74,12 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		int zPos =  iChunk.getPos().z;
 		biomesForGeneration = this.biomeProvider.getBiomeBlock(xPos * 16, zPos * 16, 16, 16);
 		setBlocksInChunk(iChunk);
-		BetaPlusDeepenOcean.deepenOcean(iChunk, rand, settings.getSeaLevel(), 7);
+		//BetaPlusDeepenOcean.deepenOcean(iChunk, rand, settings.getSeaLevel(), 7);
 		this.replaceBiomes(iChunk);
 		this.replaceBeaches(iChunk);
 
 		iChunk.setBiomes(BetaPlusBiomeReplace.convertBiomeArray(biomesForGeneration));
-		this.replaceBlocks(iChunk);
+		//this.replaceBlocks(iChunk);
 		iChunk.setStatus(ChunkStatus.BASE);
 	}
 
@@ -164,29 +164,29 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	}
 
 	/* Sets blocks, just like beta */
-	public void setBlocksInChunk(IChunk chunk)
+	private void setBlocksInChunk(IChunk chunk)
 	{
 		int chunkX = chunk.getPos().x;
 		int chunkZ = chunk.getPos().z;
 		byte var4 = 4;
-		byte var5 = 64;
+		byte seaLevel = 64;
 		int var6 = var4 + 1;
 		byte var7 = 17;
 		int var8 = var4 + 1;
-		this.field_906_q = this.generateOctaves(this.field_906_q, chunkX * var4, 0, chunkZ * var4, var6, var7, var8);
+		this.heightNoise = this.generateOctaves(this.heightNoise, chunkX * var4, 0, chunkZ * var4, var6, var7, var8);
 
 		for (int var9 = 0; var9 < var4; ++var9) {
 			for (int var10 = 0; var10 < var4; ++var10) {
 				for (int var11 = 0; var11 < 16; ++var11) {
 					double var12 = 0.125D;
-					double var14 = this.field_906_q[((((var9) * var8) + var10) * var7) + var11];
-					double var16 = this.field_906_q[((var9) * var8 + var10 + 1) * var7 + var11];
-					double var18 = this.field_906_q[((var9 + 1) * var8 + var10) * var7 + var11];
-					double var20 = this.field_906_q[((var9 + 1) * var8 + var10 + 1) * var7 + var11];
-					double var22 = (this.field_906_q[((var9) * var8 + var10) * var7 + var11 + 1] - var14) * var12;
-					double var24 = (this.field_906_q[((var9) * var8 + var10 + 1) * var7 + var11 + 1] - var16) * var12;
-					double var26 = (this.field_906_q[((var9 + 1) * var8 + var10) * var7 + var11 + 1] - var18) * var12;
-					double var28 = (this.field_906_q[((var9 + 1) * var8 + var10 + 1) * var7 + var11 + 1] - var20) * var12;
+					double var14 = this.heightNoise[((((var9) * var8) + var10) * var7) + var11];
+					double var16 = this.heightNoise[((var9) * var8 + var10 + 1) * var7 + var11];
+					double var18 = this.heightNoise[((var9 + 1) * var8 + var10) * var7 + var11];
+					double var20 = this.heightNoise[((var9 + 1) * var8 + var10 + 1) * var7 + var11];
+					double var22 = (this.heightNoise[((var9) * var8 + var10) * var7 + var11 + 1] - var14) * var12;
+					double var24 = (this.heightNoise[((var9) * var8 + var10 + 1) * var7 + var11 + 1] - var16) * var12;
+					double var26 = (this.heightNoise[((var9 + 1) * var8 + var10) * var7 + var11 + 1] - var18) * var12;
+					double var28 = (this.heightNoise[((var9 + 1) * var8 + var10 + 1) * var7 + var11 + 1] - var20) * var12;
 
 					for (int var30 = 0; var30 < 8; ++var30) {
 						double var31 = 0.25D;
@@ -196,7 +196,6 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 						double var39 = (var20 - var16) * var31;
 
 						for (int var41 = 0; var41 < 4; ++var41) {
-							//int index = var41 + var9 * 4 << 11 | 0 + var10 * 4 << 7 | var11 * 8 + var30;
 							int x = var41 + var9 * 4;
 							int y = var11 * 8 + var30;
 							int z = var10 * 4;
@@ -207,7 +206,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 
 							for (int var50 = 0; var50 < 4; ++var50) {
 								Block block = null;
-								if (var11 * 8 + var30 < var5) {
+								if (var11 * 8 + var30 < seaLevel) {
 									block = Blocks.WATER;
 								}
 
@@ -218,8 +217,6 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 								if (block != null) {
 									chunk.setBlockState(new BlockPos(x, y, z), block.getDefaultState(), false);
 								}
-
-								//index += var43;
 								++z;
 								var46 += var48;
 							}
@@ -246,29 +243,29 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 
 		double var8 = 684.412D;
 		double var10 = 684.412D;
-		this.field_916_g =
-				this.field_922_a.generateNoiseOctaves(this.field_916_g, (double) var2, (double) var3, (double) var4, var5, 1, var7, 1.0D, 0.0D, 1.0D);
-		this.field_915_h = this.field_921_b
-				.generateNoiseOctaves(this.field_915_h, (double) var2, (double) var3, (double) var4, var5, 1, var7, 100.0D, 0.0D, 100.0D);
-		this.field_919_d = this.field_910_m
-				.generateNoiseOctaves(this.field_919_d, (double) var2, (double) var3, (double) var4, var5, var6, var7, var8 / 80.0D, var10 / 160.0D,
+		this.octave4Arr =
+				this.octaves4.generateNoiseOctaves(this.octave4Arr, (double) var2, (double) var3, (double) var4, var5, 1, var7, 1.0D, 0.0D, 1.0D);
+		this.octave5Arr = this.octaves5
+				.generateNoiseOctaves(this.octave5Arr, (double) var2, (double) var3, (double) var4, var5, 1, var7, 100.0D, 0.0D, 100.0D);
+		this.octave3Arr = this.octaves3
+				.generateNoiseOctaves(this.octave3Arr, (double) var2, (double) var3, (double) var4, var5, var6, var7, var8 / 80.0D, var10 / 160.0D,
 						var8 / 80.0D);
-		this.field_918_e = this.field_912_k
-				.generateNoiseOctaves(this.field_918_e, (double) var2, (double) var3, (double) var4, var5, var6, var7, var8, var10, var8);
-		this.field_917_f = this.field_911_l
-				.generateNoiseOctaves(this.field_917_f, (double) var2, (double) var3, (double) var4, var5, var6, var7, var8, var10, var8);
+		this.octave1Arr = this.octaves1
+				.generateNoiseOctaves(this.octave1Arr, (double) var2, (double) var3, (double) var4, var5, var6, var7, var8, var10, var8);
+		this.octave2Arr = this.octaves2
+				.generateNoiseOctaves(this.octave2Arr, (double) var2, (double) var3, (double) var4, var5, var6, var7, var8, var10, var8);
 		int var12 = 0;
 		int var13 = 0;
 
 		for (int var14 = 0; var14 < var5; ++var14) {
 			for (int var15 = 0; var15 < var7; ++var15) {
-				double var16 = (this.field_916_g[var13] + 256.0D) / 512.0D;
+				double var16 = (this.octave4Arr[var13] + 256.0D) / 512.0D;
 				if (var16 > 1.0D) {
 					var16 = 1.0D;
 				}
 
 				double var18 = 0.0D;
-				double var20 = this.field_915_h[var13] / 8000.0D;
+				double var20 = this.octave5Arr[var13] / 8000.0D;
 				if (var20 < 0.0D) {
 					var20 = -var20;
 				}
@@ -303,9 +300,9 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 						var27 *= 4.0D;
 					}
 
-					double var29 = this.field_918_e[var12] / 512.0D;
-					double var31 = this.field_917_f[var12] / 512.0D;
-					double var33 = (this.field_919_d[var12] / 10.0D + 1.0D) / 2.0D;
+					double var29 = this.octave1Arr[var12] / 512.0D;
+					double var31 = this.octave2Arr[var12] / 512.0D;
+					double var33 = (this.octave3Arr[var12] / 10.0D + 1.0D) / 2.0D;
 					if (var33 < 0.0D) {
 						var25 = var29;
 					} else if (var33 > 1.0D) {
@@ -342,7 +339,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		return var1;
 	}
 
-	public void replaceBlocks( IChunk chunk)
+	private void replaceBlocks(IChunk chunk)
 	{
 		int chunkX = chunk.getPos().x;
 		int chunkZ = chunk.getPos().z;
@@ -351,11 +348,11 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		double var5 = 0.03125D;
 
 
-		this.sandNoise = this.field_909_n.generateNoiseOctaves(this.sandNoise, chunkX * 16, chunkZ * 16, 0.0D, 16, 16, 1, var5, var5, 1.0D);
+		this.sandNoise = this.beachBlockNoise.generateNoiseOctaves(this.sandNoise, chunkX * 16, chunkZ * 16, 0.0D, 16, 16, 1, var5, var5, 1.0D);
 
-		this.gravelNoise = this.field_909_n.generateNoiseOctaves(this.gravelNoise, chunkZ * 16, 109.0134D, chunkX * 16, 16, 1, 16, var5, 1.0D, var5);
+		this.gravelNoise = this.beachBlockNoise.generateNoiseOctaves(this.gravelNoise, chunkZ * 16, 109.0134D, chunkX * 16, 16, 1, 16, var5, 1.0D, var5);
 
-		this.stoneNoise = this.field_908_o.generateNoiseOctaves(this.stoneNoise, chunkX * 16, chunkZ * 16, 0.0D, 16, 16, 1, var5 * 2.0D, var5 * 2.0D, var5 * 2.0D);
+		this.stoneNoise = this.surfaceNoise.generateNoiseOctaves(this.stoneNoise, chunkX * 16, chunkZ * 16, 0.0D, 16, 16, 1, var5 * 2.0D, var5 * 2.0D, var5 * 2.0D);
 
 
 		for (int x = 0; x < 16; x++)
@@ -451,7 +448,6 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 			}
 		}
 	}
-
 
 	//Replace Biomes where necessary
 	private void replaceBiomes(IChunk iChunk)

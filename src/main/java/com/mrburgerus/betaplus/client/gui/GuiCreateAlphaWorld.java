@@ -3,6 +3,7 @@ package com.mrburgerus.betaplus.client.gui;
 import com.google.common.annotations.Beta;
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.world.alpha_plus.AlphaPlusGenSettings;
+import com.mrburgerus.betaplus.world.alpha_plus.WorldTypeAlphaPlus;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateBuffetWorld;
 import net.minecraft.client.gui.GuiCreateWorld;
@@ -31,13 +32,14 @@ public class GuiCreateAlphaWorld extends GuiScreen
 	private int cancelId = 1;
 	private GuiButton snowButton;
 	private final int snowButtonId = 3;
-	private AlphaPlusGenSettings settings;
+	private NBTTagCompound compound;
 
 
-	public GuiCreateAlphaWorld(GuiCreateWorld parentIn, AlphaPlusGenSettings settingsIn)
+	//TODO: PROPERLY SET THE VALUE OF SNOW WORLD WHEN RE-CREATING WORLDS
+	public GuiCreateAlphaWorld(GuiCreateWorld parentIn, NBTTagCompound compoundIn)
 	{
 		parent = parentIn;
-		this.settings = settingsIn;
+		compound = compoundIn;
 	}
 
 	@Override
@@ -52,9 +54,7 @@ public class GuiCreateAlphaWorld extends GuiScreen
 			public void onClick(double mouseX, double mouseY)
 			{
 				// Save the value
-				//GuiCreateAlphaWorld.this.parent.chunkProviderSettingsJson = GuiCreateAlphaWorld.this.serialize();
-				/* Not ideal, but who cares. I DO */
-				settings.setSnowy(isSnowWorld);
+				GuiCreateAlphaWorld.this.parent.chunkProviderSettingsJson = GuiCreateAlphaWorld.this.serialize();
 				closeGui();
 
 			}
@@ -82,36 +82,43 @@ public class GuiCreateAlphaWorld extends GuiScreen
 	public void render(int mouseX, int mouseY, float partialTicks)
 	{
 		this.drawDefaultBackground();
-		drawCenteredString(mc.fontRenderer, "NOT WORKING!", this.width / 2, this.height / 2, 0xFFFFFF);
 		/* Copied from GuiScreen */
 		for(int i = 0; i < this.buttons.size(); ++i) {
 			this.buttons.get(i).render(mouseX, mouseY, partialTicks);
 		}
 	}
 
+	/* Taken from GuiCreateBuffetWorld.class, Modified */
+	/* is it actually needed? */
+	/*
+	private void deserialize(NBTTagCompound compound) {
+		int lvt_3_2_;
+		if (compound.contains("chunk_generator", 10) && compound.getCompound("chunk_generator").contains("type", 8)) {
+			ResourceLocation lvt_2_1_ = new ResourceLocation(compound.getCompound("chunk_generator").getString("type"));
+
+			for(lvt_3_2_ = 0; lvt_3_2_ < BUFFET_GENERATORS.size(); ++lvt_3_2_) {
+				if (((ResourceLocation)BUFFET_GENERATORS.get(lvt_3_2_)).equals(lvt_2_1_)) {
+					this.field_205312_t = lvt_3_2_;
+					break;
+				}
+			}
+		}
+
+		if (compound.contains("biome_source", 10) && compound.getCompound("biome_source").contains("biomes", 9)) {
+			NBTTagList lvt_2_2_ = compound.getCompound("biome_source").getList("biomes", 8);
+
+			for(lvt_3_2_ = 0; lvt_3_2_ < lvt_2_2_.size(); ++lvt_3_2_) {
+				this.biomes.add(new ResourceLocation(lvt_2_2_.getString(lvt_3_2_)));
+			}
+		}
+
+	}
+	*/
+
 	/* Not Working */
 	private NBTTagCompound serialize() {
 		NBTTagCompound generatorNBT = new NBTTagCompound();
-		/*
-		NBTTagCompound biomeSourceNBT = new NBTTagCompound();
-		biomeSourceNBT.setString("type", IRegistry.field_212625_n.getKey(BiomeProviderType.FIXED).toString());
-		NBTTagCompound optionsNBT = new NBTTagCompound();
-		NBTTagList nbttaglist = new NBTTagList();
-
-
-		optionsNBT.setTag("biomes", nbttaglist);
-		biomeSourceNBT.setTag("options", optionsNBT);
-		NBTTagCompound generatorTypeNBT = new NBTTagCompound();
-		NBTTagCompound nbttagcompound4 = new NBTTagCompound();
-		generatorTypeNBT.setString("type", "LS");
-		nbttagcompound4.setString("default_block", "minecraft:stone");
-		nbttagcompound4.setString("default_fluid", "minecraft:water");
-		generatorTypeNBT.setTag("options", nbttagcompound4);
-		generatorNBT.setTag("biome_source", biomeSourceNBT);
-		generatorNBT.setTag("chunk_generator", generatorTypeNBT);
-		*/
-		generatorNBT.setString("snowWorld", String.valueOf(isSnowWorld));
-		System.out.println(generatorNBT.toFormattedComponent().getFormattedText());
+		generatorNBT.setString(WorldTypeAlphaPlus.SNOW_WORLD_TAG, String.valueOf(isSnowWorld));
 		return generatorNBT;
 	}
 

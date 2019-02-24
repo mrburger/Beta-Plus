@@ -4,7 +4,6 @@ import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.BetaPlusBiomeReplace;
 import com.mrburgerus.betaplus.util.BetaPlusDeepenOcean;
 import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
-import com.mrburgerus.betaplus.world.biome.BiomeProviderBetaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;

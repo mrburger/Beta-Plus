@@ -2,7 +2,7 @@ package com.mrburgerus.betaplus.client.color;
 
 import com.mrburgerus.betaplus.world.alpha_plus.WorldTypeAlphaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.WorldTypeBetaPlus;
-import com.mrburgerus.betaplus.world.biome.BiomeProviderBetaPlus;
+import com.mrburgerus.betaplus.world.beta_plus.BiomeProviderBetaPlus;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.IBlockColor;

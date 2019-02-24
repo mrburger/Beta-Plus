@@ -1,6 +1,5 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
-import com.mrburgerus.betaplus.world.biome.BiomeProviderBetaPlus;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.gen.IChunkGenerator;

@@ -57,6 +57,8 @@ public class BiomeHelper
 		biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(Feature.TALL_GRASS, new TallGrassConfig(Blocks.GRASS.getDefaultState()), Biome.SURFACE_PLUS_32, new FrequencyConfig(2)));
 		// Flowers
 		biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFlowerFeature(Feature.DEFAULT_FLOWERS, Biome.SURFACE_PLUS_32, new FrequencyConfig(2)));
+		// Trees
+		biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(Feature.TREE, FeatureRadiusConfig.NO_FEATURE_CONFIG,  Biome.AT_SURFACE_WITH_EXTRA, new AtSurfaceWithExtraConfig(3, 0.05F, 1)));
 
 	}
 
@@ -96,6 +98,9 @@ public class BiomeHelper
 		biome.addStructure(Feature.SHIPWRECK, new ShipwreckConfig(false));
 		biome.addStructure(Feature.OCEAN_RUIN, new OceanRuinConfig(OceanRuinStructure.Type.COLD, 0.3F, 0.9F));
 
+		// Underwater Ravine
+		biome.addCarver(GenerationStage.Carving.LIQUID, Biome.createWorldCarverWrapper(Biome.UNDERWATER_CANYON_WORLD_CARVER, new ProbabilityConfig(0.02F)));
+
 	}
 
 	/* Adds All the features we need to Alpha Biomes */
@@ -104,12 +109,6 @@ public class BiomeHelper
 		// Caves & Ravines
 		biome.addCarver(GenerationStage.Carving.AIR, Biome.createWorldCarverWrapper(Biome.CAVE_WORLD_CARVER, new ProbabilityConfig(0.06666667F)));
 		biome.addCarver(GenerationStage.Carving.AIR, Biome.createWorldCarverWrapper(Biome.CANYON_WORLD_CARVER, new ProbabilityConfig(0.02F)));
-
-		// Mineshafts
-		biome.addStructure(Feature.MINESHAFT, new MineshaftConfig(0.004D, MineshaftStructure.Type.NORMAL));
-
-		// Trees
-		biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(Feature.TREE, FeatureRadiusConfig.NO_FEATURE_CONFIG,  Biome.AT_SURFACE_WITH_EXTRA, new AtSurfaceWithExtraConfig(3, 0.05F, 1)));
 
 		// Mushrooms
 		biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(Feature.BUSH, new BushConfig(Blocks.BROWN_MUSHROOM), Biome.TWICE_SURFACE_WITH_CHANCE, new ChanceConfig(4)));

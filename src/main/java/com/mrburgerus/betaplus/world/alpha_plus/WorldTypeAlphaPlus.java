@@ -2,26 +2,24 @@ package com.mrburgerus.betaplus.world.alpha_plus;
 
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.client.gui.GuiCreateAlphaWorld;
-import com.mrburgerus.betaplus.world.biome.BiomeProviderAlphaPlus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiCreateWorld;
-import net.minecraft.init.Biomes;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
-import net.minecraft.world.biome.provider.BiomeProvider;
-import net.minecraft.world.biome.provider.BiomeProviderType;
 import net.minecraft.world.gen.IChunkGenerator;
 
+
+/* Line 99, or where the Buffet World Type is assigned is the bbest location to get info on Customized Worlds. */
 public class WorldTypeAlphaPlus extends WorldType
 {
-	private AlphaPlusGenSettings settings;
+	//Fields
+	public static final String SNOW_WORLD_TAG = "snowWorld";
 
 	public WorldTypeAlphaPlus(String alpha)
 	{
 		super(alpha);
 		/* Culprit? */
-		BetaPlus.LOGGER.info("Created Alpha world type");
-		settings = new AlphaPlusGenSettings();
+		/* Called EVERY time game launches, thats bad */
 	}
 
 	// Register World Type
@@ -33,7 +31,8 @@ public class WorldTypeAlphaPlus extends WorldType
 	@Override
 	public IChunkGenerator<?> createChunkGenerator(World world)
 	{
-		return new ChunkGeneratorAlphaPlus(world, new BiomeProviderAlphaPlus(settings.getSnowy()), settings);
+		AlphaPlusGenSettings settings = AlphaPlusGenSettings.createSettings(world.getWorldInfo().getGeneratorOptions());
+		return new ChunkGeneratorAlphaPlus(world, new BiomeProviderAlphaPlus(world), settings);
 	}
 
 	/* Since we have snow as an option, It has custom Options */
@@ -41,7 +40,7 @@ public class WorldTypeAlphaPlus extends WorldType
 	@Override
 	public boolean hasCustomOptions()
 	{
-		return false;
+		return true;
 	}
 
 	@Override
@@ -53,7 +52,7 @@ public class WorldTypeAlphaPlus extends WorldType
 	@Override
 	public void onCustomizeButton(Minecraft mc, GuiCreateWorld gui)
 	{
-		mc.displayGuiScreen(new GuiCreateAlphaWorld(gui, settings));
+		mc.displayGuiScreen(new GuiCreateAlphaWorld(gui, gui.chunkProviderSettingsJson));
 	}
 
 }

@@ -1,9 +1,10 @@
-package com.mrburgerus.betaplus.world.biome;
+package com.mrburgerus.betaplus.world.beta_plus;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mrburgerus.betaplus.BetaPlus;
-import com.mrburgerus.betaplus.world.beta_plus.BetaPlusGenSettings;
+import com.mrburgerus.betaplus.world.biome.BetaPlusSelectBiome;
+import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesOld;
 import net.minecraft.block.state.IBlockState;
@@ -302,7 +303,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		double[] climate = this.getClimateValuesatPos(pos);
 		double temperature = climate[0];
 		//return BiomeGenBetaPlus.getBiomeFromLookup(temperature, climate[1]);
-		if (temperature < BetaPlusSelectBiome.frozenValue)
+		if (temperature < BetaPlusSelectBiome.FROZEN_VALUE)
 		{
 			if(isDeep)
 			{
@@ -310,11 +311,11 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 			}
 			return Biomes.FROZEN_OCEAN;
 		}
-		else if (temperature > BetaPlusSelectBiome.veryHotVal && climate[1] >= 0.725)
+		else if (temperature > BetaPlusSelectBiome.VERY_HOT_VAL && climate[1] >= 0.725)
 		{
 			return Biomes.WARM_OCEAN;
 		}
-		else if (temperature > BetaPlusSelectBiome.warmVal)
+		else if (temperature > BetaPlusSelectBiome.WARM_VAL)
 		{
 			if(isDeep)
 			{
@@ -336,7 +337,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	public Biome getBeachBiome(BlockPos pos)
 	{
 		double[] climate = this.getClimateValuesatPos(pos);
-		if (climate[0] < BetaPlusSelectBiome.frozenValue)
+		if (climate[0] < BetaPlusSelectBiome.FROZEN_VALUE)
 		{
 			return Biomes.SNOWY_BEACH;
 		}
