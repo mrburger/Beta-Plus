@@ -14,12 +14,14 @@ import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldEntitySpawner;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.*;
 import net.minecraft.world.gen.feature.*;
 import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.world.gen.feature.structure.SwampHutStructure;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -93,7 +95,6 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		Biome biome = region.getChunk(chunkX + 1, chunkZ + 1).getBiomes()[0];
 		SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
 		long longSeed = sharedseedrandom.setDecorationSeed(region.getSeed(), minX, minZ);
-		// Insert Custom Stuff
 		for(GenerationStage.Decoration decoration : GenerationStage.Decoration.values())
 		{
 			biome.decorate(decoration, this, region, longSeed, sharedseedrandom, blockpos);
@@ -114,15 +115,27 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	}
 
 	@Override
-	public void spawnMobs(WorldGenRegion worldGenRegion)
+	public void spawnMobs(WorldGenRegion region)
 	{
+		int i = region.getMainChunkX();
+		int j = region.getMainChunkZ();
+		Biome biome = world.getBiome(new BlockPos(i * CHUNK_SIZE + 8, 0, j * CHUNK_SIZE + 8));
 
+		/* MODIFIED! */
+		WorldEntitySpawner.performWorldGenSpawning(region, biome, i, j, this.rand);
 	}
 
 	@Override
-	public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType enumCreatureType, BlockPos blockPos)
+	public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos)
 	{
-		return null;
+		// Modified
+		Biome biome = world.getBiome(pos);
+		//Copied from Overworld
+		if (creatureType == EnumCreatureType.MONSTER && ((SwampHutStructure) Feature.SWAMP_HUT).func_202383_b(this.world, pos)) {
+			return Feature.SWAMP_HUT.getSpawnList();
+		} else {
+			return creatureType == EnumCreatureType.MONSTER && Feature.OCEAN_MONUMENT.isPositionInStructure(this.world, pos) ? Feature.OCEAN_MONUMENT.getSpawnList() : biome.getSpawns(creatureType);
+		}
 	}
 
 	@Override
@@ -460,11 +473,11 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 					{
 						if (yVal < 64 - 16)
 						{
-							biomesForGeneration[(x << 4 | z)] = Biomes.DEEP_OCEAN;
+							biomesForGeneration[(x << 4 | z)] = BiomeProviderAlphaPlus.ALPHA_OCEAN;
 						}
 						else
 						{
-							biomesForGeneration[(x << 4 | z)] = Biomes.OCEAN;
+							biomesForGeneration[(x << 4 | z)] = BiomeProviderAlphaPlus.ALPHA_OCEAN;
 						}
 					}
 				}

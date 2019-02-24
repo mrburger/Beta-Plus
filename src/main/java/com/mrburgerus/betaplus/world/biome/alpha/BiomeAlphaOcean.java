@@ -19,7 +19,7 @@ public class BiomeAlphaOcean extends Biome
 	public static final String NAME = "alpha_ocean";
 	public BiomeAlphaOcean()
 	{
-		super((new BiomeBuilder()).surfaceBuilder(new CompositeSurfaceBuilder<>(DEFAULT_SURFACE_BUILDER, GRASS_DIRT_GRAVEL_SURFACE)).precipitation(RainType.RAIN).category(Category.OCEAN).depth(-1.8F).scale(0.1F).temperature(0.5F).downfall(0.5F).waterColor(4159204).waterFogColor(329011).parent((String)null));
+		super((new BiomeBuilder()).surfaceBuilder(new CompositeSurfaceBuilder<>(DEFAULT_SURFACE_BUILDER, GRASS_DIRT_GRAVEL_SURFACE)).precipitation(RainType.RAIN).category(Category.OCEAN).depth(0.0F).scale(0.0F).temperature(0.5F).downfall(0.5F).waterColor(4159204).waterFogColor(329011).parent((String)null));
 
 		//Create Ores
 		BiomeHelper.addAllOres(this);

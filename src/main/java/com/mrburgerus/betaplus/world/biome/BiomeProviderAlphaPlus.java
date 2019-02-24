@@ -6,6 +6,7 @@ import com.mrburgerus.betaplus.util.ResourceHelper;
 import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaFrozenLand;
 import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaFrozenOcean;
 import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaLand;
+import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaOcean;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -27,6 +28,7 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	public static final Biome ALPHA_SNOW_BIOME = ForgeRegistries.BIOMES.getValue(new ResourceLocation(ResourceHelper.getResourceStringBetaPlus(BiomeAlphaFrozenLand.NAME)));;
 	public static final Biome ALPHA_FROZEN_OCEAN = ForgeRegistries.BIOMES.getValue(new ResourceLocation(ResourceHelper.getResourceStringBetaPlus(BiomeAlphaFrozenOcean.NAME)));
 	public static final Biome ALPHA_BIOME = ForgeRegistries.BIOMES.getValue(new ResourceLocation(ResourceHelper.getResourceStringBetaPlus(BiomeAlphaLand.NAME)));
+	public static final Biome ALPHA_OCEAN = ForgeRegistries.BIOMES.getValue(new ResourceLocation(ResourceHelper.getResourceStringBetaPlus(BiomeAlphaOcean.NAME)));
 
 	public BiomeProviderAlphaPlus(boolean isSnowy)
 	{
@@ -101,6 +103,10 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	@Override
 	public boolean hasStructure(Structure<?> structure)
 	{
+		if (biome.hasStructure(structure))
+		{
+			return true;
+		}
 		return false;
 	}
 

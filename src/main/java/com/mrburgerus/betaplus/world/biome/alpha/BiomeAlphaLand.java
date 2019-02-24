@@ -29,6 +29,8 @@ public class BiomeAlphaLand extends Biome
 		this.addStructureFeatures();
 		// Add Trees, Caves, features.
 		BiomeHelper.addAlphaLandFeatures(this);
+		// Add vegetation
+		BiomeHelper.addAllVegetal(this);
 
 		// Standard Spawns
 		BiomeHelper.addPassiveLandSpawns(this);

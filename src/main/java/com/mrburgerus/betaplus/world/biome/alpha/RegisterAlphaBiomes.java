@@ -15,12 +15,18 @@ public class RegisterAlphaBiomes
 		if (event.getRegistry().getRegistrySuperType() == Biome.class)
 		{
 			Biome frozenOcean = new BiomeAlphaFrozenOcean().setRegistryName(BetaPlus.MOD_NAME, BiomeAlphaFrozenOcean.NAME);
+			Biome frozenLand = new BiomeAlphaFrozenLand().setRegistryName(BetaPlus.MOD_NAME, BiomeAlphaFrozenLand.NAME);
 			Biome alphaLand = new BiomeAlphaLand().setRegistryName(BetaPlus.MOD_NAME, BiomeAlphaLand.NAME);
+			Biome alphaOcean = new BiomeAlphaOcean().setRegistryName(BetaPlus.MOD_NAME, BiomeAlphaOcean.NAME);
 
 			/* 0 Weight because it should never Generate naturally */
 			BiomeManager.addBiome(BiomeManager.BiomeType.ICY, new BiomeManager.BiomeEntry(frozenOcean, 0));
+			BiomeManager.addBiome(BiomeManager.BiomeType.ICY, new BiomeManager.BiomeEntry(frozenLand, 0));
 			BiomeManager.addBiome(BiomeManager.BiomeType.WARM, new BiomeManager.BiomeEntry(alphaLand, 0));
-			event.getRegistry().registerAll(frozenOcean, alphaLand);
+			BiomeManager.addBiome(BiomeManager.BiomeType.WARM, new BiomeManager.BiomeEntry(alphaOcean, 0));
+
+			// List all Biomes here
+			event.getRegistry().registerAll(frozenOcean, frozenLand, alphaLand, alphaOcean);
 		}
 	}
 }

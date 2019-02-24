@@ -53,16 +53,21 @@ public class BiomeHelper
 		biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(Feature.REED, IFeatureConfig.NO_FEATURE_CONFIG, Biome.TWICE_SURFACE, new FrequencyConfig(10)));
 		// Pumpkins
 		biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(Feature.PUMPKIN, IFeatureConfig.NO_FEATURE_CONFIG, Biome.TWICE_SURFACE_WITH_CHANCE, new ChanceConfig(32)));
+		// Tall Grass (Increase Rarity)
+		biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(Feature.TALL_GRASS, new TallGrassConfig(Blocks.GRASS.getDefaultState()), Biome.SURFACE_PLUS_32, new FrequencyConfig(2)));
+		// Flowers
+		biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFlowerFeature(Feature.DEFAULT_FLOWERS, Biome.SURFACE_PLUS_32, new FrequencyConfig(2)));
 
 	}
 
 	public static void addPassiveLandSpawns(Biome biome)
 	{
-		biome.addSpawn(EnumCreatureType.CREATURE, new Biome.SpawnListEntry(EntityType.SHEEP, 12, 4, 4));
-		biome.addSpawn(EnumCreatureType.CREATURE, new Biome.SpawnListEntry(EntityType.PIG, 10, 4, 4));
-		biome.addSpawn(EnumCreatureType.CREATURE, new Biome.SpawnListEntry(EntityType.CHICKEN, 10, 4, 4));
-		biome.addSpawn(EnumCreatureType.CREATURE, new Biome.SpawnListEntry(EntityType.COW, 8, 4, 4));
-		biome.addSpawn(EnumCreatureType.CREATURE, new Biome.SpawnListEntry(EntityType.WOLF, 5, 4, 4));
+		int passivePackSize = 7;
+		biome.addSpawn(EnumCreatureType.CREATURE, new Biome.SpawnListEntry(EntityType.SHEEP, 12, passivePackSize, passivePackSize));
+		biome.addSpawn(EnumCreatureType.CREATURE, new Biome.SpawnListEntry(EntityType.PIG, 10, passivePackSize, passivePackSize));
+		biome.addSpawn(EnumCreatureType.CREATURE, new Biome.SpawnListEntry(EntityType.CHICKEN, 10, passivePackSize, passivePackSize));
+		biome.addSpawn(EnumCreatureType.CREATURE, new Biome.SpawnListEntry(EntityType.COW, 8, passivePackSize, passivePackSize));
+		biome.addSpawn(EnumCreatureType.CREATURE, new Biome.SpawnListEntry(EntityType.WOLF, 5, passivePackSize, passivePackSize));
 		biome.addSpawn(EnumCreatureType.AMBIENT, new Biome.SpawnListEntry(EntityType.BAT, 10, 8, 8));
 	}
 
@@ -105,6 +110,10 @@ public class BiomeHelper
 
 		// Trees
 		biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(Feature.TREE, FeatureRadiusConfig.NO_FEATURE_CONFIG,  Biome.AT_SURFACE_WITH_EXTRA, new AtSurfaceWithExtraConfig(3, 0.05F, 1)));
+
+		// Mushrooms
+		biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(Feature.BUSH, new BushConfig(Blocks.BROWN_MUSHROOM), Biome.TWICE_SURFACE_WITH_CHANCE, new ChanceConfig(4)));
+		biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(Feature.BUSH, new BushConfig(Blocks.RED_MUSHROOM), Biome.TWICE_SURFACE_WITH_CHANCE, new ChanceConfig(8)));
 
 	}
 }
