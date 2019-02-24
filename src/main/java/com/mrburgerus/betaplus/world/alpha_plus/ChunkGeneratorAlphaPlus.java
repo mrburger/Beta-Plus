@@ -1,5 +1,6 @@
 package com.mrburgerus.betaplus.world.alpha_plus;
 
+import com.google.common.annotations.Beta;
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.BetaPlusBiomeReplace;
 import com.mrburgerus.betaplus.util.BetaPlusDeepenOcean;
@@ -31,6 +32,7 @@ import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.*;
 import net.minecraft.world.gen.feature.*;
+import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.gen.placement.BasePlacement;
 import net.minecraft.world.gen.placement.IPlacementConfig;
 import net.minecraft.world.gen.placement.NoPlacementConfig;
@@ -66,9 +68,6 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	private static final int chunkSize = 16;
 	private BiomeProviderAlphaPlus biomeProviderS;
 	private Biome[] biomesForGeneration;
-	public static final BasePlacement<NoPlacementConfig> ALPHA_TREE = new BasePlacementAlphaPlus();
-	private NoiseGeneratorOctavesAlpha treeNoise;
-	private static final Biome alphaFrozenOcean = ForgeRegistries.BIOMES.getValue(new ResourceLocation(ResourceHelper.getResourceStringBetaPlus(BiomeAlphaFrozenOcean.name)));
 
 	public ChunkGeneratorAlphaPlus(IWorld world, BiomeProviderAlphaPlus biomeProvider, AlphaPlusGenSettings settingsIn)
 	{
@@ -81,7 +80,6 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		this.field_908_o = new NoiseGeneratorOctavesAlpha(this.rand, 4);
 		this.field_922_a = new NoiseGeneratorOctavesAlpha(this.rand, 10);
 		this.field_921_b = new NoiseGeneratorOctavesAlpha(this.rand, 16);
-		treeNoise = new NoiseGeneratorOctavesAlpha(this.rand, 8);
 		settings = settingsIn;
 		biomeProviderS = biomeProvider;
 	}
@@ -93,9 +91,9 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		int zPos =  iChunk.getPos().z;
 		biomesForGeneration = this.biomeProvider.getBiomeBlock(xPos * 16, zPos * 16, 16, 16);
 		setBlocksInChunk(iChunk);
-		BetaPlusDeepenOcean.deepenOcean(iChunk, rand, 64, 7);
+		BetaPlusDeepenOcean.deepenOcean(iChunk, rand, settings.getSeaLevel(), 7);
 		this.replaceBiomes(iChunk);
-
+		this.replaceBeaches(iChunk);
 
 		iChunk.setBiomes(BetaPlusBiomeReplace.convertBiomeArray(biomesForGeneration));
 		this.replaceBlocks(iChunk);
@@ -117,47 +115,20 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		// Insert Custom Stuff
 		for(GenerationStage.Decoration decoration : GenerationStage.Decoration.values())
 		{
-			/* Hopefully disables all Grass and Trees */
-			if (decoration != GenerationStage.Decoration.VEGETAL_DECORATION)
-			{
-				biome.decorate(decoration, this, region, longSeed, sharedseedrandom, blockpos);
-			}
-			else
-			{
-				// Generate The Trees
-				//Biomes.FOREST.decorate(GenerationStage.Decoration.VEGETAL_DECORATION, this, region, longSeed, sharedseedrandom, blockpos);
-				//new WorldGenAlphaTrees(false).place(null, region, rand, blockpos);
-				//biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION).clear();
-				//biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION).add(new CompositeFeature<>(new WorldGenAlphaTrees(false), FeatureRadiusConfig.NO_FEATURE_CONFIG, new BasePlacementAlphaPlus(), IPlacementConfig.NO_PLACEMENT_CONFIG));
-				//biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(new WorldGenAlphaTrees(false), FeatureRadiusConfig.NO_FEATURE_CONFIG, new BasePlacementAlphaPlus(), IPlacementConfig.NO_PLACEMENT_CONFIG));
-				//biome.decorate(GenerationStage.Decoration.VEGETAL_DECORATION, this, region, longSeed, sharedseedrandom, blockpos);
-				IChunk chunk = region.getChunk(chunkX, chunkZ);
-				double var10 = 0.5;
-				int chance = (int) ((this.treeNoise.func_806_a((double) chunkX * var10, (double) chunkZ * var10) / 8.0D + this.rand.nextDouble() * 4.0D + 4.0D) / 4.0D);
-				for (int chanceC = 0; chanceC < chance; ++chanceC)
-				{
-					int xH = minX + rand.nextInt(16);
-					int zH = minZ + rand.nextInt(16);
-					int yH = BetaPlusBiomeReplace.getSolidHeightY(xH, zH, chunk);
-					/* Trees Decay! */
-					//this.generateTrees(region, rand, xH, yH + 1, zH);
-				}
-				ArrayList<AbstractTreeFeature> removeList = new ArrayList<>();
-				removeList.add(new TallTaigaTreeFeature(false));
-				removeList.add(new PointyTaigaTreeFeature());
-				//BetaPlus.LOGGER.info("Feat: " + biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION).toString());
-				biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION).removeAll(removeList);
-
-				//biome.decorate(GenerationStage.Decoration.VEGETAL_DECORATION, this, region, longSeed, sharedseedrandom, blockpos);
-			}
+			biome.decorate(decoration, this, region, longSeed, sharedseedrandom, blockpos);
 		}
-
 		BlockFalling.fallInstantly = false;
 	}
 
 	@Nullable
 	public BlockPos findNearestStructure(World worldIn, String name, BlockPos pos, int radius, boolean p_211403_5_)
 	{
+		Structure<?> structure = Feature.STRUCTURES.get(name.toLowerCase(Locale.ROOT));
+		if (structure != null)
+		{
+			BetaPlus.LOGGER.info("Locate: " + structure.toString());
+			return structure.findNearest(worldIn, this, pos, radius, p_211403_5_);
+		}
 		return null;
 	}
 
@@ -176,7 +147,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	@Override
 	public AlphaPlusGenSettings getSettings()
 	{
-		return settings;
+		return this.settings;
 	}
 
 	@Override
@@ -489,7 +460,6 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 
 
 	//Replace Biomes where necessary
-	/* Does NOT Work for SNOWY WORLDS */
 	private void replaceBiomes(IChunk iChunk)
 	{
 		for (int z = 0; z < chunkSize; ++z)
@@ -503,7 +473,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 				{
 					if(settings.getSnowy())
 					{
-						biomesForGeneration[(x << 4 | z)] = alphaFrozenOcean;
+						biomesForGeneration[(x << 4 | z)] = BiomeProviderAlphaPlus.alphaFrozenOcean;
 					}
 					else
 					{
@@ -521,76 +491,31 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		}
 	}
 
-	/* Alpha Tree Generation, because I can */
-	/* This isn't a clean way of doing it */
-	/* Causes Trees to Dissolve? */
-	public boolean generateTrees(WorldGenRegion region, Random random, int baseX, int baseY, int baseZ) {
-		int treeHeight = random.nextInt(3) + 4;
-		boolean flag = true;
-		// Check tree Y will be valid
-		if (baseY >= 1 && baseY + treeHeight + 1 <= 128) {
-			for (int y = baseY; y <= baseY + 1 + treeHeight; ++y) {
-				byte var9 = 1;
-				if (y == baseY) {
-					var9 = 0;
-				}
+	private void replaceBeaches(IChunk chunk)
+	{
+		for (int z = 0; z < chunkSize; ++z)
+		{
 
-				if (y >= baseY + 1 + treeHeight - 2) {
-					var9 = 2;
-				}
-
-				for (int x = baseX - var9; x <= baseX + var9 && flag; ++x) {
-					for (int z = baseZ - var9; z <= baseZ + var9 && flag; ++z) {
-						if (y >= 0 && y < 128) {
-							Block block = region.getBlockState(new BlockPos(x, y, z)).getBlock();
-							if (block != Blocks.AIR && block != Blocks.OAK_LEAVES) {
-								flag = false;
-							}
-						} else {
-							flag = false;
-						}
+			for (int x = 0; x < chunkSize; ++x)
+			{
+				int xPos = chunk.getPos().getXStart() + x;
+				int zPos = chunk.getPos().getZStart() + z;
+				int yVal = BetaPlusBiomeReplace.getSolidHeightY(xPos, zPos, chunk);
+				// New Line
+				Biome biome = biomesForGeneration[(x << 4 | z)];
+				//Inject Beaches (MODIFIED)
+				if ((yVal <= (settings.getSeaLevel() + 1) && yVal >= settings.getSeaLevel() - 1) && chunk.getBlockState(new BlockPos(xPos, yVal, zPos)) == Blocks.SAND.getDefaultState())
+				{
+					if (settings.getSnowy())
+					{
+						biomesForGeneration[(x << 4 | z)] = Biomes.SNOWY_BEACH;
+					}
+					else
+					{
+						biomesForGeneration[(x << 4 | z)] = Biomes.BEACH;
 					}
 				}
 			}
-
-			if (!flag) {
-				return false;
-			} else {
-				Block block = region.getBlockState(new BlockPos(baseX, baseY - 1, baseZ)).getBlock();
-				if ((block == Blocks.GRASS_BLOCK|| block == Blocks.DIRT) && baseY < 128 - treeHeight - 1) {
-					region.setBlockState(new BlockPos(baseX, baseY - 1, baseZ), Blocks.DIRT.getDefaultState(), 1);
-
-					for (int y = baseY - 3 + treeHeight; y <= baseY + treeHeight; ++y) {
-						int var19 = y - (baseY + treeHeight);
-						int var21 = 1 - var19 / 2;
-
-						for (int x = baseX - var21; x <= baseX + var21; ++x) {
-							int var13 = x - baseX;
-
-							for (int z = baseZ - var21; z <= baseZ + var21; ++z) {
-								int var15 = z - baseZ;
-								if ((Math.abs(var13) != var21 || Math.abs(var15) != var21 || random.nextInt(2) != 0 && var19 != 0)
-										&& !region.getBlockState(new BlockPos(x, y, z)).isFullCube()) {
-									region.setBlockState(new BlockPos(x, y, z), Blocks.OAK_LEAVES.getDefaultState(), 1);
-								}
-							}
-						}
-					}
-
-					for (int logPos = 0; logPos < treeHeight; ++logPos) {
-						Block logBlock = region.getBlockState(new BlockPos(baseX, baseY + logPos, baseZ)).getBlock();
-						if (logBlock == Blocks.AIR || logBlock == Blocks.OAK_LEAVES) {
-							region.setBlockState(new BlockPos(baseX, baseY + logPos, baseZ), Blocks.OAK_LOG.getDefaultState(), 1);
-						}
-					}
-					return true;
-				} else {
-					return false;
-				}
-			}
-		} else {
-			return false;
 		}
 	}
-
 }

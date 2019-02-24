@@ -1,5 +1,6 @@
 package com.mrburgerus.betaplus.world.alpha_plus;
 
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.client.gui.GuiCreateAlphaWorld;
 import com.mrburgerus.betaplus.world.biome.BiomeProviderAlphaPlus;
 import net.minecraft.client.Minecraft;
@@ -13,9 +14,14 @@ import net.minecraft.world.gen.IChunkGenerator;
 
 public class WorldTypeAlphaPlus extends WorldType
 {
+	private AlphaPlusGenSettings settings;
+
 	public WorldTypeAlphaPlus(String alpha)
 	{
 		super(alpha);
+		/* Culprit? */
+		BetaPlus.LOGGER.info("Created Alpha world type");
+		settings = new AlphaPlusGenSettings();
 	}
 
 	// Register World Type
@@ -27,15 +33,15 @@ public class WorldTypeAlphaPlus extends WorldType
 	@Override
 	public IChunkGenerator<?> createChunkGenerator(World world)
 	{
-		AlphaPlusGenSettings settings = new AlphaPlusGenSettings();
 		return new ChunkGeneratorAlphaPlus(world, new BiomeProviderAlphaPlus(settings.getSnowy()), settings);
 	}
 
 	/* Since we have snow as an option, It has custom Options */
+	/* Disabled until I figure out how to save the snowy variable into the world */
 	@Override
 	public boolean hasCustomOptions()
 	{
-		return true;
+		return false;
 	}
 
 	@Override
@@ -47,6 +53,7 @@ public class WorldTypeAlphaPlus extends WorldType
 	@Override
 	public void onCustomizeButton(Minecraft mc, GuiCreateWorld gui)
 	{
-		mc.displayGuiScreen(new GuiCreateAlphaWorld(gui));
+		mc.displayGuiScreen(new GuiCreateAlphaWorld(gui, settings));
 	}
+
 }

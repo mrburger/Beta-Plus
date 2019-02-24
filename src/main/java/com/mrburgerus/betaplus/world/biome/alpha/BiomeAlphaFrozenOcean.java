@@ -22,8 +22,7 @@ public class BiomeAlphaFrozenOcean extends Biome
 	public static final String name = "frozen_ocean";
 	public BiomeAlphaFrozenOcean()
 	{
-		//super((new Biome.BiomeBuilder()).surfaceBuilder(new CompositeSurfaceBuilder<>(FROZEN_OCEAN_SURFACE_BUILDER, GRASS_DIRT_GRAVEL_SURFACE)).precipitation(Biome.RainType.SNOW).category(Biome.Category.OCEAN).temperature(0.0F).downfall(0.5F).waterColor(3750089).waterFogColor(329011).parent((String)null));
-		super((new Biome.BiomeBuilder()).surfaceBuilder(new CompositeSurfaceBuilder<>(DEFAULT_SURFACE_BUILDER, GRASS_DIRT_GRAVEL_SURFACE)).precipitation(Biome.RainType.SNOW).category(Category.OCEAN).depth(-1.0F).scale(0.1F).temperature(0.0F).downfall(0.5F).waterColor(3750089).waterFogColor(329011).parent((String)null));
+		super((new Biome.BiomeBuilder()).surfaceBuilder(new CompositeSurfaceBuilder<>(DEFAULT_SURFACE_BUILDER, GRASS_DIRT_GRAVEL_SURFACE)).precipitation(Biome.RainType.SNOW).category(Category.OCEAN).depth(0.0F).scale(0.0F).temperature(0.0F).downfall(10.0F).waterColor(3750089).waterFogColor(329011).parent((String)null));
 		this.addStructure(Feature.OCEAN_RUIN, new OceanRuinConfig(OceanRuinStructure.Type.COLD, 0.3F, 0.9F));
 		this.addStructure(Feature.MINESHAFT, new MineshaftConfig(0.004D, MineshaftStructure.Type.NORMAL));
 		this.addStructure(Feature.SHIPWRECK, new ShipwreckConfig(false));

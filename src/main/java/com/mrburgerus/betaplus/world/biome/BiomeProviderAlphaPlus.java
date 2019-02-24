@@ -2,15 +2,20 @@ package com.mrburgerus.betaplus.world.biome;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.mrburgerus.betaplus.util.ResourceHelper;
+import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaFrozenOcean;
+import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaLand;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Biomes;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -21,8 +26,10 @@ import java.util.Set;
 public class BiomeProviderAlphaPlus extends BiomeProvider
 {
 	private Biome biome;
-	/* The tundra works Best */
+	/* Had to create custom biomes. */
 	public static final Biome snowBiome = Biomes.SNOWY_TUNDRA;
+	public static final Biome alphaFrozenOcean = ForgeRegistries.BIOMES.getValue(new ResourceLocation(ResourceHelper.getResourceStringBetaPlus(BiomeAlphaFrozenOcean.name)));
+	public static final Biome alphaBiome = ForgeRegistries.BIOMES.getValue(new ResourceLocation(ResourceHelper.getResourceStringBetaPlus(BiomeAlphaLand.name)));
 
 	public BiomeProviderAlphaPlus(boolean isSnowy)
 	{
@@ -32,7 +39,7 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 		}
 		else
 		{
-			this.biome = Biomes.PLAINS;
+			this.biome = alphaBiome;
 		}
 
 	}

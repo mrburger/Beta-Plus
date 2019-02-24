@@ -2,6 +2,7 @@ package com.mrburgerus.betaplus.client.gui;
 
 import com.google.common.annotations.Beta;
 import com.mrburgerus.betaplus.BetaPlus;
+import com.mrburgerus.betaplus.world.alpha_plus.AlphaPlusGenSettings;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateBuffetWorld;
 import net.minecraft.client.gui.GuiCreateWorld;
@@ -30,11 +31,13 @@ public class GuiCreateAlphaWorld extends GuiScreen
 	private int cancelId = 1;
 	private GuiButton snowButton;
 	private final int snowButtonId = 3;
+	private AlphaPlusGenSettings settings;
 
 
-	public GuiCreateAlphaWorld(GuiCreateWorld parentIn)
+	public GuiCreateAlphaWorld(GuiCreateWorld parentIn, AlphaPlusGenSettings settingsIn)
 	{
 		parent = parentIn;
+		this.settings = settingsIn;
 	}
 
 	@Override
@@ -49,7 +52,9 @@ public class GuiCreateAlphaWorld extends GuiScreen
 			public void onClick(double mouseX, double mouseY)
 			{
 				// Save the value
-				GuiCreateAlphaWorld.this.parent.chunkProviderSettingsJson = GuiCreateAlphaWorld.this.serialize();
+				//GuiCreateAlphaWorld.this.parent.chunkProviderSettingsJson = GuiCreateAlphaWorld.this.serialize();
+				/* Not ideal, but who cares. I DO */
+				settings.setSnowy(isSnowWorld);
 				closeGui();
 
 			}

@@ -6,11 +6,9 @@ import net.minecraft.world.gen.IChunkGenSettings;
 
 public class AlphaPlusGenSettings extends ChunkGenSettings
 {
-	public AlphaPlusGenSettings()
-	{}
-
 
 	private boolean isSnowy = false;
+	private final int seaLevel = 64;
 
 	public void setSnowy(boolean snowy)
 	{
@@ -20,5 +18,10 @@ public class AlphaPlusGenSettings extends ChunkGenSettings
 	public boolean getSnowy()
 	{
 		return isSnowy;
+	}
+
+	public int getSeaLevel()
+	{
+		return seaLevel;
 	}
 }
