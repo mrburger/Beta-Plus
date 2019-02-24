@@ -64,7 +64,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 	private BiomeProviderBetaPlus biomeProviderS;
 	private final PhantomSpawner phantomSpawner = new PhantomSpawner();
 	private final BetaPlusGenSettings settings;
-	private static final int chunkSize = 16;
+	private static final int CHUNK_SIZE = 16;
 
 	public ChunkGeneratorBetaPlus(IWorld world, BiomeProviderBetaPlus biomeProvider, BetaPlusGenSettings settingsIn)
 	{
@@ -97,7 +97,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		setBlocksInChunk(chunkIn);
 		BetaPlusDeepenOcean.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize());
 		// Replace Biomes (Oceans)
-		//this.replaceBiomes(chunkIn);
+		this.replaceBiomes(chunkIn);
 
 		// Replace Blocks (DIRT & SAND & STUFF)
 		replaceBlocksForBiome(x, z, chunkIn, BiomeGenBetaPlus.convertBiomeTable(biomesForGeneration));
@@ -125,8 +125,8 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		BlockFalling.fallInstantly = true;
 		int i = region.getMainChunkX();
 		int j = region.getMainChunkZ();
-		int k = i * chunkSize;
-		int l = j * chunkSize;
+		int k = i * CHUNK_SIZE;
+		int l = j * CHUNK_SIZE;
 		BlockPos blockpos = new BlockPos(k, 0, l);
 		// Could be CULPRIT AND FIX ISSUES
 		// Fix this up, it gives the biome
@@ -157,7 +157,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 	{
 		int i = region.getMainChunkX();
 		int j = region.getMainChunkZ();
-		Biome biome = world.getBiome(new BlockPos(i * chunkSize + 8, 0, j * chunkSize + 8));
+		Biome biome = world.getBiome(new BlockPos(i * CHUNK_SIZE + 8, 0, j * CHUNK_SIZE + 8));
 
 		/* MODIFIED! */
 		WorldEntitySpawner.performWorldGenSpawning(region, biome, i, j, this.rand);
@@ -287,9 +287,9 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 	//Replace Biomes where necessary
 	private void replaceBiomes(IChunk iChunk)
 	{
-		for (int z = 0; z < chunkSize; ++z)
+		for (int z = 0; z < CHUNK_SIZE; ++z)
 		{
-			for (int x = 0; x < chunkSize; ++x)
+			for (int x = 0; x < CHUNK_SIZE; ++x)
 			{
 				int xPos = iChunk.getPos().getXStart() + x;
 				int zPos = iChunk.getPos().getZStart() + z;
@@ -316,10 +316,10 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 
 	private void replaceBeaches(IChunk chunk)
 	{
-		for (int z = 0; z < chunkSize; ++z)
+		for (int z = 0; z < CHUNK_SIZE; ++z)
 		{
 
-			for (int x = 0; x < chunkSize; ++x)
+			for (int x = 0; x < CHUNK_SIZE; ++x)
 			{
 				int xPos = chunk.getPos().getXStart() + x;
 				int zPos = chunk.getPos().getZStart() + z;

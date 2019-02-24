@@ -6,6 +6,6 @@ public class ResourceHelper
 {
 	public static String getResourceStringBetaPlus(String inputResource)
 	{
-		return BetaPlus.modName + ":" + inputResource;
+		return BetaPlus.MOD_NAME + ":" + inputResource;
 	}
 }

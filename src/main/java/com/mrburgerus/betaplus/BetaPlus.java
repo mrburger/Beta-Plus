@@ -28,7 +28,10 @@ import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -46,7 +49,7 @@ import org.apache.logging.log4j.Logger;
 public class BetaPlus
 {
 	//Fields
-	public static final String modName = "betaplus";
+	public static final String MOD_NAME = "betaplus";
 
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
@@ -70,14 +73,13 @@ public class BetaPlus
 
 		// Register ourselves for server, registry and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
-		BetaPlus.LOGGER.info("Finished Creation");
+		BetaPlus.LOGGER.info("Finished Beta+ Creation");
     }
 
     private void setup(final FMLCommonSetupEvent event)
     {
 		WorldTypeBetaPlus.register();
 		WorldTypeAlphaPlus.register();
-
     }
 
     /* Turns on Perpetual Snow for Snowy Alpha Worlds */
@@ -97,6 +99,9 @@ public class BetaPlus
 				//event.getWorld().getWorld().getWorldInfo().getGameRulesInstance().setOrCreateGameRule("doWeatherCycle", "false", null);
 				/* Turn on Snow! */
 				//event.getWorld().getWorldInfo().setRaining(true);
+			//Blocks.GRASS_BLOCK.getRenderLayer()
+			//ModelLoaderRegistry.getModel(Blocks.GRASS_BLOCK.getRegistryName()).getTextures().clear();
+			//ModelLoader.getInventoryVariant()
         }
         else
 		{
@@ -104,10 +109,13 @@ public class BetaPlus
 		}
     }
 
-    /*
     @SubscribeEvent
-	public static void renderAlpha(final)
-	*/
+	public static void renderAlpha(final ModelBakeEvent event)
+	{
+		String s = event.getModelManager().getBlockModelShapes().getTexture(Blocks.GRASS_BLOCK.getDefaultState()).getName().toString();
+		BetaPlus.LOGGER.info("Model Name: " + s);
+	}
+
 
 
 

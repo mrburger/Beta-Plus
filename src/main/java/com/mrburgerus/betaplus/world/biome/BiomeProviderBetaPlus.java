@@ -11,11 +11,9 @@ import net.minecraft.init.Biomes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GrassColors;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.provider.BiomeProvider;
-import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.gen.feature.structure.Structure;
 
 import java.util.Collections;
@@ -37,7 +35,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	public double[] humidities;
 	public double[] noise;
 	public Biome[] genBiomes; // Formerly biomeBaseArray, not fully a Gen Layer?
-	private static final Biome[] biomes = buildBiomesList();
+	private static final Biome[] BIOMES_LIST = buildBiomesList();
 	private double[] temps2;
 	private double[] humid2;
 	private double[] noise2;
@@ -221,7 +219,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		for(int counter = 0; counter < xSize * zSize; ++counter) {
 			int i2 = i + counter % xSize << 2;
 			int j2 = j + counter / xSize << 2;
-			// If the input list of biomes has
+			// If the input list of BIOMES_LIST has
 			if (biomeList.contains(biomeArr[counter]))
 			{
 				if (blockpos == null || random.nextInt(k1 + 1) == 0) {
@@ -239,7 +237,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	public boolean hasStructure(Structure<?> structure)
 	{
 		return this.hasStructureCache.computeIfAbsent(structure, (param1) -> {
-			for(Biome biome : biomes) // Go through list of declared Biomes
+			for(Biome biome : BIOMES_LIST) // Go through list of declared Biomes
 			{
 				if (biome.hasStructure(param1))
 				{
@@ -255,7 +253,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	public Set<IBlockState> getSurfaceBlocks()
 	{
 		if (this.topBlocksCache.isEmpty()) {
-			Biome[] var1 = biomes;
+			Biome[] var1 = BIOMES_LIST;
 			int var2 = var1.length;
 
 			for(int var3 = 0; var3 < var2; ++var3) {
@@ -443,7 +441,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				}
 			}
 		}
-		BetaPlus.LOGGER.info("Finished: " + chunkX + ", " + chunkZ);
+		//BetaPlus.LOGGER.info("Finished: " + chunkX + ", " + chunkZ);
 		return output;
 	}
 

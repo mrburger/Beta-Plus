@@ -1,46 +1,27 @@
 package com.mrburgerus.betaplus.world.alpha_plus;
 
-import com.google.common.annotations.Beta;
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.BetaPlusBiomeReplace;
 import com.mrburgerus.betaplus.util.BetaPlusDeepenOcean;
-import com.mrburgerus.betaplus.util.ResourceHelper;
-import com.mrburgerus.betaplus.world.alpha_plus.generators.BasePlacementAlphaPlus;
-import com.mrburgerus.betaplus.world.alpha_plus.generators.WorldGenAlphaTrees;
-import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
 import com.mrburgerus.betaplus.world.biome.BiomeProviderAlphaPlus;
-import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaFrozenOcean;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlpha;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
-import net.minecraft.block.trees.OakTree;
-import net.minecraft.block.trees.SpruceTree;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.*;
 import net.minecraft.world.gen.feature.*;
 import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.gen.placement.BasePlacement;
-import net.minecraft.world.gen.placement.IPlacementConfig;
-import net.minecraft.world.gen.placement.NoPlacementConfig;
-import net.minecraftforge.common.BiomeManager;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.rmi.registry.Registry;
 import java.util.*;
 
 public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
@@ -65,7 +46,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	private double[] stoneNoise = new double[256];
 	// New Fields
 	private final AlphaPlusGenSettings settings;
-	private static final int chunkSize = 16;
+	private static final int CHUNK_SIZE = 16;
 	private BiomeProviderAlphaPlus biomeProviderS;
 	private Biome[] biomesForGeneration;
 
@@ -462,9 +443,9 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	//Replace Biomes where necessary
 	private void replaceBiomes(IChunk iChunk)
 	{
-		for (int z = 0; z < chunkSize; ++z)
+		for (int z = 0; z < CHUNK_SIZE; ++z)
 		{
-			for (int x = 0; x < chunkSize; ++x)
+			for (int x = 0; x < CHUNK_SIZE; ++x)
 			{
 				int xPos = iChunk.getPos().getXStart() + x;
 				int zPos = iChunk.getPos().getZStart() + z;
@@ -473,7 +454,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 				{
 					if(settings.getSnowy())
 					{
-						biomesForGeneration[(x << 4 | z)] = BiomeProviderAlphaPlus.alphaFrozenOcean;
+						biomesForGeneration[(x << 4 | z)] = BiomeProviderAlphaPlus.ALPHA_FROZEN_OCEAN;
 					}
 					else
 					{
@@ -493,10 +474,10 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 
 	private void replaceBeaches(IChunk chunk)
 	{
-		for (int z = 0; z < chunkSize; ++z)
+		for (int z = 0; z < CHUNK_SIZE; ++z)
 		{
 
-			for (int x = 0; x < chunkSize; ++x)
+			for (int x = 0; x < CHUNK_SIZE; ++x)
 			{
 				int xPos = chunk.getPos().getXStart() + x;
 				int zPos = chunk.getPos().getZStart() + z;

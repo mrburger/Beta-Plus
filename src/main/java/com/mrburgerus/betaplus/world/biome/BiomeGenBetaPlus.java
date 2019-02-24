@@ -52,7 +52,7 @@ public enum BiomeGenBetaPlus implements BetaPlusBiome
 	public Biome handle;
 	public final Block topBlock;
 	public final Block fillerBlock;
-	private static final Biome[] biomeLookupTable;
+	private static final Biome[] BIOME_LOOKUP_TABLE;
 
 	//Constructors
 	BiomeGenBetaPlus(Biome handle)
@@ -70,7 +70,7 @@ public enum BiomeGenBetaPlus implements BetaPlusBiome
 	//Initialize
 	static
 	{
-		biomeLookupTable = new Biome[4096];
+		BIOME_LOOKUP_TABLE = new Biome[4096];
 		BiomeGenBetaPlus.generateBiomeLookup();
 	}
 
@@ -82,7 +82,7 @@ public enum BiomeGenBetaPlus implements BetaPlusBiome
 			for (int j = 0; j < 64; ++j)
 			{
 				//EDITED
-				biomeLookupTable[i + j * 64] = BetaPlusSelectBiome.getBiome((float) i / 63.0f, (float) j / 63.0f);
+				BIOME_LOOKUP_TABLE[i + j * 64] = BetaPlusSelectBiome.getBiome((float) i / 63.0f, (float) j / 63.0f);
 			}
 		}
 	}
@@ -92,7 +92,7 @@ public enum BiomeGenBetaPlus implements BetaPlusBiome
 	{
 		int i = (int) (temperature * 63.0);
 		int j = (int) (humidity * 63.0);
-		return biomeLookupTable[i + j * 64];
+		return BIOME_LOOKUP_TABLE[i + j * 64];
 	}
 
 	// Convert Biome map to Enum Map, Respective.
