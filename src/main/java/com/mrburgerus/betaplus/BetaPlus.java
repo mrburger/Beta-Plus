@@ -3,6 +3,7 @@ package com.mrburgerus.betaplus;
 import com.google.gson.Gson;
 import com.mrburgerus.betaplus.client.color.ColorRegister;
 import com.mrburgerus.betaplus.client.renderer.RenderAlphaBlocks;
+import com.mrburgerus.betaplus.client.renderer.model.AlphaGrassBakedModel;
 import com.mrburgerus.betaplus.util.ResourceHelper;
 import com.mrburgerus.betaplus.world.alpha_plus.WorldTypeAlphaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.WorldTypeBetaPlus;
@@ -110,31 +111,19 @@ public class BetaPlus
 		IBlockState grassState = Blocks.GRASS_BLOCK.getDefaultState();
 		// Variant is not snowy.
 		ModelResourceLocation grassLocation = BlockModelShapes.getModelLocation(grassState);
-		//TextureAtlasSprite sprite = new TextureAtlasSprite();
-		BetaPlus.LOGGER.info("We made it here");
-		ModelBlock block = new ModelBlock(grassLoc);
-		block.textures.clear();
-		IBakedModel baked = block.bake(ModelLoader.defaultModelGetter(), ModelLoader.defaultTextureGetter(), part -> Optional.empty(), false, DefaultVertexFormats.BLOCK);
-		//new ItemModelGenerator().makeItemModel(newGrass, block);
-		//BlockPart bPart = new BlockPart(new Vector3f(0, 0, 7.5F));
-		//ModelBlock blockModel = new ItemModelGenerator().makeItemModel();
-		//ModelBlock modelBlock = event.getModelLoader().getUnbakedModel(grassLoc).bake();
-		//event.getModelManager().getModel(Blocks.GRASS_BLOCK.getRenderLayer())
-		//event.getModelManager().getBlockModelShapes().getModel(Blocks.GRASS_BLOCK.getDefaultState())
-		//event.getModelRegistry().replace(new ModelResourceLocation(""))
-		//s = event.getModelManager().getModel(new ModelResourceLocation(grassLoc, "")).getQuads(grassState, EnumFacing.UP, new Random()).toString();
-		//s = event.getModelRegistry().get(grassLocation).toString();
-		//s = event.getModelManager().getModel(grassLocation).
-		//GameRegistry.findRegistry(Block.class);
-		//event.getModelLoader().getUnbakedModel(grassLoc);
-		// Definitely incorrect.
-		//Blocks.GRASS_BLOCK.setRegistryName(newGrass);
-		//event.getModelLoader().getUnbakedModel(grassLoc).getOverrideLocations().clear();
-		//event.getModelRegistry().replace(grassLocation, );
-		//ModelBlock.makeBakedQuad()
-		event.getModelLoader().setupModelRegistry().replace(grassLocation, baked);
 
-		BetaPlus.LOGGER.info("Model Name: " + grassLoc.toString());
+		/* Built with Help from @Cadiboo from Minecraft Forge, Thanks! */
+		// Gets an Object
+		Object object =  event.getModelRegistry().get(grassLocation);
+		// If the object is Non-null
+		if (object != null) {
+			IBakedModel existingModel = (IBakedModel)object; // Existing Grass Model
+			IBakedModel customModel = new AlphaGrassBakedModel(existingModel);
+			BetaPlus.LOGGER.info("Made it!");
+			event.getModelRegistry().replace(grassLocation, customModel);
+			BetaPlus.LOGGER.info("Passed it!");
+		}
+
 	}
 
 
