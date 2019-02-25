@@ -101,6 +101,7 @@ public class BiomeHelper
 		// Underwater Ravine
 		biome.addCarver(GenerationStage.Carving.LIQUID, Biome.createWorldCarverWrapper(Biome.UNDERWATER_CANYON_WORLD_CARVER, new ProbabilityConfig(0.02F)));
 
+		addDefaultStructures(biome);
 	}
 
 	/* Adds All the features we need to Alpha Biomes */
@@ -114,5 +115,13 @@ public class BiomeHelper
 		biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(Feature.BUSH, new BushConfig(Blocks.BROWN_MUSHROOM), Biome.TWICE_SURFACE_WITH_CHANCE, new ChanceConfig(4)));
 		biome.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(Feature.BUSH, new BushConfig(Blocks.RED_MUSHROOM), Biome.TWICE_SURFACE_WITH_CHANCE, new ChanceConfig(8)));
 
+		// Structures
+		addDefaultStructures(biome);
+	}
+
+	private static void addDefaultStructures(Biome biome)
+	{
+		biome.addStructure(Feature.STRONGHOLD, new StrongholdConfig());
+		biome.addStructure(Feature.MINESHAFT, new MineshaftConfig(0.004D, MineshaftStructure.Type.NORMAL));
 	}
 }

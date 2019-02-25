@@ -33,6 +33,9 @@ public class AlphaPlusSimulator
 	double[] octave4Arr;
 	double[] octave5Arr;
 
+	// Final fields
+	private static final int[] MATCH_VALUES = {0, 4, 8, 12};
+
 	public AlphaPlusSimulator(World world)
 	{
 		seed = world.getSeed();
@@ -49,52 +52,190 @@ public class AlphaPlusSimulator
 		new NoiseGeneratorOctavesAlpha(this.rand, 4);
 		this.octaves4 = new NoiseGeneratorOctavesAlpha(this.rand, 10);
 		this.octaves5 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
-
-		// Simulate at (0,0) Chunk
-		simulateY(new BlockPos(0,0,0), 1, 1);
 	}
 
 	/* Simulates Y-height every 4 blocks for the Biome Provider. This helps determine where oceans will most likely be injected. */
-	/* For a 1x1 size, simulates that block directly. */
+	/* For a 1x1 size, finds closest position and uses that. (In testing) */
 	/* For a 16x16 (chunk), a 4x4 matrix will be created using the values at 0,0 to 12,12 in the chunk. */
-	//TODO: Write properly
-	//TODO: Figure out a fast way to do this.
+	//TODO: Find a way to implement
+	//TODO: Figure out a fast way to do 1x1
 	public int[] simulateY(BlockPos pos, int xSize, int zSize)
 	{
 		// First, determine chunk position
 		int chunkX = pos.getX() >> 4;
 		int chunkZ = pos.getZ() >> 4;
 
-		int[][] arr1 = simulateChunkY(chunkX, chunkZ);
-		int[][] arr2 = simulateChunkYFast(chunkX, chunkZ);
+		// Now, determine how many "chunks", iterations we will need to generate.
+		int xIter = (int) Math.ceil(xSize / 16.0);
+		int zIter = (int) Math.ceil(zSize / 16.0);
 
-		BetaPlus.LOGGER.info("Begin Dump");
-		for (int c = 0; c < arr1.length; c++)
+		//BetaPlus.LOGGER.info("Iterations: " + xIter + ", " + zIter);
+
+		int[][] arr1 = 	simulateChunkYFast(chunkX, chunkZ);
+		//int[][] arr2 = simulateChunkY(chunkX, chunkZ);
+
+		/*
+		BetaPlus.LOGGER.info("Begin Fast Dump");
+		for (int[] anArr1 : arr1)
 		{
-			BetaPlus.LOGGER.info(Arrays.toString(arr1[c]));
+			BetaPlus.LOGGER.info(Arrays.toString(anArr1));
 		}
-		BetaPlus.LOGGER.info("End Dump");
+		BetaPlus.LOGGER.info("End Fast Dump");
+		for (int[] anArr1 : arr2)
+		{
+			BetaPlus.LOGGER.info(Arrays.toString(anArr1));
+		}
+		BetaPlus.LOGGER.info("End Full Dump");
+		*/
 
 		return new int[0];
 	}
 
+	/* Simulates a Single Y value by finding the nearest neighbor to simulate, if possible */
+	/* OR: We can simulate only the FIRST value of the chunk */
+	//TODO: Make fast.
+	public int simulateYSingle(BlockPos pos)
+	{
+		// First, determine chunk position
+		int chunkX = pos.getX() >> 4;
+		int chunkZ = pos.getZ() >> 4;
+
+		// Find nearest value to simulate.
+		int xPChunk = getNearestChunkValue(pos.getX());
+		int zPChunk = getNearestChunkValue(pos.getZ());
+
+		//BetaPlus.LOGGER.info("VAL: " + (pos.getX() & 15) + " : " + xPChunk);
+
+
+		return 0;
+	}
+
+	/* Simulates either 0 or 8 in chunk (2x2 Array) */
+	public int simulateYSingleFast(BlockPos pos)
+	{
+		// First, determine chunk position
+		int chunkX = pos.getX() >> 4;
+		int chunkZ = pos.getZ() >> 4;
+
+		// Find middle of chunk value (Most consistent results for oceans, since the chances of a "port" are rare */
+		// Working (I think)
+		int xP = chunkX * 16 + 8;
+		int zP = chunkZ * 16 + 8;
+
+		//BetaPlus.LOGGER.info("Pos: " + xP + ", " + zP + " : " + chunkX + ", " + chunkZ);
+		// Simulate Chunk at position:
+
+
+
+		return simulateYatZero(chunkX, chunkZ);
+	}
+
+	/* Finds nearest Chunk value, given anything. It matches to an array: [0, 4, 8, 12] */
+	/* Nearest to 16 values return the next chunk, pos 0 */
+	/* Values Equidistant like 2, 6, 10, or 14 return the lower value */
+	/* We can ignore cases like Block 15 because it is never called for in practice (I think) */
+	private int getNearestChunkValue(int val)
+	{
+		int checkVal = val & 15; // Chunk size is 16, & with 15
+		int idP = 0;
+		int dist = Math.abs(MATCH_VALUES[0] - checkVal);
+		for (int c = 1; c < MATCH_VALUES.length; c++)
+		{
+			int cDist = Math.abs(MATCH_VALUES[c] - checkVal);
+			if (cDist < dist)
+			{
+				idP = c;
+				dist = cDist;
+			}
+		}
+		return MATCH_VALUES[idP];
+	}
+
+	/* Simulates a SINGLE Y Value, for usage. */
+	private int simulateYatZero(int chunkX, int chunkZ)
+	{
+		int output = 0;
+		byte var4 = 1; // Could Cause issues
+		int var6 = var4 + 1;
+		byte yHeight = 17;
+		int var8 = var4 + 1;
+
+		this.heightNoise = this.generateOctaves(this.heightNoise, chunkX * 4, 0, chunkZ * 4, var6, yHeight, var8);
+
+		for (int cY = 0; cY < 16; ++cY)
+		{
+			// Thankfully, since these values simplify, we can easily get just a few values.
+			double noise1 = this.heightNoise[cY];
+			double eightNoise1 = (this.heightNoise[cY + 1] - noise1) * 0.125D;
+
+			// Iterate through Y
+			for (int y2 = 0; y2 < 8; ++y2)
+			{
+				// Since we only care about the Pos at Prime values, we can simplify.
+				double stonePosPrime = noise1;
+				int yP = cY * 8 + y2;
+
+				// Should hopefully emulate. (I think it does!)
+				if(stonePosPrime > 0.0D)
+				{
+					output = yP;
+				}
+
+				noise1 += eightNoise1;
+			}
+		}
+		return output;
+	}
+
+
 	/* Simulate Y Values every 4 blocks in a chunk */
+	/* Ouput is 2D array Z, X : This is how it used to be. */
 	private int[][] simulateChunkYFast(int chunkX, int chunkZ)
 	{
 		int[][] output = new int[4][4];
 
 		byte var4 = 4;
-		int var6 = var4 + 1;
-		byte var7 = 17;
-		int var8 = var4 + 1;
-		this.heightNoise = this.generateOctaves(this.heightNoise, chunkX * var4, 0, chunkZ * var4, var6, var7, var8);
+		int var6 = 1 + 1;
+		byte yHeight = 17;
+		int var8 = 1 + 1;
+		this.heightNoise = this.generateOctaves(this.heightNoise, chunkX * var4, 0, chunkZ * var4, var6, yHeight, var8);
 
+		/* These go to every 4 blocks only */
+		for (int cX = 0; cX < var4; ++cX)
+		{
+			for (int cZ = 0; cZ < var4; ++cZ)
+			{
+				for (int cY = 0; cY < 16; ++cY)
+				{
+					// Assign these values like world gen.
+					double noise1 = this.heightNoise[(((cX * var8) + cZ) * yHeight) + cY];
+					double eightNoise1 = (this.heightNoise[(cX * var8 + cZ) * yHeight + cY + 1] - noise1) * 0.125D;
+
+					// Iterate through Y
+					for (int y2 = 0; y2 < 8; ++y2)
+					{
+						// Since we only care about the Pos at Prime values, we can simplify.
+						double stonePosPrime = noise1;
+						int yP = cY * 8 + y2;
+
+						// Should hopefully emulate. (I think it does!)
+						if(stonePosPrime > 0.0D)
+						{
+							output[cX][cZ] = yP;
+						}
+
+						noise1 += eightNoise1;
+					}
+				}
+			}
+		}
 
 		return output;
 	}
 
 	/* Simulates Y Values in a chunk */
 	/* Ouput is 2D array Z, X (Which is strange, but whatever) */
+	/* Works, but SLOW */
 	private int[][] simulateChunkY(int chunkX, int chunkZ)
 	{
 		// 256 because 1 chunk

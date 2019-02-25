@@ -74,12 +74,13 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		int zPos =  iChunk.getPos().z;
 		biomesForGeneration = this.biomeProvider.getBiomeBlock(xPos * 16, zPos * 16, 16, 16);
 		setBlocksInChunk(iChunk);
-		//BetaPlusDeepenOcean.deepenOcean(iChunk, rand, settings.getSeaLevel(), 7);
+		BetaPlusDeepenOcean.deepenOcean(iChunk, rand, settings.getSeaLevel(), 7);
 		this.replaceBiomes(iChunk);
 		this.replaceBeaches(iChunk);
 
 		iChunk.setBiomes(BetaPlusBiomeReplace.convertBiomeArray(biomesForGeneration));
-		//this.replaceBlocks(iChunk);
+		// Replace Blocks Such as Grass.
+		this.replaceBlocks(iChunk);
 		iChunk.setStatus(ChunkStatus.BASE);
 	}
 
