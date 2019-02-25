@@ -1,5 +1,6 @@
 package com.mrburgerus.betaplus;
 
+import com.google.gson.Gson;
 import com.mrburgerus.betaplus.client.color.ColorRegister;
 import com.mrburgerus.betaplus.client.renderer.RenderAlphaBlocks;
 import com.mrburgerus.betaplus.util.ResourceHelper;
@@ -9,14 +10,23 @@ import com.mrburgerus.betaplus.world.biome.alpha.RegisterAlphaBiomes;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BlockModelShapes;
+import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.model.BakedModelWrapper;
+import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.model.IModelPart;
+import net.minecraftforge.common.model.IModelState;
+import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -26,6 +36,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Optional;
 import java.util.Random;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -96,21 +107,32 @@ public class BetaPlus
 	{
 		ResourceLocation grassLoc = Blocks.GRASS_BLOCK.getRegistryName();
 		ResourceLocation newGrass = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"));
-		IBlockState state = Blocks.GRASS_BLOCK.getDefaultState();
+		IBlockState grassState = Blocks.GRASS_BLOCK.getDefaultState();
 		// Variant is not snowy.
-		ModelResourceLocation location = new ModelResourceLocation(grassLoc, BlockModelShapes.getPropertyMapString(state.getValues()));
-		String s = event.getModelManager().getBlockModelShapes().getTexture(Blocks.GRASS_BLOCK.getDefaultState()).getName().toString();
+		ModelResourceLocation grassLocation = BlockModelShapes.getModelLocation(grassState);
+		//TextureAtlasSprite sprite = new TextureAtlasSprite();
+		BetaPlus.LOGGER.info("We made it here");
+		ModelBlock block = new ModelBlock(grassLoc);
+		block.textures.clear();
+		IBakedModel baked = block.bake(ModelLoader.defaultModelGetter(), ModelLoader.defaultTextureGetter(), part -> Optional.empty(), false, DefaultVertexFormats.BLOCK);
+		//new ItemModelGenerator().makeItemModel(newGrass, block);
+		//BlockPart bPart = new BlockPart(new Vector3f(0, 0, 7.5F));
+		//ModelBlock blockModel = new ItemModelGenerator().makeItemModel();
+		//ModelBlock modelBlock = event.getModelLoader().getUnbakedModel(grassLoc).bake();
 		//event.getModelManager().getModel(Blocks.GRASS_BLOCK.getRenderLayer())
 		//event.getModelManager().getBlockModelShapes().getModel(Blocks.GRASS_BLOCK.getDefaultState())
 		//event.getModelRegistry().replace(new ModelResourceLocation(""))
-		//s = event.getModelManager().getModel(new ModelResourceLocation(grassLoc, "")).getQuads(state, EnumFacing.UP, new Random()).toString();
-		//s = event.getModelRegistry().get(location).toString();
-		//s = event.getModelManager().getModel(location).
+		//s = event.getModelManager().getModel(new ModelResourceLocation(grassLoc, "")).getQuads(grassState, EnumFacing.UP, new Random()).toString();
+		//s = event.getModelRegistry().get(grassLocation).toString();
+		//s = event.getModelManager().getModel(grassLocation).
 		//GameRegistry.findRegistry(Block.class);
 		//event.getModelLoader().getUnbakedModel(grassLoc);
 		// Definitely incorrect.
 		//Blocks.GRASS_BLOCK.setRegistryName(newGrass);
 		//event.getModelLoader().getUnbakedModel(grassLoc).getOverrideLocations().clear();
+		//event.getModelRegistry().replace(grassLocation, );
+		//ModelBlock.makeBakedQuad()
+		event.getModelLoader().setupModelRegistry().replace(grassLocation, baked);
 
 		BetaPlus.LOGGER.info("Model Name: " + grassLoc.toString());
 	}
