@@ -1,10 +1,10 @@
 package com.mrburgerus.betaplus;
 
 import com.mrburgerus.betaplus.client.color.ColorRegister;
-import com.mrburgerus.betaplus.client.renderer.model.AlphaGrassBakedModel;
+import com.mrburgerus.betaplus.client.renderer.model.AlphaGrassBakedWrapper;
+import com.mrburgerus.betaplus.client.renderer.model.AlphaGrassModelLoader;
 import com.mrburgerus.betaplus.client.renderer.model.ModelAlphaGrass;
 import com.mrburgerus.betaplus.client.renderer.model.ModelHelper;
-import com.mrburgerus.betaplus.util.ResourceHelper;
 import com.mrburgerus.betaplus.world.alpha_plus.WorldTypeAlphaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.WorldTypeBetaPlus;
 import com.mrburgerus.betaplus.world.biome.alpha.RegisterAlphaBiomes;
@@ -13,8 +13,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -22,6 +23,7 @@ import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -30,7 +32,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sun.net.ResourceManager;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("betaplus")
@@ -105,6 +106,7 @@ public class BetaPlus
 		IBlockState grassState = Blocks.GRASS_BLOCK.getDefaultState();
 		// Variant is not snowy.
 		ModelResourceLocation grassLocation = BlockModelShapes.getModelLocation(grassState);
+		ModelResourceLocation loc = new ModelResourceLocation("betaplus:alpha_grass_block", "");
 
 		/* Built with Help from @Cadiboo from Minecraft Forge, Thanks! */
 		// Gets an Object
@@ -112,14 +114,9 @@ public class BetaPlus
 		// If the object is Non-null
 		if (object != null) {
 			IBakedModel existingModel = (IBakedModel)object; // Existing Grass Model
-			//IBakedModel alphaGrass = new ModelAlphaGrass(AlphaGrassBakedModel.ALPHA_GRASS_BLOCK).bake(ModelLoader.defaultModelGetter(), ModelLoader.defaultTextureGetter(), )
-			//IBakedModel newModel = new ModelAlphaGrass(ModelHelper.NORMAL_GRASS_BLOCK, ModelHelper.ALPHA_GRASS_BLOCK)
-					//.bake(ModelLoader.defaultModelGetter(), ModelHelper.DEFAULT_TEXTURE_GETTER, ModelHelper.DEFAULT_MODEL_STATE, false, ModelHelper.DEFAULT_VERTEX_FORMAT);
-
-
-			BetaPlus.LOGGER.info("newModel: " + newModel.toString());
-			IBakedModel customModel = new AlphaGrassBakedModel(existingModel, newModel);
-			event.getModelRegistry().replace(grassLocation, customModel);
+			IBakedModel newModel = new ModelAlphaGrass(grassLocation, loc)
+					.bake(ModelLoader.defaultModelGetter(), ModelLoader.defaultTextureGetter(), ModelHelper.DEFAULT_MODEL_STATE, true, DefaultVertexFormats.BLOCK);
+			event.getModelRegistry().replace(grassLocation, new AlphaGrassBakedWrapper(existingModel, newModel));
 		}
 
 	}
@@ -127,6 +124,8 @@ public class BetaPlus
 	@SubscribeEvent
 	public void createAlphaGrass(final ModelRegistryEvent event)
 	{
+		ModelLoaderRegistry.registerLoader(new AlphaGrassModelLoader());
+		BetaPlus.LOGGER.info("Loaded AlphaLoader");
 	}
 
 	@OnlyIn(Dist.CLIENT)

@@ -48,7 +48,7 @@ public class ModelAlphaGrass implements IUnbakedModel
 			/* Progress... */
 			location = new ModelResourceLocation("betaplus:alpha_grass_block", "");
 			//location = new ModelResourceLocation("grass_block", "");
-			BetaPlus.LOGGER.info("Making model2: " + location);
+			//BetaPlus.LOGGER.info("Making model: " + location);
 			IUnbakedModel unbakedModel = ModelLoaderRegistry.getModel(location);//ModelLoaderRegistry.getModelOrMissing(actualLoc); //ModelLoader.defaultModelGetter().apply(baseLocation);
 			BetaPlus.LOGGER.info("Making 1: " + unbakedModel);
 			//IUnbakedModel newModel = unbakedModel.retexture(ImmutableMap.<String, String>builder().build());

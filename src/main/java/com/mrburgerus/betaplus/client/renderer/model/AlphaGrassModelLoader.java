@@ -11,6 +11,11 @@ import net.minecraftforge.client.model.ModelLoaderRegistry;
 
 public class AlphaGrassModelLoader implements ICustomModelLoader
 {
+	public AlphaGrassModelLoader()
+	{
+		BetaPlus.LOGGER.info("Created Loader");
+	}
+
 	@Override
 	public void onResourceManagerReload(IResourceManager resourceManager)
 	{
@@ -20,6 +25,7 @@ public class AlphaGrassModelLoader implements ICustomModelLoader
 	@Override
 	public boolean accepts(ResourceLocation modelLocation)
 	{
+		BetaPlus.LOGGER.info("AlphaLoader Called");
 		boolean doesAccept = (modelLocation.getNamespace().equals(BetaPlus.MOD_NAME) && modelLocation.getPath().startsWith("alpha_grass"));
 		if (modelLocation.toString().contains("alpha_grass"))
 		{
@@ -36,13 +42,18 @@ public class AlphaGrassModelLoader implements ICustomModelLoader
 		try
 		{
 			ModelResourceLocation loc = new ModelResourceLocation(TextureMap.LOCATION_BLOCKS_TEXTURE.toString());
-			BetaPlus.LOGGER.info("Location Model: " + loc);
 			if (resPath.contains("alpha_grass"))
 			{
 				loc = new ModelResourceLocation("betaplus:alpha_grass_block", "");
 			}
+			else
+			{
+				BetaPlus.LOGGER.info("Error! Not contain");
+				return ModelLoaderRegistry.getMissingModel();
+			}
+			BetaPlus.LOGGER.info("Location Model: " + loc);
 
-			return new ModelAlphaGrass(ModelHelper.NORMAL_GRASS_BLOCK, )
+			return new ModelAlphaGrass(ModelHelper.NORMAL_GRASS_BLOCK, loc);
 		}
 		catch (Exception e)
 		{

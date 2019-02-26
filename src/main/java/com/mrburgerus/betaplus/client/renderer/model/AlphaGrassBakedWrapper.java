@@ -31,14 +31,14 @@ import java.util.Random;
 /* Built with help from TheGreyGhost tutorial */
 /* Truthfully, rendering is a strange thing */
 @OnlyIn(Dist.CLIENT)
-public class AlphaGrassBakedModel implements IBakedModel
+public class AlphaGrassBakedWrapper implements IBakedModel
 {
 	//Fields
 	private final IBakedModel modelDefault;
 	private final IBakedModel modelAlpha;
 	private final Minecraft MC_INSTANCE = Minecraft.getInstance();
 
-	public AlphaGrassBakedModel(final IBakedModel existing, final IBakedModel alpha)
+	public AlphaGrassBakedWrapper(final IBakedModel existing, final IBakedModel alpha)
 	{
 		modelDefault = existing;
 		modelAlpha = alpha;
@@ -144,7 +144,7 @@ public class AlphaGrassBakedModel implements IBakedModel
 
 	/* Overrides */
 
-	/* Called EVERY time a model is rendered, return ONLY a pre-baked list! */
+	/* Called EVERY time a model is rendered, return ONLY a pre-baked Model! */
 	@Override
 	public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, Random rand)
 	{
