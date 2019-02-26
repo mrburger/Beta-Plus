@@ -48,13 +48,9 @@ public class ModelAlphaGrass implements IUnbakedModel
 		try
 		{
 			//THIS WORKS
-			IBakedModel existing = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(Blocks.GRASS_BLOCK.getRegistryName(), ""));
-			//return Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(Blocks.GRASS_BLOCK.getRegistryName(), ""));
-			BetaPlus.LOGGER.info("Creating Wrapper");
-			//return ModelsCache.INSTANCE.getBakedModel(new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block")));
-			//return new AlphaGrassBakedWrapper(existing,
-					//ModelsCache.INSTANCE.getBakedModel(new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"))));
-			// Eventually register new Wrapper model
+			IBakedModel existing = Minecraft.getInstance().getModelManager().
+					getModel(new ModelResourceLocation(Blocks.GRASS_BLOCK.getRegistryName(), ""));
+
 			return new AlphaGrassBakedWrapper(existing, new BakedModelAlphaGrass());
 		}
 		catch (Exception e)
@@ -70,6 +66,7 @@ public class ModelAlphaGrass implements IUnbakedModel
 		return Collections.emptyList();
 	}
 
+	/* Probably where Textures are injected */
 	@Override
 	public Collection<ResourceLocation> getTextures(Function<ResourceLocation, IUnbakedModel> modelGetter, Set<String> missingTextureErrors)
 	{
@@ -77,7 +74,9 @@ public class ModelAlphaGrass implements IUnbakedModel
 		ImmutableSet.Builder<ResourceLocation> builder = ImmutableSet.builder();
 		if (alphaLocation != null)
 		{
-			BetaPlus.LOGGER.info("Adding...");
+			// Modify Alpha Location (Pretty Hacky)
+			ResourceLocation newAlphaLoc = new ResourceLocation(alphaLocation.getNamespace(), alphaLocation.getPath().replace("models","block"));
+			BetaPlus.LOGGER.info("Adding: " + newAlphaLoc);
 			builder.add(alphaLocation);
 		}
 		return builder.build();

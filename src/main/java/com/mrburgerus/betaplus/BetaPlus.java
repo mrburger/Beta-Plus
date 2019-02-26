@@ -139,12 +139,12 @@ public class BetaPlus
 	{
 		// Model will be appended to beginning, somewhere in pipeline.
 		// Working?
-		ResourceLocation newLoc = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"));
-		BetaPlus.LOGGER.info("Trying to get Models for: " + newLoc.toString());
-		final IUnbakedModel model; //ModelsCache.INSTANCE.getModel(newLoc);
+		ResourceLocation blockLocation = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"));
+		BetaPlus.LOGGER.info("Trying to get Models for: " + blockLocation.toString());
+		final IUnbakedModel model;
 		try
 		{
-			model = ModelLoaderRegistry.getModel(newLoc);
+			model = ModelLoaderRegistry.getModel(blockLocation);
 		}
 		catch (Exception e)
 		{
@@ -153,9 +153,12 @@ public class BetaPlus
 			return;
 		}
 
-		for (final ResourceLocation textureLocation : model.getTextures(ModelLoader.defaultModelGetter(), new HashSet<>())) {
-			BetaPlus.LOGGER.info("Register: " + textureLocation);
-			event.getMap().registerSprite(Minecraft.getInstance().getResourceManager(), textureLocation);
+		// Does not properly register
+		for (final ResourceLocation textureLocation : model.getTextures(ModelLoader.defaultModelGetter(), new HashSet<>()))
+		{
+			ResourceLocation loc2 = new ResourceLocation(textureLocation.getNamespace(), "block/" + blockLocation.getPath());
+			BetaPlus.LOGGER.info("Register: " + loc2);
+			event.getMap().registerSprite(Minecraft.getInstance().getResourceManager(), loc2);
 		}
 	}
 

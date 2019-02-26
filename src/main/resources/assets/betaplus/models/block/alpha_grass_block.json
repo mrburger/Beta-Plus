@@ -1,7 +1,7 @@
-{   "parent": "block/block",
+{   "parent": "minecraft:block/block",
     "textures": {
-        "particle": "block/dirt",
-        "bottom": "block/dirt",
+        "particle": "minecraft:block/dirt",
+        "bottom": "minecraft:block/dirt",
         "top": "betaplus:block/alpha_grass_block_top",
         "side": "betaplus:block/grass_block_side",
         "overlay": "betaplus:block/alpha_grass_block_side_overlay"

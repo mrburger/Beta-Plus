@@ -1,5 +1,6 @@
 package com.mrburgerus.betaplus.client.renderer.model;
 
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.ResourceHelper;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -26,6 +27,7 @@ public class BakedModelAlphaGrass implements IBakedModel
 		grassLoc = new ModelResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_grass_block"));
 		manager = Minecraft.getInstance().getModelManager();
 		grassModel = manager.getModel(grassLoc);
+		BetaPlus.LOGGER.info("Using: " + grassModel.toString());
 	}
 
 	@Override
