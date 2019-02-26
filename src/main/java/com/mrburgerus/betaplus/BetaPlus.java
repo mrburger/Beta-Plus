@@ -1,10 +1,8 @@
 package com.mrburgerus.betaplus;
 
 import com.mrburgerus.betaplus.client.color.ColorRegister;
-import com.mrburgerus.betaplus.client.renderer.model.AlphaGrassBakedWrapper;
-import com.mrburgerus.betaplus.client.renderer.model.AlphaGrassModelLoader;
-import com.mrburgerus.betaplus.client.renderer.model.ModelAlphaGrass;
-import com.mrburgerus.betaplus.client.renderer.model.ModelHelper;
+import com.mrburgerus.betaplus.client.renderer.model.*;
+import com.mrburgerus.betaplus.util.ResourceHelper;
 import com.mrburgerus.betaplus.world.alpha_plus.WorldTypeAlphaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.WorldTypeBetaPlus;
 import com.mrburgerus.betaplus.world.biome.alpha.RegisterAlphaBiomes;
@@ -12,19 +10,23 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.IUnbakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.model.Models;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -32,6 +34,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.HashSet;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("betaplus")
@@ -106,7 +110,6 @@ public class BetaPlus
 		IBlockState grassState = Blocks.GRASS_BLOCK.getDefaultState();
 		// Variant is not snowy.
 		ModelResourceLocation grassLocation = BlockModelShapes.getModelLocation(grassState);
-		ModelResourceLocation loc = new ModelResourceLocation("betaplus:alpha_grass_block", "");
 
 		/* Built with Help from @Cadiboo from Minecraft Forge, Thanks! */
 		// Gets an Object
@@ -114,9 +117,12 @@ public class BetaPlus
 		// If the object is Non-null
 		if (object != null) {
 			IBakedModel existingModel = (IBakedModel)object; // Existing Grass Model
-			IBakedModel newModel = new ModelAlphaGrass(grassLocation, loc)
-					.bake(ModelLoader.defaultModelGetter(), ModelLoader.defaultTextureGetter(), ModelHelper.DEFAULT_MODEL_STATE, true, DefaultVertexFormats.BLOCK);
-			event.getModelRegistry().replace(grassLocation, new AlphaGrassBakedWrapper(existingModel, newModel));
+
+			//BetaPlus.LOGGER.info("Getting Baked Model From: " + newLoc);
+			ResourceLocation newLoc = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"));
+
+			event.getModelRegistry().replace(grassLocation, ModelsCache.INSTANCE.getBakedModel(newLoc));
+			BetaPlus.LOGGER.info("Registered Grass Override");
 		}
 
 	}
@@ -125,21 +131,32 @@ public class BetaPlus
 	public void createAlphaGrass(final ModelRegistryEvent event)
 	{
 		ModelLoaderRegistry.registerLoader(new AlphaGrassModelLoader());
-		BetaPlus.LOGGER.info("Loaded AlphaLoader");
 	}
 
 	@OnlyIn(Dist.CLIENT)
 	@SubscribeEvent
-	public void addTextures (TextureStitchEvent.Post event)
+	public void addTextures (TextureStitchEvent.Pre event)
 	{
-		// Register Items (Doesn't work?)
-		/* Does Not WORK! */
-		BetaPlus.LOGGER.info("Resource: " + ModelHelper.ALPHA_GRASS_BLOCK.toString());
-		ModelResourceLocation location = new ModelResourceLocation(ModelHelper.ALPHA_GRASS_BLOCK, "");
-		BetaPlus.LOGGER.info("Loc: " + location.toString());
-		event.getMap().registerSprite(Minecraft.getInstance().getResourceManager(), location);
-		BetaPlus.LOGGER.info("Sprite: " + event.getMap().getSprite(ModelHelper.ALPHA_GRASS_BLOCK).toString());
-		BetaPlus.LOGGER.info("Sprite2: " + event.getMap().getSprite(location).toString());
+		// Model will be appended to beginning, somewhere in pipeline.
+		// Working?
+		ResourceLocation newLoc = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"));
+		BetaPlus.LOGGER.info("Trying to get Models for: " + newLoc.toString());
+		final IUnbakedModel model; //ModelsCache.INSTANCE.getModel(newLoc);
+		try
+		{
+			model = ModelLoaderRegistry.getModel(newLoc);
+		}
+		catch (Exception e)
+		{
+			BetaPlus.LOGGER.error("NO MODEL FOUND");
+			e.printStackTrace();
+			return;
+		}
+
+		for (final ResourceLocation textureLocation : model.getTextures(ModelLoader.defaultModelGetter(), new HashSet<>())) {
+			BetaPlus.LOGGER.info("Register: " + textureLocation);
+			event.getMap().registerSprite(Minecraft.getInstance().getResourceManager(), textureLocation);
+		}
 	}
 
 

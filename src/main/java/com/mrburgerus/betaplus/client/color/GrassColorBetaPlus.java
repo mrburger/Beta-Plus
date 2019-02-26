@@ -47,7 +47,7 @@ public class GrassColorBetaPlus implements IBlockColor
 			//return 0xABFF67;
 			//return 0x32CD32;
 			//return 0xA9D879;
-			return -1; // Don't tint since we are using a pre-colored model2.
+			return -1; // Don't tint since we are using a pre-colored model.
 			/* Return -1 Makes grass gray */
 		}
 		if (worldType instanceof WorldTypeBetaPlus)

@@ -3,7 +3,7 @@
         "particle": "block/dirt",
         "bottom": "block/dirt",
         "top": "betaplus:block/alpha_grass_block_top",
-        "side": "block/grass_block_side",
+        "side": "betaplus:block/grass_block_side",
         "overlay": "betaplus:block/alpha_grass_block_side_overlay"
     },
     "elements": [

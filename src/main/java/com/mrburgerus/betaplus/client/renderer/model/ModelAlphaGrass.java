@@ -4,10 +4,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mrburgerus.betaplus.BetaPlus;
+import com.mrburgerus.betaplus.util.ResourceHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.IUnbakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,13 +30,11 @@ import java.util.function.Function;
 public class ModelAlphaGrass implements IUnbakedModel
 {
 	//Fields
-	private ResourceLocation baseLocation;
 	private ResourceLocation alphaLocation;
 
 
-	public ModelAlphaGrass(ResourceLocation grassLocation, ResourceLocation alphaResourceLocation)
+	public ModelAlphaGrass(ResourceLocation alphaResourceLocation)
 	{
-		baseLocation = grassLocation;
 		alphaLocation = alphaResourceLocation;
 	}
 
@@ -42,24 +43,23 @@ public class ModelAlphaGrass implements IUnbakedModel
 	public IBakedModel bake(Function modelGetter, Function spriteGetter, IModelState state, boolean uvlock, VertexFormat format)
 	{
 		//TODO: INJECT THE TEXTURES
+		BetaPlus.LOGGER.info("Baking!");
+
 		try
 		{
-			ModelResourceLocation location = new ModelResourceLocation("builtin/missing", "missing");
-			/* Progress... */
-			location = new ModelResourceLocation("betaplus:alpha_grass_block", "");
-			//location = new ModelResourceLocation("grass_block", "");
-			//BetaPlus.LOGGER.info("Making model: " + location);
-			IUnbakedModel unbakedModel = ModelLoaderRegistry.getModel(location);//ModelLoaderRegistry.getModelOrMissing(actualLoc); //ModelLoader.defaultModelGetter().apply(baseLocation);
-			BetaPlus.LOGGER.info("Making 1: " + unbakedModel);
-			//IUnbakedModel newModel = unbakedModel.retexture(ImmutableMap.<String, String>builder().build());
-			//unbakedModel.retexture();
-			IBakedModel bakedModel = unbakedModel.bake(modelGetter, spriteGetter, state, uvlock, format);
-			BetaPlus.LOGGER.info("Making 2: " + bakedModel.toString());
-			return bakedModel;
+			//THIS WORKS
+			IBakedModel existing = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(Blocks.GRASS_BLOCK.getRegistryName(), ""));
+			//return Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(Blocks.GRASS_BLOCK.getRegistryName(), ""));
+			BetaPlus.LOGGER.info("Creating Wrapper");
+			//return ModelsCache.INSTANCE.getBakedModel(new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block")));
+			//return new AlphaGrassBakedWrapper(existing,
+					//ModelsCache.INSTANCE.getBakedModel(new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"))));
+			// Eventually register new Wrapper model
+			return new AlphaGrassBakedWrapper(existing, new BakedModelAlphaGrass());
 		}
-		catch (final Exception e)
+		catch (Exception e)
 		{
-			BetaPlus.LOGGER.error("Could Not Bake Alpha Model!");
+			e.printStackTrace();
 			return ModelLoaderRegistry.getMissingModel().bake(modelGetter, spriteGetter, state, uvlock, format);
 		}
 	}
@@ -77,6 +77,7 @@ public class ModelAlphaGrass implements IUnbakedModel
 		ImmutableSet.Builder<ResourceLocation> builder = ImmutableSet.builder();
 		if (alphaLocation != null)
 		{
+			BetaPlus.LOGGER.info("Adding...");
 			builder.add(alphaLocation);
 		}
 		return builder.build();
