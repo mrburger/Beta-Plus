@@ -475,7 +475,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 							continue;
 						}
 
-						//Checks if block already changed
+						//Checks if model2 already changed
 						if (block != Blocks.STONE) continue;
 
 						if (checkVal == -1)

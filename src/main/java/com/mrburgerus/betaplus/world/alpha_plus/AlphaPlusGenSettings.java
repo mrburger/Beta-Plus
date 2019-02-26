@@ -1,11 +1,7 @@
 package com.mrburgerus.betaplus.world.alpha_plus;
 
-import com.mojang.datafixers.Dynamic;
-import com.mrburgerus.betaplus.BetaPlus;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.gen.ChunkGenSettings;
-import net.minecraft.world.gen.IChunkGenSettings;
 
 public class AlphaPlusGenSettings extends ChunkGenSettings
 {

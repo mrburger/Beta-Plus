@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GrassColors;
 import net.minecraft.world.IWorldReaderBase;
+import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.BiomeColors;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -21,15 +22,18 @@ public class LeavesColorBetaPlus implements IBlockColor
 	{
 		if (worldIn == null || pos == null)
 			return GrassColors.get(0.5D, 1.0D);
+
+		WorldType worldType = worldIn.getDimension().getWorld().getWorldType();
+
 		// If we are in an Alpha World
-		if (Minecraft.getInstance().getIntegratedServer().getWorld(DimensionType.OVERWORLD).getWorldType() instanceof WorldTypeAlphaPlus)
+		if (worldType instanceof WorldTypeAlphaPlus)
 		{
 			return 0xA9D879;
 			/* Return -1 Makes grass gray */
 		}
-		if (Minecraft.getInstance().getIntegratedServer().getWorld(DimensionType.OVERWORLD).getWorldType() instanceof WorldTypeBetaPlus)
+		if (worldType instanceof WorldTypeBetaPlus)
 		{
-			BiomeProviderBetaPlus provider = (BiomeProviderBetaPlus) Minecraft.getInstance().getIntegratedServer().getWorld(DimensionType.OVERWORLD).getWorld().getChunkProvider().getChunkGenerator().getBiomeProvider();
+			BiomeProviderBetaPlus provider = (BiomeProviderBetaPlus) worldIn.getDimension().getWorld().getChunkProvider().getChunkGenerator().getBiomeProvider();
 			/* Working */
 			return provider.getGrassColorBeta(pos);
 		}

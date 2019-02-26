@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 /* Simulates Y values */
+/* VERY SLOW CURRENTLY */
 public class AlphaPlusSimulator
 {
 	// Basic Fields

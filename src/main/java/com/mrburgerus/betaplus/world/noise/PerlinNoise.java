@@ -373,7 +373,7 @@ public class PerlinNoise
 	 * Create a 1D tileable noise function for the given width.
 	 *
 	 * @param x The X coordinate to generate the noise for
-	 * @param w The width of the tiled block
+	 * @param w The width of the tiled model2
 	 * @return The value of the noise at the given coordinate
 	 */
 	public float tileableNoise1(float x, float w)
@@ -387,8 +387,8 @@ public class PerlinNoise
 	 *
 	 * @param x The X coordinate to generate the noise for
 	 * @param y The Y coordinate to generate the noise for
-	 * @param w The width of the tiled block
-	 * @param h The height of the tiled block
+	 * @param w The width of the tiled model2
+	 * @param h The height of the tiled model2
 	 * @return The value of the noise at the given coordinate
 	 */
 	public float tileableNoise2(float x, float y, float w, float h)
@@ -406,9 +406,9 @@ public class PerlinNoise
 	 * @param x The X coordinate to generate the noise for
 	 * @param y The Y coordinate to generate the noise for
 	 * @param z The Z coordinate to generate the noise for
-	 * @param w The width of the tiled block
-	 * @param h The height of the tiled block
-	 * @param d The depth of the tiled block
+	 * @param w The width of the tiled model2
+	 * @param h The height of the tiled model2
+	 * @param d The depth of the tiled model2
 	 * @return The value of the noise at the given coordinate
 	 */
 	public float tileableNoise3(float x,
