@@ -1,7 +1,10 @@
 package com.mrburgerus.betaplus;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mrburgerus.betaplus.client.color.ColorRegister;
-import com.mrburgerus.betaplus.client.renderer.model.*;
+import com.mrburgerus.betaplus.client.renderer.GrassModelLoader;
+import com.mrburgerus.betaplus.client.renderer.ModelsCache;
+import com.mrburgerus.betaplus.client.renderer.model.ModelAlphaGrass;
 import com.mrburgerus.betaplus.util.ResourceHelper;
 import com.mrburgerus.betaplus.world.alpha_plus.WorldTypeAlphaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.WorldTypeBetaPlus;
@@ -12,9 +15,9 @@ import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.IUnbakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.init.Blocks;
+import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -22,11 +25,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.model.Models;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -35,7 +36,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashSet;
+import java.util.Random;
+import java.util.function.Function;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("betaplus")
@@ -43,6 +45,10 @@ public class BetaPlus
 {
 	//Fields
 	public static final String MOD_NAME = "betaplus";
+
+	// model/alpha_grass_block
+	public static final ResourceLocation ALPHA_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"));
+	public static final Function<ResourceLocation, IUnbakedModel> DEFAULT_GETTER =  ModelLoaderRegistry::getModelOrMissing;
 
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
@@ -71,7 +77,7 @@ public class BetaPlus
 
 		// Register ourselves for server, registry and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
-		BetaPlus.LOGGER.info("Finished Beta+ Creation");
+		//BetaPlus.LOGGER.info("Finished Beta+ Creation");
     }
 
     private void setup(final FMLCommonSetupEvent event)
@@ -108,28 +114,30 @@ public class BetaPlus
     @SubscribeEvent
 	public void bakeAlphaGrass(final ModelBakeEvent event)
 	{
-		//Added, hopefully will fix something...
-		ModelResourceLocation modelLoc = new ModelResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"));
-		event.getModelRegistry().put(modelLoc, new BakedModelAlphaGrass());
+		BetaPlus.LOGGER.info("(BetaPlus) ModelBake");
+		// Adds model, I think.
+		// Causes Recursion Loop.
+		//event.getModelRegistry().put(new ModelResourceLocation(ALPHA_LOCATION.toString()), ModelsCache.INSTANCE.getBakedModel(ALPHA_LOCATION));
 
 		IBlockState grassState = Blocks.GRASS_BLOCK.getDefaultState();
 		// Variant is not snowy.
 		ModelResourceLocation grassLocation = BlockModelShapes.getModelLocation(grassState);
 
 		/* Built with Help from @Cadiboo from Minecraft Forge, Thanks! */
-		// Gets an Object
+		// Gets an Object (Works)
 		Object object =  event.getModelRegistry().get(grassLocation);
 		// If the object is Non-null
-		if (object != null) {
+		if (object != null)
+		{
 			IBakedModel existingModel = (IBakedModel)object; // Existing Grass Model
+			BetaPlus.LOGGER.info("(BetaPlus) INTO THE BREACH!");
+			IBakedModel modelNew = ModelsCache.INSTANCE.getBakedModel(ALPHA_LOCATION);
 
-			//BetaPlus.LOGGER.info("Getting Baked Model From: " + newLoc);
-			ResourceLocation newLoc = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"));
-			IBakedModel newModel = ModelsCache.INSTANCE.getBakedModel(newLoc);
-			BetaPlus.LOGGER.info("Replacing Grass: " + newLoc.toString() + " ; " + newModel.toString());
+			//Moved up here
+			BetaPlus.LOGGER.info("(BetaPlus) New Grass: " + modelNew.toString());
+			BetaPlus.LOGGER.info("(BetaPlus) Replacing Grass With Tex: " + modelNew.getQuads(grassState, EnumFacing.UP,  new Random()).get(0).getSprite());
 
-			event.getModelRegistry().replace(grassLocation, new AlphaGrassBakedWrapper(existingModel, newModel));
-			BetaPlus.LOGGER.info("Registered Grass Override");
+			event.getModelRegistry().replace(grassLocation, modelNew);
 		}
 
 	}
@@ -137,37 +145,72 @@ public class BetaPlus
 	@SubscribeEvent
 	public void createAlphaGrass(final ModelRegistryEvent event)
 	{
-		ModelLoaderRegistry.registerLoader(new AlphaGrassModelLoader());
+		BetaPlus.LOGGER.info("(BetaPlus) ModelRegistry");
+		ModelLoaderRegistry.registerLoader(new GrassModelLoader());
 	}
 
 	@OnlyIn(Dist.CLIENT)
 	@SubscribeEvent
-	public void addTextures (TextureStitchEvent.Pre event)
+	public void addTextures (TextureStitchEvent.Post event)
 	{
-		// Model will be appended to beginning, somewhere in pipeline.
-		// Working?
-		ResourceLocation blockLocation = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_grass_block"));
-		BetaPlus.LOGGER.info("Trying to get Models for: " + blockLocation.toString());
-		final IUnbakedModel model;
+		BetaPlus.LOGGER.info("(BetaPlus) TextureStitch");
+
+
+		IResourceManager manager = Minecraft.getInstance().getResourceManager();
 		try
 		{
-			model = ModelLoaderRegistry.getModel(blockLocation);
+
+			ResourceLocation test = ResourceLocation.read(new com.mojang.brigadier.StringReader(ModelAlphaGrass.JSON_STRING));
+			BetaPlus.LOGGER.info("ResourceLocation of Tex: " + test.toString());
+			event.getMap().registerSprite(manager, test);
+		}
+		catch (CommandSyntaxException e)
+		{
+			BetaPlus.LOGGER.error("Couldnt Load Tex!");
+			e.printStackTrace();
+		}
+
+		//blockLocation = Blocks.BONE_BLOCK.getRegistryName(); //Testing Vanilla (NOT LOADED)
+		//Never Loaded
+		//BetaPlus.LOGGER.info("(BetaPlus) Trying to get Models for: " + ALPHA_LOCATION.toString() + " ; " + ModelsCache.INSTANCE.getModel(ALPHA_LOCATION).toString());
+		/*
+		IUnbakedModel model;
+		try
+		{
+			//model = ModelLoaderRegistry.getModel(ALPHA_LOCATION);
+			model = ModelsCache.INSTANCE.getModel(ALPHA_LOCATION);
 		}
 		catch (Exception e)
 		{
-			BetaPlus.LOGGER.error("NO MODEL FOUND");
-			e.printStackTrace();
-			return;
+			BetaPlus.LOGGER.error("(BetaPlus) NO MODEL FOUND");
+			model = ModelLoaderRegistry.getMissingModel();
 		}
 
-		// Does not properly register
+
+		// DEBUG
+		TextureMap map = event.getMap();
+		IResourceManager manager = Minecraft.getInstance().getResourceManager();
+		BetaPlus.LOGGER.info("DUMP BEGIN:");
+		BetaPlus.LOGGER.info("Location: " + ALPHA_LOCATION.toString());
+		BetaPlus.LOGGER.info("BASE PATH: " + map.getBasePath());
+		BetaPlus.LOGGER.info("Atlas Sprite: " + map.getAtlasSprite(ALPHA_LOCATION.toString()));
+		map.registerSprite(manager, ALPHA_LOCATION);
+		BetaPlus.LOGGER.info("Atlas Sprite New: " + map.getAtlasSprite(ALPHA_LOCATION.toString()));
+		BetaPlus.LOGGER.info("Atlas Sprite New2: " + map.getSprite(ALPHA_LOCATION));
+		*/
+
+
+		/*
 		for (final ResourceLocation textureLocation : model.getTextures(ModelLoader.defaultModelGetter(), new HashSet<>()))
 		{
-			//Previously added "block/", caused a double directory issue
-			ResourceLocation loc2 = new ResourceLocation(textureLocation.getNamespace(), blockLocation.getPath());
-			BetaPlus.LOGGER.info("Register Tex: " + loc2);
-			event.getMap().registerSprite(Minecraft.getInstance().getResourceManager(), loc2);
+			BetaPlus.LOGGER.info("(BetaPlus) Register Tex: " + textureLocation);
+			event.getMap().registerSprite(Minecraft.getInstance().getResourceManager(), textureLocation);
+
+			// To verify the texture is loaded.
+			BetaPlus.LOGGER.info("(BetaPlus) Tex Sprite: " + event.getMap().getSprite(textureLocation));
 		}
+		*/
+
 	}
 
 

@@ -1,9 +1,11 @@
-package com.mrburgerus.betaplus.client.renderer.model;
+package com.mrburgerus.betaplus.client.renderer;
 
+import com.mojang.datafixers.types.Func;
 import com.mrburgerus.betaplus.BetaPlus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.IUnbakedModel;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -33,67 +35,62 @@ public class ModelsCache implements ISelectiveResourceReloadListener
 {
 
 	public static final ModelsCache INSTANCE = new ModelsCache();
-	private static boolean hasRender = false;
-
+	public static final IModelState DEFAULT_MODEL_STATE = part -> java.util.Optional.empty();
+	public static final VertexFormat DEFAULT_VERTEX_FORMAT = DefaultVertexFormats.BLOCK;
+	public static final Function<ResourceLocation, TextureAtlasSprite> DEFAULT_TEXTURE_GETTER = texture ->
+			Minecraft.getInstance().getTextureMap().getAtlasSprite(texture.toString());
+	public static final Function<ResourceLocation, IUnbakedModel> MODEL_GETTER = ModelLoader.defaultModelGetter();
 
 	private final Map<ResourceLocation, IUnbakedModel> modelCache	= new HashMap<>();
 	private final Map<ResourceLocation, IBakedModel> bakedCache	= new HashMap<>();
 
-	public IUnbakedModel getModel(final ResourceLocation inLocation)
+	public IUnbakedModel getModel(final ResourceLocation location)
 	{
-		ResourceLocation location = new ResourceLocation(inLocation.getNamespace(), "block/" + inLocation.getPath());
-		BetaPlus.LOGGER.info("Location for getModel: " + location); //Debug purposes
 		IUnbakedModel model = this.modelCache.get(location);
+		if (model != null)
+		{
+			BetaPlus.LOGGER.info("(ModelsCache) Found Model");
+		}
 		if (model == null) {
 			try
 			{
 				model = ModelLoaderRegistry.getModel(location);
-				BetaPlus.LOGGER.info("(ModelsCache) Successfully got model: " + model.toString());
 			}
 			catch (final Exception e)
 			{
-				BetaPlus.LOGGER.error("(ModelsCache) Couldn't get model! Loc: " + location);
-				//e.printStackTrace();
+				BetaPlus.LOGGER.error("(ModelsCache): Couldnt Load Model!");
+				e.printStackTrace();
 				model = ModelLoaderRegistry.getMissingModel();
+
 			}
+			//Moved
 			this.modelCache.put(location, model);
 		}
 		return model;
 	}
 
-	public IBakedModel getBakedModel(final ResourceLocation location) {
-		return this.getBakedModel(location, ModelHelper.DEFAULT_MODEL_STATE, ModelHelper.DEFAULT_VERTEX_FORMAT, ModelHelper.DEFAULT_TEXTURE_GETTER);
+	public IBakedModel getBakedModel(final ResourceLocation location)
+	{
+		BetaPlus.LOGGER.info("(ModelsCache) Resource: " + location.toString());
+		return this.getBakedModel(location, DEFAULT_MODEL_STATE, DEFAULT_VERTEX_FORMAT, DEFAULT_TEXTURE_GETTER);
 	}
 
-	public IBakedModel getBakedModel(final ResourceLocation location, final IModelState state, final VertexFormat format, final Function<ResourceLocation, TextureAtlasSprite> textureGetter) {
-		BetaPlus.LOGGER.info("(ModelsCache) Location Cache Search: " + location.toString());
+	public IBakedModel getBakedModel(final ResourceLocation locationIn, final IModelState state, final VertexFormat format, final Function<ResourceLocation, TextureAtlasSprite> textureGetter) {
 
-		IBakedModel bakedModel = this.bakedCache.get(location);
-		if (bakedModel == null && !hasRender)
+		ResourceLocation location = new ResourceLocation("grass_block");
+		location = new ModelResourceLocation(locationIn.toString());
+		IBakedModel bakedModel = this.bakedCache.get(locationIn);
+		if (bakedModel != null)
 		{
-			// We made it here, time to celebrate! (Don't!)
+			BetaPlus.LOGGER.info("Found Baked Model");
+		}
+		if (bakedModel == null)
+		{
+			BetaPlus.LOGGER.info("(ModelsCache) Baking: " + location.toString());
+			// Problem Line
 			IUnbakedModel model = this.getModel(location);
-
-			// DEBUG (Testing Grass Type)
-			/*
-			try
-			{
-				model = ModelLoaderRegistry.getModel(Blocks.GRASS_BLOCK.getRegistryName());
-			}
-			catch (Exception e)
-			{
-				BetaPlus.LOGGER.info("(ModelsCache) Couldnt get grass model!");
-				e.printStackTrace();
-			}
-			*/
-			// END DEBUG
-
-			//BetaPlus.LOGGER.info("Before Baked: " + location + "; " + model.toString());
-
-			bakedModel = model.bake(ModelLoader.defaultModelGetter(), textureGetter, state, false, format);
-			BetaPlus.LOGGER.info("(ModelsCache) Past Baked: " + bakedModel.toString());
+			bakedModel = model.bake(MODEL_GETTER,textureGetter, state, false, format);
 			this.bakedCache.put(location, bakedModel);
-			//hasRender = true; //Debug
 		}
 		return bakedModel;
 	}
