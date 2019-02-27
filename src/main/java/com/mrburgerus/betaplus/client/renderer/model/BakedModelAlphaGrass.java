@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -23,11 +24,24 @@ public class BakedModelAlphaGrass implements IBakedModel
 	public BakedModelAlphaGrass()
 	{
 		//Working
-		//grassLoc = BlockModelShapes.getModelLocation(Blocks.GRASS_BLOCK.getDefaultState());
-		grassLoc = new ModelResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_grass_block"));
+		grassLoc = BlockModelShapes.getModelLocation(Blocks.GRASS_BLOCK.getDefaultState());
+		/* tried:
+		models/block/alpha_grass_block
+		models/block/alpha_grass_block
+		"models/block/alpha_grass_block"
+		s produces: "betaplus:s#"
+		 */
+		//grassLoc = new ModelResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"));
 		manager = Minecraft.getInstance().getModelManager();
+		// Never registered, so returns DEFAULT, or missing texture. Could my resource locations be impure?
 		grassModel = manager.getModel(grassLoc);
-		BetaPlus.LOGGER.info("Using: " + grassModel.toString());
+
+		BetaPlus.LOGGER.info("Using Loc: " + grassLoc.toString() + " ; " + grassModel.toString());
+
+		// getModel cannot take a ResourceLocation as an argument.
+		//ResourceLocation loc = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"));
+		//grassModel = manager.getModel(loc);
+		//BetaPlus.LOGGER.info("Using Loc: " + loc.toString() + " ; " + grassModel.toString());
 	}
 
 	@Override

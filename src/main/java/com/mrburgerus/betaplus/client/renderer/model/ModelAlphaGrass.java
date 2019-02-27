@@ -43,7 +43,7 @@ public class ModelAlphaGrass implements IUnbakedModel
 	public IBakedModel bake(Function modelGetter, Function spriteGetter, IModelState state, boolean uvlock, VertexFormat format)
 	{
 		//TODO: INJECT THE TEXTURES
-		BetaPlus.LOGGER.info("Baking!");
+		BetaPlus.LOGGER.info("Baking! ");
 
 		try
 		{
@@ -51,7 +51,7 @@ public class ModelAlphaGrass implements IUnbakedModel
 			IBakedModel existing = Minecraft.getInstance().getModelManager().
 					getModel(new ModelResourceLocation(Blocks.GRASS_BLOCK.getRegistryName(), ""));
 
-			return new AlphaGrassBakedWrapper(existing, new BakedModelAlphaGrass());
+			return new BakedModelAlphaGrass();
 		}
 		catch (Exception e)
 		{
@@ -70,12 +70,14 @@ public class ModelAlphaGrass implements IUnbakedModel
 	@Override
 	public Collection<ResourceLocation> getTextures(Function<ResourceLocation, IUnbakedModel> modelGetter, Set<String> missingTextureErrors)
 	{
-		BetaPlus.LOGGER.info("Called Texture");
 		ImmutableSet.Builder<ResourceLocation> builder = ImmutableSet.builder();
 		if (alphaLocation != null)
 		{
 			// Modify Alpha Location (Pretty Hacky)
-			ResourceLocation newAlphaLoc = new ResourceLocation(alphaLocation.getNamespace(), alphaLocation.getPath().replace("models","block"));
+			// Tried replace models with block, bad results.
+			ResourceLocation newAlphaLoc = new ResourceLocation(alphaLocation.getNamespace(), alphaLocation.getPath().replace("models/", "")
+			.replace("block/", ""));
+					//new ResourceLocation(alphaLocation.getNamespace(), alphaLocation.getPath().replace("models","block"));
 			BetaPlus.LOGGER.info("Adding: " + newAlphaLoc);
 			builder.add(alphaLocation);
 		}

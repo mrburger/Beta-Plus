@@ -104,9 +104,14 @@ public class BetaPlus
 		}
     }
 
+    @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
 	public void bakeAlphaGrass(final ModelBakeEvent event)
 	{
+		//Added, hopefully will fix something...
+		ModelResourceLocation modelLoc = new ModelResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"));
+		event.getModelRegistry().put(modelLoc, new BakedModelAlphaGrass());
+
 		IBlockState grassState = Blocks.GRASS_BLOCK.getDefaultState();
 		// Variant is not snowy.
 		ModelResourceLocation grassLocation = BlockModelShapes.getModelLocation(grassState);
@@ -120,8 +125,10 @@ public class BetaPlus
 
 			//BetaPlus.LOGGER.info("Getting Baked Model From: " + newLoc);
 			ResourceLocation newLoc = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"));
+			IBakedModel newModel = ModelsCache.INSTANCE.getBakedModel(newLoc);
+			BetaPlus.LOGGER.info("Replacing Grass: " + newLoc.toString() + " ; " + newModel.toString());
 
-			event.getModelRegistry().replace(grassLocation, ModelsCache.INSTANCE.getBakedModel(newLoc));
+			event.getModelRegistry().replace(grassLocation, new AlphaGrassBakedWrapper(existingModel, newModel));
 			BetaPlus.LOGGER.info("Registered Grass Override");
 		}
 
@@ -139,7 +146,7 @@ public class BetaPlus
 	{
 		// Model will be appended to beginning, somewhere in pipeline.
 		// Working?
-		ResourceLocation blockLocation = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("alpha_grass_block"));
+		ResourceLocation blockLocation = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_grass_block"));
 		BetaPlus.LOGGER.info("Trying to get Models for: " + blockLocation.toString());
 		final IUnbakedModel model;
 		try
@@ -156,8 +163,9 @@ public class BetaPlus
 		// Does not properly register
 		for (final ResourceLocation textureLocation : model.getTextures(ModelLoader.defaultModelGetter(), new HashSet<>()))
 		{
-			ResourceLocation loc2 = new ResourceLocation(textureLocation.getNamespace(), "block/" + blockLocation.getPath());
-			BetaPlus.LOGGER.info("Register: " + loc2);
+			//Previously added "block/", caused a double directory issue
+			ResourceLocation loc2 = new ResourceLocation(textureLocation.getNamespace(), blockLocation.getPath());
+			BetaPlus.LOGGER.info("Register Tex: " + loc2);
 			event.getMap().registerSprite(Minecraft.getInstance().getResourceManager(), loc2);
 		}
 	}
