@@ -96,7 +96,10 @@ public class BiomeHelper
 	{
 		// Shipwreck
 		biome.addStructure(Feature.SHIPWRECK, new ShipwreckConfig(false));
+		// Ruins
 		biome.addStructure(Feature.OCEAN_RUIN, new OceanRuinConfig(OceanRuinStructure.Type.COLD, 0.3F, 0.9F));
+		// Add Ocean Monuments (Works?)
+		biome.addStructure(Feature.OCEAN_MONUMENT, new OceanMonumentConfig());
 
 		// Underwater Ravine
 		biome.addCarver(GenerationStage.Carving.LIQUID, Biome.createWorldCarverWrapper(Biome.UNDERWATER_CANYON_WORLD_CARVER, new ProbabilityConfig(0.02F)));

@@ -156,25 +156,14 @@ public class BetaPlus
 		{
 			IBakedModel existingModel = (IBakedModel) object; // Existing Leaves Model
 
+			// There will be a bunch of model locations, because leaves have "distance" and "persistent" States
 			for(IBlockState leavesState : Blocks.OAK_LEAVES.getStateContainer().getValidStates())
 			{
 				ModelResourceLocation leavesLocation = BlockModelShapes.getModelLocation(leavesState);
 
-				BetaPlus.LOGGER.info("Leaves have State: " + leavesState);
-
-				BetaPlus.LOGGER.info("(BetaPlus) Looking for: " + leavesLocation);
-				BetaPlus.LOGGER.info("(BetaPlus) Existing: " + existingModel.getOverrides().toString());
-
 				IBakedModel modelNew = ModelsCache.INSTANCE.getBakedModel(LEAVES_LOCATION);
 
-				// Replace, so we can replace the "root" Baked Model (DOES NOT WORK YET)
-				ModelResourceLocation modelLocation = leavesLocation; //new ModelResourceLocation(leavesLocation.getPath(), "");
-				BetaPlus.LOGGER.debug("Found (DEBUG): " + event.getModelRegistry().get(leavesLocation).toString());
-				BetaPlus.LOGGER.info("Resource Location Replaced: " + modelLocation);
-				// There will be a bunch of model locations, because leaves have "distance" and "persistent" States
-				event.getModelRegistry().replace(modelLocation, new BakedModelWrapperAlpha(existingModel, modelNew));
-
-				BetaPlus.LOGGER.debug("Replaced With (DEBUG): " + event.getModelRegistry().get(modelLocation).toString());
+				event.getModelRegistry().replace(leavesLocation, new BakedModelWrapperAlpha(existingModel, modelNew));
 			}
 		}
 	}
@@ -185,6 +174,7 @@ public class BetaPlus
 		ModelLoaderRegistry.registerLoader(AlphaModelLoader.INSTANCE);
 	}
 
+	//TODO: Find a better way to do this
 	@OnlyIn(Dist.CLIENT)
 	@SubscribeEvent
 	public void addTextures(TextureStitchEvent.Pre event)

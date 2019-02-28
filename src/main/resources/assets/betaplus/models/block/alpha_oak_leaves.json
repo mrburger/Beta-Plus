@@ -1,7 +1,7 @@
 {
   "textures": {
     "all": "betaplus:block/alpha_oak_leaves",
-    "particle": "#all"
+    "particle": "betaplus:block/alpha_oak_leaves"
   },
   "elements": [
     {   "from": [ 0, 0, 0 ],

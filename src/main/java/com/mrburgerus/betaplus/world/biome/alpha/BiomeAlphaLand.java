@@ -1,18 +1,11 @@
 package com.mrburgerus.betaplus.world.biome.alpha;
 
-import com.google.common.collect.Lists;
-import com.mrburgerus.betaplus.world.alpha_plus.generators.BasePlacementAlphaPlus;
 import com.mrburgerus.betaplus.world.biome.BiomeHelper;
-import net.minecraft.block.Block;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.feature.*;
-import net.minecraft.world.gen.feature.structure.MineshaftConfig;
-import net.minecraft.world.gen.feature.structure.MineshaftStructure;
-import net.minecraft.world.gen.placement.*;
+import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.IFeatureConfig;
+import net.minecraft.world.gen.placement.DungeonRoomConfig;
 import net.minecraft.world.gen.surfacebuilders.CompositeSurfaceBuilder;
 
 public class BiomeAlphaLand extends Biome

@@ -6,6 +6,10 @@ import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.*;
+import net.minecraft.world.gen.feature.structure.IglooConfig;
+import net.minecraft.world.gen.feature.structure.OceanMonumentConfig;
+import net.minecraft.world.gen.feature.structure.VillageConfig;
+import net.minecraft.world.gen.feature.structure.VillagePieces;
 import net.minecraft.world.gen.placement.*;
 import net.minecraft.world.gen.surfacebuilders.CompositeSurfaceBuilder;
 
@@ -23,7 +27,7 @@ public class BiomeAlphaFrozenLand extends Biome
 
 		//Create Ores
 		BiomeHelper.addAllOres(this);
-		// Add structures
+		// Add structures (What does it actually do)
 		this.addStructureFeatures();
 		// Add Trees, Caves, features.
 		BiomeHelper.addAlphaLandFeatures(this);
@@ -35,6 +39,14 @@ public class BiomeAlphaFrozenLand extends Biome
 		BiomeHelper.addHostileSpawns(this);
 		// Add Polar Bears
 		this.addSpawn(EnumCreatureType.CREATURE, new SpawnListEntry(EntityType.POLAR_BEAR, 1, 1, 2));
+
+		// Add Igloos
+		this.addStructure(Feature.IGLOO, new IglooConfig());
+
+		// Add Dummy Ocean Monuments? (TESTING)
+		// This is to test exactly what addFeature does. DOES NOT WORK, still crashes.
+		this.addFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, createCompositeFeature(Feature.OCEAN_MONUMENT, new OceanMonumentConfig(), PASSTHROUGH, IPlacementConfig.NO_PLACEMENT_CONFIG));
+
 
 		// Add Dungeons
 		this.addFeature(GenerationStage.Decoration.UNDERGROUND_STRUCTURES, createCompositeFeature(Feature.DUNGEONS, IFeatureConfig.NO_FEATURE_CONFIG, DUNGEON_ROOM, new DungeonRoomConfig(8)));

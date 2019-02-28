@@ -1,19 +1,19 @@
 package com.mrburgerus.betaplus.world.alpha_plus.sim;
 
 import com.mrburgerus.betaplus.BetaPlus;
+import com.mrburgerus.betaplus.util.IWorldSimulator;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlpha;
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.IChunk;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 
 /* Simulates Y values */
-/* VERY SLOW CURRENTLY */
-public class AlphaPlusSimulator
+/* Potential for the Cache to cause a Stack Overflow, but WHATEVER. If it happens I'll fix it. */
+/* IT WORKS! Feb 28, 2019 */
+public class AlphaPlusSimulator implements IWorldSimulator
 {
 	// Basic Fields
 	private final long seed;
@@ -34,85 +34,27 @@ public class AlphaPlusSimulator
 	double[] octave4Arr;
 	double[] octave5Arr;
 
-	// Final fields
-	private static final int[] MATCH_VALUES = {0, 4, 8, 12};
+
+	// Save the data HERE
+	private static HashMap<ChunkPos, Integer> singleYCache;
 
 	public AlphaPlusSimulator(World world)
 	{
 		seed = world.getSeed();
-		// Test with Seed 69: It is consistent across loads, with 65 in top left and 54 bottom right
-		// Seed 69 with 2 unused Declarations: 93 top left, 76 bottom right
 		rand = new Random(seed);
 		this.octaves1 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
 		this.octaves2 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
 		this.octaves3 = new NoiseGeneratorOctavesAlpha(this.rand, 8);
-		/* Testing to see if Random is affected by declarations */
-		/* It does affect it, from what I see */
-		// Declarations to fix the simulator (hopefully, probably)
 		new NoiseGeneratorOctavesAlpha(this.rand, 4);
 		new NoiseGeneratorOctavesAlpha(this.rand, 4);
 		this.octaves4 = new NoiseGeneratorOctavesAlpha(this.rand, 10);
 		this.octaves5 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
+		// Moved down here to remove ANY possiblity of using an old cache across world loads.
+		singleYCache = new HashMap<>();
 	}
 
-	/* Simulates Y-height every 4 blocks for the Biome Provider. This helps determine where oceans will most likely be injected. */
-	/* For a 1x1 size, finds closest position and uses that. (In testing) */
-	/* For a 16x16 (chunk), a 4x4 matrix will be created using the values at 0,0 to 12,12 in the chunk. */
-	//TODO: Find a way to implement
-	//TODO: Figure out a fast way to do 1x1
-	public int[] simulateY(BlockPos pos, int xSize, int zSize)
-	{
-		// First, determine chunk position
-		int chunkX = pos.getX() >> 4;
-		int chunkZ = pos.getZ() >> 4;
-
-		// Now, determine how many "chunks", iterations we will need to generate.
-		int xIter = (int) Math.ceil(xSize / 16.0);
-		int zIter = (int) Math.ceil(zSize / 16.0);
-
-		//BetaPlus.LOGGER.info("Iterations: " + xIter + ", " + zIter);
-
-		int[][] arr1 = 	simulateChunkYFast(chunkX, chunkZ);
-		//int[][] arr2 = simulateChunkY(chunkX, chunkZ);
-
-		/*
-		BetaPlus.LOGGER.info("Begin Fast Dump");
-		for (int[] anArr1 : arr1)
-		{
-			BetaPlus.LOGGER.info(Arrays.toString(anArr1));
-		}
-		BetaPlus.LOGGER.info("End Fast Dump");
-		for (int[] anArr1 : arr2)
-		{
-			BetaPlus.LOGGER.info(Arrays.toString(anArr1));
-		}
-		BetaPlus.LOGGER.info("End Full Dump");
-		*/
-
-		return new int[0];
-	}
-
-	/* Simulates a Single Y value by finding the nearest neighbor to simulate, if possible */
-	/* OR: We can simulate only the FIRST value of the chunk */
-	//TODO: Make fast.
+	@Override
 	public int simulateYSingle(BlockPos pos)
-	{
-		// First, determine chunk position
-		int chunkX = pos.getX() >> 4;
-		int chunkZ = pos.getZ() >> 4;
-
-		// Find nearest value to simulate.
-		int xPChunk = getNearestChunkValue(pos.getX());
-		int zPChunk = getNearestChunkValue(pos.getZ());
-
-		//BetaPlus.LOGGER.info("VAL: " + (pos.getX() & 15) + " : " + xPChunk);
-
-
-		return 0;
-	}
-
-	/* Simulates either 0 or 8 in chunk (2x2 Array) */
-	public int simulateYSingleFast(BlockPos pos)
 	{
 		// First, determine chunk position
 		int chunkX = pos.getX() >> 4;
@@ -122,46 +64,29 @@ public class AlphaPlusSimulator
 		// Working (I think)
 		int xP = chunkX * 16 + 8;
 		int zP = chunkZ * 16 + 8;
+		//Formerly xP, zP. This was not a correct assignment.
+		ChunkPos chunkPosForUse = new ChunkPos(chunkX, chunkZ);
 
-		//BetaPlus.LOGGER.info("Pos: " + xP + ", " + zP + " : " + chunkX + ", " + chunkZ);
-		// Simulate Chunk at position:
-
-
-
-		return simulateYatZero(chunkX, chunkZ);
-	}
-
-	/* Finds nearest Chunk value, given anything. It matches to an array: [0, 4, 8, 12] */
-	/* Nearest to 16 values return the next chunk, pos 0 */
-	/* Values Equidistant like 2, 6, 10, or 14 return the lower value */
-	/* We can ignore cases like Block 15 because it is never called for in practice (I think) */
-	private int getNearestChunkValue(int val)
-	{
-		int checkVal = val & 15; // Chunk size is 16, & with 15
-		int idP = 0;
-		int dist = Math.abs(MATCH_VALUES[0] - checkVal);
-		for (int c = 1; c < MATCH_VALUES.length; c++)
+		if (singleYCache.containsKey(chunkPosForUse))
 		{
-			int cDist = Math.abs(MATCH_VALUES[c] - checkVal);
-			if (cDist < dist)
-			{
-				idP = c;
-				dist = cDist;
-			}
+			return singleYCache.get(chunkPosForUse);
 		}
-		return MATCH_VALUES[idP];
+		else
+		{
+			int ret = simulateYZeroZeroChunk(chunkX, chunkZ);
+			singleYCache.put(chunkPosForUse, ret);
+			return ret;
+		}
 	}
 
 	/* Simulates a SINGLE Y Value, for usage. */
-	private int simulateYatZero(int chunkX, int chunkZ)
+	@Override
+	public int simulateYZeroZeroChunk(int chunkX, int chunkZ)
 	{
-		int output = 0;
-		byte var4 = 1; // Could Cause issues
-		int var6 = var4 + 1;
-		byte yHeight = 17;
-		int var8 = var4 + 1;
+		int output = 0; //Iterated through.
 
-		this.heightNoise = this.generateOctaves(this.heightNoise, chunkX * 4, 0, chunkZ * 4, var6, yHeight, var8);
+		byte yHeight = 17;
+		this.heightNoise = this.generateOctaves(this.heightNoise, chunkX * 4, 0, chunkZ * 4, 5, yHeight, 5);
 
 		for (int cY = 0; cY < 16; ++cY)
 		{
@@ -309,18 +234,20 @@ public class AlphaPlusSimulator
 	}
 
 	/* Generates Octaves similarly to the Chunk Generator */
-	private double[] generateOctaves(double[] values, int xChunkMult, int var3, int zChunkMult, int size1, int size2, int size3) {
+	@Override
+	public double[] generateOctaves(double[] values, int xChunkMult, int yValueZero, int zChunkMult, int size1, int size2, int size3)
+	{
 		if (values == null) {
 			values = new double[size1 * size2 * size3];
 		}
 
 		double scale1 = 684.412D;
 		double scale2 = 684.412D;
-		this.octave4Arr = this.octaves4.generateNoiseOctaves(this.octave4Arr, (double) xChunkMult, (double) var3, (double) zChunkMult, size1, 1, size3, 1.0D, 0.0D, 1.0D);
-		this.octave5Arr = this.octaves5.generateNoiseOctaves(this.octave5Arr, (double) xChunkMult, (double) var3, (double) zChunkMult, size1, 1, size3, 100.0D, 0.0D, 100.0D);
-		this.octave3Arr = this.octaves3.generateNoiseOctaves(this.octave3Arr, (double) xChunkMult, (double) var3, (double) zChunkMult, size1, size2, size3, scale1 / 80.0D, scale2 / 160.0D, scale1 / 80.0D);
-		this.octave1Arr = this.octaves1.generateNoiseOctaves(this.octave1Arr, (double) xChunkMult, (double) var3, (double) zChunkMult, size1, size2, size3, scale1, scale2, scale1);
-		this.octave2Arr = this.octaves2.generateNoiseOctaves(this.octave2Arr, (double) xChunkMult, (double) var3, (double) zChunkMult, size1, size2, size3, scale1, scale2, scale1);
+		this.octave4Arr = this.octaves4.generateNoiseOctaves(this.octave4Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, 1, size3, 1.0D, 0.0D, 1.0D);
+		this.octave5Arr = this.octaves5.generateNoiseOctaves(this.octave5Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, 1, size3, 100.0D, 0.0D, 100.0D);
+		this.octave3Arr = this.octaves3.generateNoiseOctaves(this.octave3Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, size2, size3, scale1 / 80.0D, scale2 / 160.0D, scale1 / 80.0D);
+		this.octave1Arr = this.octaves1.generateNoiseOctaves(this.octave1Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, size2, size3, scale1, scale2, scale1);
+		this.octave2Arr = this.octaves2.generateNoiseOctaves(this.octave2Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, size2, size3, scale1, scale2, scale1);
 		int var12 = 0;
 		int var13 = 0;
 

@@ -1,8 +1,9 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
 import com.mrburgerus.betaplus.BetaPlus;
-import com.mrburgerus.betaplus.util.BetaPlusBiomeReplace;
-import com.mrburgerus.betaplus.util.BetaPlusDeepenOcean;
+import com.mrburgerus.betaplus.util.BiomeReplaceUtil;
+import com.mrburgerus.betaplus.util.DeepenOceanUtil;
+import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulator;
 import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
@@ -79,6 +80,8 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		scaleNoise = new NoiseGeneratorOctavesBeta(rand, 10);
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
 		biomeProviderS = biomeProvider;
+
+
 	}
 
 	/* This Method is an Analog to generateChunk, albeit HEAVILY modified! */
@@ -94,7 +97,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		biomesForGeneration = biomeProviderS.getBiomes(x * 16, z * 16, 16, 16);
 		// Written similarly to "generateTerrain" from earlier versions.
 		setBlocksInChunk(chunkIn);
-		BetaPlusDeepenOcean.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize());
+		DeepenOceanUtil.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize());
 		// Replace Biomes (Oceans)
 		this.replaceBiomes(chunkIn);
 
@@ -104,7 +107,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		this.replaceBeaches(chunkIn);
 
 		// Set Biomes
-		chunkIn.setBiomes(BetaPlusBiomeReplace.convertBiomeArray(biomesForGeneration));
+		chunkIn.setBiomes(BiomeReplaceUtil.convertBiomeArray(biomesForGeneration));
 
 		chunkIn.setStatus(ChunkStatus.BASE);
 	}
@@ -214,7 +217,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		return biomeIn.hasStructure(structureIn);
 	}
 
-	/* GENERATION METHODS */
+	/* -- GENERATION METHODS -- */
 
 	/* GENERATES THE BLOCKS */
 	// PREVIOUSLY other methods, updated for 1.13!
@@ -292,7 +295,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 			{
 				int xPos = iChunk.getPos().getXStart() + x;
 				int zPos = iChunk.getPos().getZStart() + z;
-				int yVal = BetaPlusBiomeReplace.getSolidHeightY(xPos, zPos, iChunk);
+				int yVal = BiomeReplaceUtil.getSolidHeightY(xPos, zPos, iChunk);
 				if (yVal > settings.getHighAltitude())
 				{
 					biomesForGeneration[(x << 4 | z)] = BiomeGenBetaPlus.mountain.handle;
@@ -322,7 +325,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 			{
 				int xPos = chunk.getPos().getXStart() + x;
 				int zPos = chunk.getPos().getZStart() + z;
-				int yVal = BetaPlusBiomeReplace.getSolidHeightY(xPos, zPos, chunk);
+				int yVal = BiomeReplaceUtil.getSolidHeightY(xPos, zPos, chunk);
 				// New Line
 				Biome biome = biomesForGeneration[(x << 4 | z)];
 				//Inject Beaches (MODIFIED)
@@ -341,7 +344,6 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		Structure<?> structure = Feature.STRUCTURES.get(name.toLowerCase(Locale.ROOT));
 		if (structure != null)
 		{
-			BetaPlus.LOGGER.info("Locate: " + structure.toString());
 			return structure.findNearest(worldIn, this, pos, radius, p_211403_5_);
 		}
 		return null;
@@ -439,7 +441,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		return values;
 	}
 
-	// YES, IT IS COPIED AND MODIFIED FROM 1.12
+	/* YES, IT IS COPIED AND MODIFIED FROM 1.12 */
 	private void replaceBlocksForBiome(int chunkX, int chunkZ, IChunk chunkprimer, BiomeGenBetaPlus[] biomes)
 	{
 		double thirtySecond = 0.03125;

@@ -1,14 +1,12 @@
 package com.mrburgerus.betaplus.util;
 
-import com.mrburgerus.betaplus.BetaPlus;
-import com.mrburgerus.betaplus.world.beta_plus.ChunkGeneratorBetaPlus;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.IChunk;
 
 import java.util.Random;
 
-public class BetaPlusDeepenOcean
+public class DeepenOceanUtil
 {
 	public static void deepenOcean(IChunk chunk, Random random, int seaLevel, int smoothSize)
 	{
@@ -22,7 +20,7 @@ public class BetaPlusDeepenOcean
 		{
 			for (int zV = 0; zV < depthValues[xV].length; ++zV)
 			{
-				int y = BetaPlusBiomeReplace.getSolidHeightY(xStart + xV, zStart + zV, chunk);
+				int y = BiomeReplaceUtil.getSolidHeightY(xStart + xV, zStart + zV, chunk);
 				int depth = (seaLevel - y) - 1; // Depth is -1 because of lowered sea level.
 				depthValues[xV][zV] = depth;
 			}
@@ -37,7 +35,7 @@ public class BetaPlusDeepenOcean
 			}
 		}
 		// Gaussian BLUR
-		double[][] newDepths = BetaConvolve.convolve2DSquare(depthValues, smoothSize, 2f);
+		double[][] newDepths = ConvolutionMathUtil.convolve2DSquare(depthValues, smoothSize, 2f);
 
 
 		// Now Process These Values
@@ -45,7 +43,7 @@ public class BetaPlusDeepenOcean
 		{
 			for (int zV = 0; zV < newDepths[xV].length; ++zV)
 			{
-				int y = BetaPlusBiomeReplace.getSolidHeightY(xStart + xV, zStart + zV, chunk);
+				int y = BiomeReplaceUtil.getSolidHeightY(xStart + xV, zStart + zV, chunk);
 				int yNew = seaLevel - (int) newDepths[xV][zV];
 				if (yNew < y && y < seaLevel) // We are Deep, yo.
 				{

@@ -6,7 +6,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
 
-public class BetaPlusBiomeReplace
+public class BiomeReplaceUtil
 {
 	/* Converts Biome Array As Generated to a usable Biome Array */
 	public static Biome[] convertBiomeArray(Biome[] biomesIn)

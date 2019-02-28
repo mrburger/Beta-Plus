@@ -1,8 +1,8 @@
 package com.mrburgerus.betaplus.world.alpha_plus;
 
 import com.mrburgerus.betaplus.BetaPlus;
-import com.mrburgerus.betaplus.util.BetaPlusBiomeReplace;
-import com.mrburgerus.betaplus.util.BetaPlusDeepenOcean;
+import com.mrburgerus.betaplus.util.BiomeReplaceUtil;
+import com.mrburgerus.betaplus.util.DeepenOceanUtil;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlpha;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
@@ -74,11 +74,11 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		int zPos =  iChunk.getPos().z;
 		biomesForGeneration = this.biomeProvider.getBiomeBlock(xPos * 16, zPos * 16, 16, 16);
 		setBlocksInChunk(iChunk);
-		BetaPlusDeepenOcean.deepenOcean(iChunk, rand, settings.getSeaLevel(), 7);
+		DeepenOceanUtil.deepenOcean(iChunk, rand, settings.getSeaLevel(), 7);
 		this.replaceBiomes(iChunk);
 		this.replaceBeaches(iChunk);
 
-		iChunk.setBiomes(BetaPlusBiomeReplace.convertBiomeArray(biomesForGeneration));
+		iChunk.setBiomes(BiomeReplaceUtil.convertBiomeArray(biomesForGeneration));
 		// Replace Blocks Such as Grass.
 		this.replaceBlocks(iChunk);
 		iChunk.setStatus(ChunkStatus.BASE);
@@ -459,7 +459,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 			{
 				int xPos = iChunk.getPos().getXStart() + x;
 				int zPos = iChunk.getPos().getZStart() + z;
-				int yVal = BetaPlusBiomeReplace.getSolidHeightY(xPos, zPos, iChunk);
+				int yVal = BiomeReplaceUtil.getSolidHeightY(xPos, zPos, iChunk);
 				if (yVal < 64 - 1)
 				{
 					if(settings.getSnowy())
@@ -491,9 +491,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 			{
 				int xPos = chunk.getPos().getXStart() + x;
 				int zPos = chunk.getPos().getZStart() + z;
-				int yVal = BetaPlusBiomeReplace.getSolidHeightY(xPos, zPos, chunk);
-				// New Line
-				Biome biome = biomesForGeneration[(x << 4 | z)];
+				int yVal = BiomeReplaceUtil.getSolidHeightY(xPos, zPos, chunk);
 				//Inject Beaches (MODIFIED)
 				if ((yVal <= (settings.getSeaLevel() + 1) && yVal >= settings.getSeaLevel() - 1) && chunk.getBlockState(new BlockPos(xPos, yVal, zPos)) == Blocks.SAND.getDefaultState())
 				{
