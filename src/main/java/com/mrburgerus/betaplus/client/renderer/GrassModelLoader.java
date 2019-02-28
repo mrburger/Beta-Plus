@@ -1,15 +1,57 @@
 package com.mrburgerus.betaplus.client.renderer;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
+import com.google.gson.*;
 import com.mrburgerus.betaplus.BetaPlus;
-import com.mrburgerus.betaplus.client.renderer.model.ModelAlphaGrass;
-import net.minecraft.client.renderer.model.IUnbakedModel;
-import net.minecraft.init.Blocks;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.JsonUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ICustomModelLoader;
+import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.animation.ModelBlockAnimation;
+import net.minecraftforge.common.model.IModelState;
+import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
-public class GrassModelLoader implements ICustomModelLoader
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.function.Function;
+
+/* Graciously Provided by Cadiboo */
+public enum  GrassModelLoader implements ICustomModelLoader
 {
+	// Fields
+	INSTANCE;
+
+	public static final Constructor vanillaModelWrapper;
+	private static final Gson gson = new Gson();
+	private ModelLoader loader;
+
+	public void setLoader(ModelLoader loader)
+	{
+		this.loader = loader;
+	}
+
+	public ModelLoader getLoader()
+	{
+		return loader;
+	}
+
 	@Override
 	public void onResourceManagerReload(IResourceManager resourceManager)
 	{
@@ -19,28 +61,215 @@ public class GrassModelLoader implements ICustomModelLoader
 	@Override
 	public boolean accepts(ResourceLocation modelLocation)
 	{
-		boolean doesAccept = (modelLocation.getNamespace().equals(BetaPlus.MOD_NAME));
-		if (doesAccept)
+		String modelPath = modelLocation.getPath();
+		BetaPlus.LOGGER.info("Model Location Raw: " + modelLocation);
+		if( modelLocation.getPath().startsWith( "models/" ) )
 		{
-			// This HAS to fire otherwise something is wrong...
-			BetaPlus.LOGGER.info("(AlphaGrassModelLoader) Accepts Alpha Grass: " + modelLocation.toString());
+			modelPath = modelPath.substring( "models/".length() );
 		}
-		else
+		ResourceLocation location = new ResourceLocation( "betaplus:models/" + modelPath + ".json" );
+		BetaPlus.LOGGER.info("Trying to accept: " + modelPath);
+
+		try(InputStreamReader io = new InputStreamReader( Minecraft.getInstance().getResourceManager()
+				.getResource(location).getInputStream()))
 		{
-			BetaPlus.LOGGER.error("(AlphaGrassModelLoader) Not accepting! " + modelLocation.getPath());
+			//BetaPlus.LOGGER.info(gson.fromJson(io, ModelBlock.class).name);
+			boolean isLoad = false;
+			BetaPlus.LOGGER.info("(ModelLoader) Status: " + isLoad);
+			return true;
 		}
-		return doesAccept;
+		catch( IOException e)
+		{
+			BetaPlus.LOGGER.info("DID NOT ACCEPT :(");
+		}
+		return false;
 	}
 
-	/* Called in ModelsCache recursively, causes issue */
+	/* REFLECTION */
 	@Override
 	public IUnbakedModel loadModel(ResourceLocation modelLocation)
 	{
-		//Minecraft.getInstance().getRenderManager().
-		//return ModelBlock.deserialize("{ \"parent\": \"minecraft:block/block\", \"textures\": { \"particle\": \"minecraft:block/dirt\", \"bottom\": \"minecraft:block/dirt\", \"top\": \"betaplus:block/alpha_grass_block_top\", \"side\": \"betaplus:block/grass_block_side\", \"overlay\": \"betaplus:block/alpha_grass_block_side_overlay\" }, \"elements\": [ { \"from\": [ 0, 0, 0 ], \"to\": [ 16, 16, 16 ], \"faces\": { \"down\": { \"uv\": [ 0, 0, 16, 16 ], \"texture\": \"#bottom\", \"cullface\": \"down\" }, \"up\": { \"uv\": [ 0, 0, 16, 16 ], \"texture\": \"#top\", \"cullface\": \"up\", \"tintindex\": 0 }, \"north\": { \"uv\": [ 0, 0, 16, 16 ], \"texture\": \"#side\", \"cullface\": \"north\" }, \"south\": { \"uv\": [ 0, 0, 16, 16 ], \"texture\": \"#side\", \"cullface\": \"south\" }, \"west\": { \"uv\": [ 0, 0, 16, 16 ], \"texture\": \"#side\", \"cullface\": \"west\" }, \"east\": { \"uv\": [ 0, 0, 16, 16 ], \"texture\": \"#side\", \"cullface\": \"east\" } } }, { \"from\": [ 0, 0, 0 ], \"to\": [ 16, 16, 16 ], \"faces\": { \"north\": { \"uv\": [ 0, 0, 16, 16 ], \"texture\": \"#overlay\", \"tintindex\": 0, \"cullface\": \"north\" }, \"south\": { \"uv\": [ 0, 0, 16, 16 ], \"texture\": \"#overlay\", \"tintindex\": 0, \"cullface\": \"south\" }, \"west\": { \"uv\": [ 0, 0, 16, 16 ], \"texture\": \"#overlay\", \"tintindex\": 0, \"cullface\": \"west\" }, \"east\": { \"uv\": [ 0, 0, 16, 16 ], \"texture\": \"#overlay\", \"tintindex\": 0, \"cullface\": \"east\" } } } ] }");
-		//return new BakedModelGrass();
-		//ResourceLocation test = new ResourceLocation(modelLocation.toString() + "test1");
-		// Loads Model, MUST pass value, but if it loops, what happens?
-		return new ModelAlphaGrass(Blocks.GRASS_BLOCK.getRegistryName(), modelLocation);
+		return new ModelAlphaGrass(modelLocation);
+	}
+
+	private static Object deserializer( Class clas )
+	{
+		try
+		{
+			clas = Class.forName( clas.getName() + "$Deserializer" );
+			Constructor constr = clas.getDeclaredConstructor();
+			constr.setAccessible( true );
+			return constr.newInstance();
+		}
+		catch( Exception e )
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	static
+	{
+		try
+		{
+			//Field modifiers = Field.class.getDeclaredField( "modifiers" );
+			//modifiers.setAccessible( true );
+
+			//faceBakery =  //(ModelBakery.class, Minecraft.getInstance(),"faceBakery", "field_177607_l" );
+			//modifiers.set( faceBakery, faceBakery.getModifiers() & ( ~Modifier.FINAL ) );
+
+			Class modelClass = Class.forName(ModelLoader.class.getName() + "$VanillaModelWrapper");
+			//vanillaModelWrapper = modelClass.getDeclaredConstructor(ResourceLocation.class, ModelBlock.class, boolean.class, ModelBlockAnimation.class);
+			vanillaModelWrapper = modelClass.getDeclaredConstructor(ModelLoader.class, ResourceLocation.class, ModelBlock.class, boolean.class, ModelBlockAnimation.class);
+			vanillaModelWrapper.setAccessible(true);
+		}
+		catch (ClassNotFoundException | NoSuchMethodException e)
+		{
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+
+	// Extends Unbaked instead of IModel?
+	static <M extends IUnbakedModel> M vanillaModelWrapper(ModelLoader loader, ResourceLocation location, ModelBlock model, boolean uvlock, ModelBlockAnimation animation)
+	{
+		try
+		{
+			return (M) vanillaModelWrapper.newInstance(loader, location, model, uvlock, animation);
+		}
+		catch (Exception e)
+		{
+			throw Throwables.propagate(e);
+		}
+	}
+
+	class ModelAlphaGrass implements IUnbakedModel
+	{
+		// Fields
+		private final Gson SERIALIZER = ( new GsonBuilder() ).registerTypeAdapter( ModelBlock.class, deserializer( ModelBlock.class ) ).registerTypeAdapter( BlockPart.class, deserializer( BlockPart.class ) ).registerTypeAdapter( BlockPartFace.class, new BlockPartFaceOverrideSerializer() ).registerTypeAdapter( BlockFaceUV.class, deserializer( BlockFaceUV.class ) ).registerTypeAdapter( ItemTransformVec3f.class, deserializer( ItemTransformVec3f.class ) ).registerTypeAdapter( ItemCameraTransforms.class, deserializer( ItemCameraTransforms.class ) ).registerTypeAdapter( ItemOverride.class, deserializer( ItemOverride.class ) ).create();
+
+		private final IUnbakedModel parent;
+
+
+		ModelAlphaGrass(ResourceLocation resourceLocation)
+		{
+			BetaPlus.LOGGER.info("Creating Alpha Grass Model: " + resourceLocation.toString());
+			// Get the path
+			String modelPath = resourceLocation.getPath();
+			// If it starts with models, remove that segment.
+			if (resourceLocation.getPath().startsWith("models/"))
+			{
+				modelPath = modelPath.substring("models/".length());
+			}
+			ResourceLocation armatureLocation = new ResourceLocation(resourceLocation.getNamespace(), "armatures/" + modelPath + ".json");
+			ModelBlockAnimation animation = ModelBlockAnimation.loadVanillaAnimation(Minecraft.getInstance().getResourceManager(), armatureLocation);
+			ModelBlock model;
+			{
+				Reader reader = null;
+				IResource iresource = null;
+				ModelBlock modelBlock = null;
+
+				try
+				{
+					String s = resourceLocation.getPath();
+
+					iresource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation(resourceLocation.getNamespace(), "models/" + modelPath + ".json"));
+					reader = new InputStreamReader(iresource.getInputStream(), Charsets.UTF_8);
+
+					modelBlock = JsonUtils.fromJson(SERIALIZER, reader, ModelBlock.class, false);
+					BetaPlus.LOGGER.info("(GrassLoader) Made it here.");
+					modelBlock.name = resourceLocation.toString();
+				}
+				catch (IOException e)
+				{
+					BetaPlus.LOGGER.error("Couldn't Read Model!");
+					e.printStackTrace();
+				}
+				finally
+				{
+					IOUtils.closeQuietly(reader);
+					IOUtils.closeQuietly(iresource);
+				}
+
+				model = modelBlock;
+			}
+			this.parent = GrassModelLoader.vanillaModelWrapper(getLoader(), resourceLocation, model, false, animation);
+		}
+
+
+		@Override
+		public Collection<ResourceLocation> getOverrideLocations()
+		{
+			return parent.getOverrideLocations();
+		}
+
+		@Override
+		public Collection<ResourceLocation> getTextures(Function<ResourceLocation, IUnbakedModel> modelGetter, Set<String> missingTextureErrors)
+		{
+			BetaPlus.LOGGER.info("Getting Textures");
+			return parent.getTextures(modelGetter, missingTextureErrors);
+		}
+
+		@Nullable
+		@Override
+		public IBakedModel bake(Function<ResourceLocation, IUnbakedModel> modelGetter, Function<ResourceLocation, TextureAtlasSprite> spriteGetter, IModelState state, boolean uvlock, VertexFormat format)
+		{
+			/*
+			setFaceBakery( getLoader(), new FaceBakeryOverride() );
+			IBakedModel model = parent.bake(state, format, spriteGetter);
+			setFaceBakery(getLoader(), new FaceBakery() );
+			*/
+			BetaPlus.LOGGER.info("Baking!!!");
+			IBakedModel model = parent.bake(modelGetter, spriteGetter, state, uvlock, format);
+			return model;
+		}
+	}
+
+	public class BlockPartFaceOverrideSerializer implements JsonDeserializer<BlockPartFace>
+	{
+		private Map<BlockPartFace, Pair<Float, Float>> uvlightmap = new HashMap<>();
+		public BlockPartFace deserialize(JsonElement jsonElement, Type p_deserialize_2_, JsonDeserializationContext p_deserialize_3_ ) throws JsonParseException
+		{
+			JsonObject jsonobject = jsonElement.getAsJsonObject();
+			EnumFacing enumfacing = this.parseCullFace( jsonobject );
+			int i = this.parseTintIndex( jsonobject );
+			String s = this.parseTexture( jsonobject );
+			BlockFaceUV blockfaceuv = (BlockFaceUV) p_deserialize_3_.deserialize( jsonobject, BlockFaceUV.class );
+			BlockPartFace blockFace = new BlockPartFace( enumfacing, i, s, blockfaceuv );
+			uvlightmap.put( blockFace, parseUVL( jsonobject ) );
+			return blockFace;
+		}
+
+		protected int parseTintIndex( JsonObject object )
+		{
+			return JsonUtils.getInt( object, "tintindex", -1 );
+		}
+
+		private String parseTexture( JsonObject object )
+		{
+			return JsonUtils.getString( object, "texture" );
+		}
+
+		@Nullable
+		private EnumFacing parseCullFace( JsonObject object )
+		{
+			String s = JsonUtils.getString( object, "cullface", "" );
+			return EnumFacing.byName( s );
+		}
+
+		protected Pair<Float, Float> parseUVL(JsonObject object )
+		{
+			if( !object.has( "uvlightmap" ) )
+			{
+				return null;
+			}
+			object = object.get( "uvlightmap" ).getAsJsonObject();
+			return new ImmutablePair<Float, Float>( JsonUtils.getFloat( object, "sky", 0 ), JsonUtils.getFloat( object, "block", 0 ) );
+		}
+	}
+
+	class UVLMarker
+	{
+		boolean uvlMarker = true;
 	}
 }
+

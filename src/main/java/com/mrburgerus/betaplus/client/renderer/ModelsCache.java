@@ -1,6 +1,5 @@
 package com.mrburgerus.betaplus.client.renderer;
 
-import com.mojang.datafixers.types.Func;
 import com.mrburgerus.betaplus.BetaPlus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.IBakedModel;
@@ -9,12 +8,10 @@ import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.init.Blocks;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
@@ -44,27 +41,33 @@ public class ModelsCache implements ISelectiveResourceReloadListener
 	private final Map<ResourceLocation, IUnbakedModel> modelCache	= new HashMap<>();
 	private final Map<ResourceLocation, IBakedModel> bakedCache	= new HashMap<>();
 
-	public IUnbakedModel getModel(final ResourceLocation location)
+	public IUnbakedModel getOrLoadModel(final ResourceLocation location)
 	{
-		IUnbakedModel model = this.modelCache.get(location);
+		String modelPath = location.getPath();
+		if( location.getPath().startsWith( "models/" ) )
+		{
+			modelPath = modelPath.substring( "models/".length() );
+		}
+		ResourceLocation location1 = new ResourceLocation(location.getNamespace(), modelPath);
+		IUnbakedModel model = this.modelCache.get(location1);
 		if (model != null)
 		{
-			BetaPlus.LOGGER.info("(ModelsCache) Found Model");
+			BetaPlus.LOGGER.info("(ModelsCache) Found Existing Model");
 		}
 		if (model == null) {
 			try
 			{
-				model = ModelLoaderRegistry.getModel(location);
+				model = ModelLoaderRegistry.getModel(location1);
 			}
 			catch (final Exception e)
 			{
-				BetaPlus.LOGGER.error("(ModelsCache): Couldnt Load Model!");
+				BetaPlus.LOGGER.error("(ModelsCache): Couldn't Load Model!");
 				e.printStackTrace();
 				model = ModelLoaderRegistry.getMissingModel();
 
 			}
 			//Moved
-			this.modelCache.put(location, model);
+			this.modelCache.put(location1, model);
 		}
 		return model;
 	}
@@ -75,10 +78,9 @@ public class ModelsCache implements ISelectiveResourceReloadListener
 		return this.getBakedModel(location, DEFAULT_MODEL_STATE, DEFAULT_VERTEX_FORMAT, DEFAULT_TEXTURE_GETTER);
 	}
 
-	public IBakedModel getBakedModel(final ResourceLocation locationIn, final IModelState state, final VertexFormat format, final Function<ResourceLocation, TextureAtlasSprite> textureGetter) {
-
-		ResourceLocation location = new ResourceLocation("grass_block");
-		location = new ModelResourceLocation(locationIn.toString());
+	public IBakedModel getBakedModel(final ResourceLocation locationIn, final IModelState state, final VertexFormat format, final Function<ResourceLocation, TextureAtlasSprite> textureGetter)
+	{
+		ResourceLocation location = new ModelResourceLocation(locationIn.toString());
 		IBakedModel bakedModel = this.bakedCache.get(locationIn);
 		if (bakedModel != null)
 		{
@@ -88,7 +90,7 @@ public class ModelsCache implements ISelectiveResourceReloadListener
 		{
 			BetaPlus.LOGGER.info("(ModelsCache) Baking: " + location.toString());
 			// Problem Line
-			IUnbakedModel model = this.getModel(location);
+			IUnbakedModel model = this.getOrLoadModel(location);
 			bakedModel = model.bake(MODEL_GETTER,textureGetter, state, false, format);
 			this.bakedCache.put(location, bakedModel);
 		}
