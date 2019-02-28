@@ -2,6 +2,7 @@ package com.mrburgerus.betaplus.client.renderer.model;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mrburgerus.betaplus.BetaPlus;
 import net.minecraft.client.Minecraft;
@@ -64,10 +65,30 @@ public class ModelAlphaGrass implements IUnbakedModel
 		BetaPlus.LOGGER.info("(ModelAlphaGrass) modelFunc: " + modelFunction.toString());
 		*/
 		//Collection<ResourceLocation>  textureList = parent.getTextures(modelFunction, new HashSet<>());
-		Collection<ResourceLocation> locations = Lists.newArrayList();
+		List<ResourceLocation> locations = Lists.newArrayList();
 		try
 		{
-			locations.add(ResourceLocation.read(new com.mojang.brigadier.StringReader(JSON_STRING)));
+			StringReader reader = new com.mojang.brigadier.StringReader(JSON_STRING);
+			StringBuilder stuff = new StringBuilder();
+			while (reader.getRemainingLength() > 0)
+			{
+				if (reader.canRead())
+				{
+
+					if (reader.read() == '"')
+
+					BetaPlus.LOGGER.info("String: ");
+					stuff.append("s");
+				}
+			}
+			// Parse String
+
+
+			BetaPlus.LOGGER.debug("READER: " + stuff);
+			ResourceLocation location = ResourceLocation.read(reader);
+			BetaPlus.LOGGER.info("(ModelAlphaGrass) Loc: " + location);
+			locations.add(location);
+
 		}
 		catch (CommandSyntaxException e)
 		{
@@ -77,6 +98,7 @@ public class ModelAlphaGrass implements IUnbakedModel
 
 
 		locations.add(BetaPlus.ALPHA_LOCATION);
+
 
 
 		return locations;
