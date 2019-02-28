@@ -1,6 +1,6 @@
 {
   "textures": {
-    "all": "testis",
+    "all": "betaplus:block/alpha_oak_leaves",
     "particle": "#all"
   },
   "elements": [

@@ -119,13 +119,11 @@ public class BetaPlus
 
 		IBlockState grassBlockState = Blocks.GRASS_BLOCK.getDefaultState();
 		IBlockState grassState = Blocks.GRASS.getDefaultState();
-		// Messing around
-		IBlockState leavesState = Blocks.OAK_LEAVES.getStateContainer().getBaseState();
-		BetaPlus.LOGGER.info("Leaves have State: " + leavesState);
+
 		// Variant is not snowy.
 		ModelResourceLocation grassBlockLocation = BlockModelShapes.getModelLocation(grassBlockState);
 		ModelResourceLocation grassLocation = BlockModelShapes.getModelLocation(grassState);
-		ModelResourceLocation leavesLocation = BlockModelShapes.getModelLocation(leavesState);
+
 
 		/* Built with Help from @Cadiboo from Minecraft Forge, Thanks! */
 		Object object = event.getModelRegistry().get(grassBlockLocation);
@@ -148,30 +146,36 @@ public class BetaPlus
 			IBakedModel modelNew = ModelsCache.INSTANCE.getBakedModel(GRASS_LOCATION);
 
 			// Replace
-			BetaPlus.LOGGER.debug("(BetaPlus) Working Location: " + grassLocation.toString());
 			event.getModelRegistry().replace(grassLocation, new BakedModelWrapperAlpha(existingModel, modelNew));
 		}
 
-		object = event.getModelRegistry().get(leavesLocation);
+		object = event.getModelRegistry().get(BlockModelShapes.getModelLocation(Blocks.OAK_LEAVES.getDefaultState()));
 
 		// Do some gymnastics to get leaves to override.
 		if (object != null)
 		{
-			BetaPlus.LOGGER.info("(BetaPlus) Looking for: " + leavesLocation);
-			IBakedModel existingModel = (IBakedModel)object; // Existing Leaves Model
-			BetaPlus.LOGGER.info("(BetaPlus) Existing: " + existingModel.getOverrides().toString());
+			IBakedModel existingModel = (IBakedModel) object; // Existing Leaves Model
 
-			IBakedModel modelNew = ModelsCache.INSTANCE.getBakedModel(LEAVES_LOCATION);
+			for(IBlockState leavesState : Blocks.OAK_LEAVES.getStateContainer().getValidStates())
+			{
+				ModelResourceLocation leavesLocation = BlockModelShapes.getModelLocation(leavesState);
 
-			// Replace, so we can replace the "root" Baked Model (DOES NOT WORK YET)
-			ModelResourceLocation modelLocation = leavesLocation; //new ModelResourceLocation(leavesLocation.getPath(), "");
-			BetaPlus.LOGGER.debug("Found (DEBUG): "  + event.getModelRegistry().get(leavesLocation).toString());
-			BetaPlus.LOGGER.info("Resource Location Replaced: " + modelLocation);
-			event.getModelRegistry().replace(modelLocation, new BakedModelWrapperAlpha(existingModel, modelNew));
+				BetaPlus.LOGGER.info("Leaves have State: " + leavesState);
 
-			//Produces NULL!
-			BetaPlus.LOGGER.debug("Replaced With (DEBUG): "  + event.getModelRegistry().get(modelLocation).toString());
+				BetaPlus.LOGGER.info("(BetaPlus) Looking for: " + leavesLocation);
+				BetaPlus.LOGGER.info("(BetaPlus) Existing: " + existingModel.getOverrides().toString());
 
+				IBakedModel modelNew = ModelsCache.INSTANCE.getBakedModel(LEAVES_LOCATION);
+
+				// Replace, so we can replace the "root" Baked Model (DOES NOT WORK YET)
+				ModelResourceLocation modelLocation = leavesLocation; //new ModelResourceLocation(leavesLocation.getPath(), "");
+				BetaPlus.LOGGER.debug("Found (DEBUG): " + event.getModelRegistry().get(leavesLocation).toString());
+				BetaPlus.LOGGER.info("Resource Location Replaced: " + modelLocation);
+				// There will be a bunch of model locations, because leaves have "distance" and "persistent" States
+				event.getModelRegistry().replace(modelLocation, new BakedModelWrapperAlpha(existingModel, modelNew));
+
+				BetaPlus.LOGGER.debug("Replaced With (DEBUG): " + event.getModelRegistry().get(modelLocation).toString());
+			}
 		}
 	}
 
