@@ -62,7 +62,6 @@ public class ModelsCache implements ISelectiveResourceReloadListener
 			catch (final Exception e)
 			{
 				BetaPlus.LOGGER.error("(ModelsCache): Couldn't Load Model!");
-				e.printStackTrace();
 				model = ModelLoaderRegistry.getMissingModel();
 
 			}
@@ -74,7 +73,6 @@ public class ModelsCache implements ISelectiveResourceReloadListener
 
 	public IBakedModel getBakedModel(final ResourceLocation location)
 	{
-		BetaPlus.LOGGER.info("(ModelsCache) Resource: " + location.toString());
 		return this.getBakedModel(location, DEFAULT_MODEL_STATE, DEFAULT_VERTEX_FORMAT, DEFAULT_TEXTURE_GETTER);
 	}
 
@@ -82,14 +80,8 @@ public class ModelsCache implements ISelectiveResourceReloadListener
 	{
 		ResourceLocation location = new ModelResourceLocation(locationIn.toString());
 		IBakedModel bakedModel = this.bakedCache.get(locationIn);
-		if (bakedModel != null)
-		{
-			BetaPlus.LOGGER.info("Found Baked Model");
-		}
 		if (bakedModel == null)
 		{
-			BetaPlus.LOGGER.info("(ModelsCache) Baking: " + location.toString());
-			// Problem Line
 			IUnbakedModel model = this.getOrLoadModel(location);
 			bakedModel = model.bake(MODEL_GETTER,textureGetter, state, false, format);
 			this.bakedCache.put(location, bakedModel);

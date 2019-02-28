@@ -2,7 +2,6 @@ package com.mrburgerus.betaplus;
 
 import com.mrburgerus.betaplus.client.color.ColorRegister;
 import com.mrburgerus.betaplus.client.renderer.GrassModelLoader;
-import com.mrburgerus.betaplus.client.renderer.ModelLoader;
 import com.mrburgerus.betaplus.client.renderer.ModelsCache;
 import com.mrburgerus.betaplus.client.renderer.model.BakedModelGrass;
 import com.mrburgerus.betaplus.util.ResourceHelper;
@@ -17,7 +16,6 @@ import net.minecraft.client.renderer.model.IUnbakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.init.Blocks;
 import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -36,7 +34,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
-import java.util.Random;
 import java.util.function.Function;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -77,7 +74,6 @@ public class BetaPlus
 
 		// Register ourselves for server, registry and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
-		//BetaPlus.LOGGER.info("Finished Beta+ Creation");
     }
 
     private void setup(final FMLCommonSetupEvent event)
@@ -114,7 +110,6 @@ public class BetaPlus
     @SubscribeEvent
 	public void bakeAlphaGrass(final ModelBakeEvent event)
 	{
-		BetaPlus.LOGGER.info("(BetaPlus) ModelBake");
 		GrassModelLoader.INSTANCE.setLoader( event.getModelLoader() );
 
 		IBlockState grassState = Blocks.GRASS_BLOCK.getDefaultState();
@@ -128,13 +123,9 @@ public class BetaPlus
 		if (object != null)
 		{
 			IBakedModel existingModel = (IBakedModel)object; // Existing Grass Model
-			BetaPlus.LOGGER.info("(BetaPlus) INTO THE BREACH!");
 			IBakedModel modelNew = ModelsCache.INSTANCE.getBakedModel(ALPHA_LOCATION);
 
-			//Moved up here
-			BetaPlus.LOGGER.info("(BetaPlus) New Grass: " + modelNew.toString());
-			BetaPlus.LOGGER.info("(BetaPlus) Replacing Grass With Tex: " + modelNew.getQuads(grassState, EnumFacing.UP,  new Random()).get(0).getSprite());
-
+			// Replace the grass block
 			event.getModelRegistry().replace(grassLocation, new BakedModelGrass(existingModel, modelNew));
 		}
 
@@ -143,23 +134,17 @@ public class BetaPlus
 	@SubscribeEvent
 	public void createAlphaGrass(final ModelRegistryEvent event)
 	{
-		BetaPlus.LOGGER.info("(BetaPlus) ModelRegistry");
 		ModelLoaderRegistry.registerLoader(GrassModelLoader.INSTANCE);
-		//ModelLoaderRegistry.registerLoader( new ModelLoader());
 	}
 
 	@OnlyIn(Dist.CLIENT)
 	@SubscribeEvent
 	public void addTextures (TextureStitchEvent.Pre event)
 	{
-		BetaPlus.LOGGER.info("(BetaPlus) Texture Stitch Pre");
 		IResourceManager manager = Minecraft.getInstance().getResourceManager();
-		ResourceLocation blockLocation = ALPHA_LOCATION;
-
-		IUnbakedModel model = ModelsCache.INSTANCE.getOrLoadModel(blockLocation);
+		IUnbakedModel model = ModelsCache.INSTANCE.getOrLoadModel(ALPHA_LOCATION);
 		for(ResourceLocation location : model.getTextures(DEFAULT_GETTER, new HashSet<>()))
 		{
-			BetaPlus.LOGGER.info("Sprite Location: " + location);
 			event.getMap().registerSprite(manager, location);
 		}
 	}

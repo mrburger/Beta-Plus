@@ -13,6 +13,8 @@ import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.JsonUtils;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
@@ -33,6 +35,7 @@ import java.util.*;
 import java.util.function.Function;
 
 /* Graciously Provided by Cadiboo */
+@OnlyIn(Dist.CLIENT)
 public enum  GrassModelLoader implements ICustomModelLoader
 {
 	// Fields
@@ -73,14 +76,11 @@ public enum  GrassModelLoader implements ICustomModelLoader
 		try(InputStreamReader io = new InputStreamReader( Minecraft.getInstance().getResourceManager()
 				.getResource(location).getInputStream()))
 		{
-			//BetaPlus.LOGGER.info(gson.fromJson(io, ModelBlock.class).name);
-			boolean isLoad = false;
-			BetaPlus.LOGGER.info("(ModelLoader) Status: " + isLoad);
 			return true;
 		}
-		catch( IOException e)
+		catch( IOException ignored)
 		{
-			BetaPlus.LOGGER.info("DID NOT ACCEPT :(");
+
 		}
 		return false;
 	}
@@ -111,14 +111,7 @@ public enum  GrassModelLoader implements ICustomModelLoader
 	{
 		try
 		{
-			//Field modifiers = Field.class.getDeclaredField( "modifiers" );
-			//modifiers.setAccessible( true );
-
-			//faceBakery =  //(ModelBakery.class, Minecraft.getInstance(),"faceBakery", "field_177607_l" );
-			//modifiers.set( faceBakery, faceBakery.getModifiers() & ( ~Modifier.FINAL ) );
-
 			Class modelClass = Class.forName(ModelLoader.class.getName() + "$VanillaModelWrapper");
-			//vanillaModelWrapper = modelClass.getDeclaredConstructor(ResourceLocation.class, ModelBlock.class, boolean.class, ModelBlockAnimation.class);
 			vanillaModelWrapper = modelClass.getDeclaredConstructor(ModelLoader.class, ResourceLocation.class, ModelBlock.class, boolean.class, ModelBlockAnimation.class);
 			vanillaModelWrapper.setAccessible(true);
 		}
@@ -138,7 +131,7 @@ public enum  GrassModelLoader implements ICustomModelLoader
 		}
 		catch (Exception e)
 		{
-			throw Throwables.propagate(e);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -152,7 +145,6 @@ public enum  GrassModelLoader implements ICustomModelLoader
 
 		ModelAlphaGrass(ResourceLocation resourceLocation)
 		{
-			BetaPlus.LOGGER.info("Creating Alpha Grass Model: " + resourceLocation.toString());
 			// Get the path
 			String modelPath = resourceLocation.getPath();
 			// If it starts with models, remove that segment.
@@ -160,6 +152,7 @@ public enum  GrassModelLoader implements ICustomModelLoader
 			{
 				modelPath = modelPath.substring("models/".length());
 			}
+
 			ResourceLocation armatureLocation = new ResourceLocation(resourceLocation.getNamespace(), "armatures/" + modelPath + ".json");
 			ModelBlockAnimation animation = ModelBlockAnimation.loadVanillaAnimation(Minecraft.getInstance().getResourceManager(), armatureLocation);
 			ModelBlock model;
@@ -176,7 +169,6 @@ public enum  GrassModelLoader implements ICustomModelLoader
 					reader = new InputStreamReader(iresource.getInputStream(), Charsets.UTF_8);
 
 					modelBlock = JsonUtils.fromJson(SERIALIZER, reader, ModelBlock.class, false);
-					BetaPlus.LOGGER.info("(GrassLoader) Made it here.");
 					modelBlock.name = resourceLocation.toString();
 				}
 				catch (IOException e)
@@ -205,7 +197,6 @@ public enum  GrassModelLoader implements ICustomModelLoader
 		@Override
 		public Collection<ResourceLocation> getTextures(Function<ResourceLocation, IUnbakedModel> modelGetter, Set<String> missingTextureErrors)
 		{
-			BetaPlus.LOGGER.info("Getting Textures");
 			return parent.getTextures(modelGetter, missingTextureErrors);
 		}
 
@@ -265,11 +256,6 @@ public enum  GrassModelLoader implements ICustomModelLoader
 			object = object.get( "uvlightmap" ).getAsJsonObject();
 			return new ImmutablePair<Float, Float>( JsonUtils.getFloat( object, "sky", 0 ), JsonUtils.getFloat( object, "block", 0 ) );
 		}
-	}
-
-	class UVLMarker
-	{
-		boolean uvlMarker = true;
 	}
 }
 

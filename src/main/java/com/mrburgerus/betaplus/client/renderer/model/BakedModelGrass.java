@@ -47,7 +47,7 @@ public class BakedModelGrass implements IBakedModel
 	}
 
 	/* Returns the type of IBakedModel to use */
-	/* It works */
+	/* It works, but slows the rendering. */
 	private IBakedModel getModelToUse(IBlockState state)
 	{
 		World world = MC_INSTANCE.world;
