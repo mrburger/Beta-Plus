@@ -41,23 +41,19 @@ public class ModelsCache implements ISelectiveResourceReloadListener
 	private final Map<ResourceLocation, IUnbakedModel> modelCache	= new HashMap<>();
 	private final Map<ResourceLocation, IBakedModel> bakedCache	= new HashMap<>();
 
-	public IUnbakedModel getOrLoadModel(final ResourceLocation location)
+	public IUnbakedModel getOrLoadModel(final ResourceLocation locationIn)
 	{
-		String modelPath = location.getPath();
-		if( location.getPath().startsWith( "models/" ) )
+		String modelPath = locationIn.getPath();
+		if( locationIn.getPath().startsWith( "models/" ) )
 		{
 			modelPath = modelPath.substring( "models/".length() );
 		}
-		ResourceLocation location1 = new ResourceLocation(location.getNamespace(), modelPath);
-		IUnbakedModel model = this.modelCache.get(location1);
-		if (model != null)
-		{
-			BetaPlus.LOGGER.info("(ModelsCache) Found Existing Model");
-		}
+		ResourceLocation loc = new ResourceLocation(locationIn.getNamespace(), modelPath);
+		IUnbakedModel model = this.modelCache.get(loc);
 		if (model == null) {
 			try
 			{
-				model = ModelLoaderRegistry.getModel(location1);
+				model = ModelLoaderRegistry.getModel(loc);
 			}
 			catch (final Exception e)
 			{
@@ -66,7 +62,7 @@ public class ModelsCache implements ISelectiveResourceReloadListener
 
 			}
 			//Moved
-			this.modelCache.put(location1, model);
+			this.modelCache.put(loc, model);
 		}
 		return model;
 	}
@@ -84,6 +80,7 @@ public class ModelsCache implements ISelectiveResourceReloadListener
 		{
 			IUnbakedModel model = this.getOrLoadModel(location);
 			bakedModel = model.bake(MODEL_GETTER,textureGetter, state, false, format);
+			//BetaPlus.LOGGER.info("Baked Model: " + bakedModel.toString());
 			this.bakedCache.put(location, bakedModel);
 		}
 		return bakedModel;

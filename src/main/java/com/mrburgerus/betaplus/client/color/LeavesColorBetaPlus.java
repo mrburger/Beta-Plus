@@ -28,8 +28,9 @@ public class LeavesColorBetaPlus implements IBlockColor
 		// If we are in an Alpha World
 		if (worldType instanceof WorldTypeAlphaPlus)
 		{
-			return 0xA9D879;
-			/* Return -1 Makes grass gray */
+			//return 0xA9D879;
+			return -1;
+			/* Return -1 Makes grass gray, which means no tint! */
 		}
 		if (worldType instanceof WorldTypeBetaPlus)
 		{

@@ -1,7 +1,6 @@
 package com.mrburgerus.betaplus.client.renderer;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Throwables;
 import com.google.gson.*;
 import com.mrburgerus.betaplus.BetaPlus;
 import net.minecraft.client.Minecraft;
@@ -16,7 +15,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.ICustomModelLoader;
-import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.animation.ModelBlockAnimation;
 import net.minecraftforge.common.model.IModelState;
@@ -29,14 +27,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 /* Graciously Provided by Cadiboo */
 @OnlyIn(Dist.CLIENT)
-public enum  GrassModelLoader implements ICustomModelLoader
+public enum AlphaModelLoader implements ICustomModelLoader
 {
 	// Fields
 	INSTANCE;
@@ -65,22 +65,22 @@ public enum  GrassModelLoader implements ICustomModelLoader
 	public boolean accepts(ResourceLocation modelLocation)
 	{
 		String modelPath = modelLocation.getPath();
-		BetaPlus.LOGGER.info("Model Location Raw: " + modelLocation);
+		//BetaPlus.LOGGER.info("Model Location Raw: " + modelLocation);
 		if( modelLocation.getPath().startsWith( "models/" ) )
 		{
 			modelPath = modelPath.substring( "models/".length() );
 		}
 		ResourceLocation location = new ResourceLocation( "betaplus:models/" + modelPath + ".json" );
-		BetaPlus.LOGGER.info("Trying to accept: " + modelPath);
+		//BetaPlus.LOGGER.info("Trying to accept: " + modelPath);
 
 		try(InputStreamReader io = new InputStreamReader( Minecraft.getInstance().getResourceManager()
 				.getResource(location).getInputStream()))
 		{
 			return true;
 		}
-		catch( IOException ignored)
+		catch( IOException e)
 		{
-
+			e.printStackTrace();
 		}
 		return false;
 	}
@@ -89,7 +89,7 @@ public enum  GrassModelLoader implements ICustomModelLoader
 	@Override
 	public IUnbakedModel loadModel(ResourceLocation modelLocation)
 	{
-		return new ModelAlphaGrass(modelLocation);
+		return new AlphaModel(modelLocation);
 	}
 
 	private static Object deserializer( Class clas )
@@ -135,7 +135,7 @@ public enum  GrassModelLoader implements ICustomModelLoader
 		}
 	}
 
-	class ModelAlphaGrass implements IUnbakedModel
+	class AlphaModel implements IUnbakedModel
 	{
 		// Fields
 		private final Gson SERIALIZER = ( new GsonBuilder() ).registerTypeAdapter( ModelBlock.class, deserializer( ModelBlock.class ) ).registerTypeAdapter( BlockPart.class, deserializer( BlockPart.class ) ).registerTypeAdapter( BlockPartFace.class, new BlockPartFaceOverrideSerializer() ).registerTypeAdapter( BlockFaceUV.class, deserializer( BlockFaceUV.class ) ).registerTypeAdapter( ItemTransformVec3f.class, deserializer( ItemTransformVec3f.class ) ).registerTypeAdapter( ItemCameraTransforms.class, deserializer( ItemCameraTransforms.class ) ).registerTypeAdapter( ItemOverride.class, deserializer( ItemOverride.class ) ).create();
@@ -143,7 +143,7 @@ public enum  GrassModelLoader implements ICustomModelLoader
 		private final IUnbakedModel parent;
 
 
-		ModelAlphaGrass(ResourceLocation resourceLocation)
+		AlphaModel(ResourceLocation resourceLocation)
 		{
 			// Get the path
 			String modelPath = resourceLocation.getPath();
@@ -163,8 +163,6 @@ public enum  GrassModelLoader implements ICustomModelLoader
 
 				try
 				{
-					String s = resourceLocation.getPath();
-
 					iresource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation(resourceLocation.getNamespace(), "models/" + modelPath + ".json"));
 					reader = new InputStreamReader(iresource.getInputStream(), Charsets.UTF_8);
 
@@ -184,7 +182,7 @@ public enum  GrassModelLoader implements ICustomModelLoader
 
 				model = modelBlock;
 			}
-			this.parent = GrassModelLoader.vanillaModelWrapper(getLoader(), resourceLocation, model, false, animation);
+			this.parent = AlphaModelLoader.vanillaModelWrapper(getLoader(), resourceLocation, model, false, animation);
 		}
 
 
@@ -204,27 +202,22 @@ public enum  GrassModelLoader implements ICustomModelLoader
 		@Override
 		public IBakedModel bake(Function<ResourceLocation, IUnbakedModel> modelGetter, Function<ResourceLocation, TextureAtlasSprite> spriteGetter, IModelState state, boolean uvlock, VertexFormat format)
 		{
-			/*
-			setFaceBakery( getLoader(), new FaceBakeryOverride() );
-			IBakedModel model = parent.bake(state, format, spriteGetter);
-			setFaceBakery(getLoader(), new FaceBakery() );
-			*/
-			BetaPlus.LOGGER.info("Baking!!!");
-			IBakedModel model = parent.bake(modelGetter, spriteGetter, state, uvlock, format);
-			return model;
+			return parent.bake(modelGetter, spriteGetter, state, uvlock, format);
 		}
 	}
 
+
+	/* Not quite figured out */
 	public class BlockPartFaceOverrideSerializer implements JsonDeserializer<BlockPartFace>
 	{
 		private Map<BlockPartFace, Pair<Float, Float>> uvlightmap = new HashMap<>();
-		public BlockPartFace deserialize(JsonElement jsonElement, Type p_deserialize_2_, JsonDeserializationContext p_deserialize_3_ ) throws JsonParseException
+		public BlockPartFace deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context ) throws JsonParseException
 		{
 			JsonObject jsonobject = jsonElement.getAsJsonObject();
 			EnumFacing enumfacing = this.parseCullFace( jsonobject );
 			int i = this.parseTintIndex( jsonobject );
 			String s = this.parseTexture( jsonobject );
-			BlockFaceUV blockfaceuv = (BlockFaceUV) p_deserialize_3_.deserialize( jsonobject, BlockFaceUV.class );
+			BlockFaceUV blockfaceuv = context.deserialize( jsonobject, BlockFaceUV.class );
 			BlockPartFace blockFace = new BlockPartFace( enumfacing, i, s, blockfaceuv );
 			uvlightmap.put( blockFace, parseUVL( jsonobject ) );
 			return blockFace;

@@ -32,14 +32,14 @@ import java.util.Random;
 /* Truthfully, rendering is a strange thing */
 /* KEEP, IT WORKS */
 @OnlyIn(Dist.CLIENT)
-public class BakedModelGrass implements IBakedModel
+public class BakedModelWrapperAlpha implements IBakedModel
 {
 	//Fields
 	private final IBakedModel modelDefault;
 	private final IBakedModel modelAlpha;
 	private final Minecraft MC_INSTANCE = Minecraft.getInstance();
 
-	public BakedModelGrass(final IBakedModel existing, final IBakedModel alpha)
+	public BakedModelWrapperAlpha(final IBakedModel existing, final IBakedModel alpha)
 	{
 		modelDefault = existing;
 		modelAlpha = alpha;
@@ -48,7 +48,7 @@ public class BakedModelGrass implements IBakedModel
 
 	/* Returns the type of IBakedModel to use */
 	/* It works, but slows the rendering. */
-	private IBakedModel getModelToUse(IBlockState state)
+	private IBakedModel getModelToUse()
 	{
 		World world = MC_INSTANCE.world;
 		if (world != null && world.isRemote() && world.getWorldType() instanceof WorldTypeAlphaPlus)
@@ -64,20 +64,20 @@ public class BakedModelGrass implements IBakedModel
 	@Override
 	public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, Random rand)
 	{
-		IBakedModel model = getModelToUse(state);
+		IBakedModel model = getModelToUse();
 		return model.getQuads(state, side, rand);
 	}
 
 	@Override
 	public boolean isAmbientOcclusion()
 	{
-		return modelDefault.isAmbientOcclusion();
+		return getModelToUse().isAmbientOcclusion();
 	}
 
 	@Override
 	public boolean isGui3d()
 	{
-		return modelDefault.isGui3d();
+		return getModelToUse().isGui3d();
 	}
 
 	@Override
@@ -90,12 +90,13 @@ public class BakedModelGrass implements IBakedModel
 	@Override
 	public TextureAtlasSprite getParticleTexture()
 	{
-		return modelDefault.getParticleTexture();
+		return getModelToUse().getParticleTexture();
 	}
 
 	@Override
 	public ItemOverrideList getOverrides()
 	{
-		return modelDefault.getOverrides();
+		// Originally original Model
+		return getModelToUse().getOverrides();
 	}
 }
