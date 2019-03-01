@@ -24,12 +24,12 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 	protected AbstractOctavesGenerator octaves5;
 
 	// Arrays of Noise "density"
-	double[] octaveArr1;
-	double[] octaveArr2;
-	double[] octaveArr3;
-	double[] octaveArr4;
-	double[] octaveArr5;
-	double[] heightNoise;
+	protected double[] octaveArr1;
+	protected double[] octaveArr2;
+	protected double[] octaveArr3;
+	protected double[] octaveArr4;
+	protected double[] octaveArr5;
+	protected double[] heightNoise;
 
 	/* DATA CACHED HERE */
 	/* The Pair is simply a Y Average for the ChunkPos and whether any values fall above sea level */

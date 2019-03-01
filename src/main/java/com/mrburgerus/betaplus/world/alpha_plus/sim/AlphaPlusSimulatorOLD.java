@@ -1,8 +1,7 @@
 package com.mrburgerus.betaplus.world.alpha_plus.sim;
 
 import com.mojang.datafixers.util.Pair;
-import com.mrburgerus.betaplus.util.IWorldSimulator;
-import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlpha;
+import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlphaOLD;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
@@ -22,11 +21,11 @@ public class AlphaPlusSimulatorOLD
 	private Random rand;
 
 	// Noise Generators
-	private NoiseGeneratorOctavesAlpha octaves1;
-	private NoiseGeneratorOctavesAlpha octaves2;
-	private NoiseGeneratorOctavesAlpha octaves3;
-	private NoiseGeneratorOctavesAlpha octaves4;
-	private NoiseGeneratorOctavesAlpha octaves5;
+	private NoiseGeneratorOctavesAlphaOLD octaves1;
+	private NoiseGeneratorOctavesAlphaOLD octaves2;
+	private NoiseGeneratorOctavesAlphaOLD octaves3;
+	private NoiseGeneratorOctavesAlphaOLD octaves4;
+	private NoiseGeneratorOctavesAlphaOLD octaves5;
 
 	// Noise Arrays
 	private double[] heightNoise;
@@ -47,13 +46,13 @@ public class AlphaPlusSimulatorOLD
 	{
 		seed = world.getSeed();
 		rand = new Random(seed);
-		this.octaves1 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
-		this.octaves2 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
-		this.octaves3 = new NoiseGeneratorOctavesAlpha(this.rand, 8);
-		new NoiseGeneratorOctavesAlpha(this.rand, 4);
-		new NoiseGeneratorOctavesAlpha(this.rand, 4);
-		this.octaves4 = new NoiseGeneratorOctavesAlpha(this.rand, 10);
-		this.octaves5 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
+		this.octaves1 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 16);
+		this.octaves2 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 16);
+		this.octaves3 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 8);
+		new NoiseGeneratorOctavesAlphaOLD(this.rand, 4);
+		new NoiseGeneratorOctavesAlphaOLD(this.rand, 4);
+		this.octaves4 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 10);
+		this.octaves5 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 16);
 		// Moved down here to remove ANY possiblity of using an old cache across world loads.
 		singleYCache = new HashMap<>();
 	}
@@ -226,7 +225,6 @@ public class AlphaPlusSimulatorOLD
 
 							for (int var50 = 0; var50 < 4; ++var50)
 							{
-								//TODO: Insert Logic
 								if (stonePos > 0.0D)
 								{
 									// Re assign a bunch (it is stone)
@@ -293,19 +291,19 @@ public class AlphaPlusSimulatorOLD
 			values = new double[size1 * size2 * size3];
 		}
 
-		double var8 = 684.412D;
-		double var10 = 684.412D;
+		double scaleX = 684.412D;
+		double scaleZ = 684.412D;
 		this.octave4Arr =
 				this.octaves4.generateNoiseOctaves(this.octave4Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, 1, size3, 1.0D, 0.0D, 1.0D);
 		this.octave5Arr = this.octaves5
 				.generateNoiseOctaves(this.octave5Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, 1, size3, 100.0D, 0.0D, 100.0D);
 		this.octave3Arr = this.octaves3
-				.generateNoiseOctaves(this.octave3Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, size2, size3, var8 / 80.0D, var10 / 160.0D,
-						var8 / 80.0D);
+				.generateNoiseOctaves(this.octave3Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, size2, size3, scaleX / 80.0D, scaleZ / 160.0D,
+						scaleX / 80.0D);
 		this.octave1Arr = this.octaves1
-				.generateNoiseOctaves(this.octave1Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, size2, size3, var8, var10, var8);
+				.generateNoiseOctaves(this.octave1Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, size2, size3, scaleX, scaleZ, scaleX);
 		this.octave2Arr = this.octaves2
-				.generateNoiseOctaves(this.octave2Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, size2, size3, var8, var10, var8);
+				.generateNoiseOctaves(this.octave2Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, size2, size3, scaleX, scaleZ, scaleX);
 		int var12 = 0;
 		int var13 = 0;
 

@@ -7,7 +7,7 @@ import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulator;
 import com.mrburgerus.betaplus.world.biome.BetaPlusSelectBiome;
 import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
-import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesOld;
+import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBiome;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.util.math.BlockPos;
@@ -22,16 +22,13 @@ import javax.annotation.Nonnull;
 import java.util.*;
 
 /* Creates Biome Values */
-/* Oceans are not a part of Beta proper, so I'm injecting them into findBiomePosition() because doing it every time generateBiomes()
-	is called is VERY slow and tedious.
- */
-//TODO: MAKE A SIMULATOR LIKE ALPHA PLUS
+/* Oceans are not a part of Beta proper, so I'm injecting them */
 public class BiomeProviderBetaPlus extends BiomeProvider
 {
 	// Fields
-	private NoiseGeneratorOctavesOld temperatureOctave;
-	private NoiseGeneratorOctavesOld humidityOctave;
-	private NoiseGeneratorOctavesOld noiseOctave;
+	private NoiseGeneratorOctavesBiome temperatureOctave;
+	private NoiseGeneratorOctavesBiome humidityOctave;
+	private NoiseGeneratorOctavesBiome noiseOctave;
 	public double[] temperatures;
 	public double[] humidities;
 	public double[] noise;
@@ -59,13 +56,13 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	private long seedLong;
 
 	// The simulator for Y-heights.
-	private BetaPlusSimulator simulator;
+	//private BetaPlusSimulator simulator;
 
 	public BiomeProviderBetaPlus(World world, BetaPlusGenSettings settingsIn)
 	{
-		temperatureOctave = new NoiseGeneratorOctavesOld(new Random(world.getSeed() * 9871), 4);
-		humidityOctave = new NoiseGeneratorOctavesOld(new Random(world.getSeed() * 39811), 4);
-		noiseOctave = new NoiseGeneratorOctavesOld(new Random(world.getSeed() * 543321), 2);
+		temperatureOctave = new NoiseGeneratorOctavesBiome(new Random(world.getSeed() * 9871), 4);
+		humidityOctave = new NoiseGeneratorOctavesBiome(new Random(world.getSeed() * 39811), 4);
+		noiseOctave = new NoiseGeneratorOctavesBiome(new Random(world.getSeed() * 543321), 2);
 		settings = settingsIn;
 		scaleVal = settings.getScale();
 		mult = settings.getMultiplierBiome();
@@ -78,7 +75,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 
 		seedLong = world.getSeed();
 
-		simulator = new BetaPlusSimulator(world);
+		//simulator = new BetaPlusSimulator(world);
 	}
 
 	/* Builds Possible Biome List */

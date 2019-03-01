@@ -2,18 +2,18 @@ package com.mrburgerus.betaplus.world.noise;
 
 import java.util.Random;
 
-public class NoiseGeneratorOctavesOld
+public class NoiseGeneratorOctavesBiome
 {
-	private NoiseGeneratorOld[] generatorCollection;
+	private NoiseGeneratorPerlinBiome[] generatorCollection;
 	private int bound;
 
-	public NoiseGeneratorOctavesOld(Random random, int bound1)
+	public NoiseGeneratorOctavesBiome(Random random, int bound1)
 	{
 		bound = bound1;
-		generatorCollection = new NoiseGeneratorOld[bound1];
-		for (int var3 = 0; var3 < bound1; var3++)
+		generatorCollection = new NoiseGeneratorPerlinBiome[bound1];
+		for (int i = 0; i < bound1; i++)
 		{
-			generatorCollection[var3] = new NoiseGeneratorOld(random);
+			generatorCollection[i] = new NoiseGeneratorPerlinBiome(random);
 		}
 	}
 

@@ -16,38 +16,26 @@ public class NoiseGeneratorOctavesBeta extends AbstractOctavesGenerator
 		}
 	}
 
-	public double func_806_a(double dMult1, double dMult2)
+	public double[] generateNoiseOctaves(double[] values, double xVal, double yValZero, double zVal, int size1, int size2, int size3, double var11, double var13, double var15)
 	{
-		double returnVal = 0.0D;
-		double descendingMult = 1.0D;
-		for (int i = 0; i < bound; i++)
+		if (values == null)
 		{
-			returnVal += generatorCollection[i].generateNoiseZero(dMult1 * descendingMult, dMult2 * descendingMult) / descendingMult;
-			descendingMult /= 2.0D;
-		}
-		return returnVal;
-	}
-
-	public double[] generateNoiseOctaves(double[] doubles, double xC, double var4, double var6, int var8, int var9, int var10, double var11, double var13, double var15)
-	{
-		if (doubles == null)
-		{
-			doubles = new double[var8 * var9 * var10];
+			values = new double[size1 * size2 * size3];
 		}
 		else
 		{
-			for (int i = 0; i < doubles.length; i++)
+			for (int i = 0; i < values.length; i++)
 			{
-				doubles[i] = 0.0D;
+				values[i] = 0.0D;
 			}
 		}
-		double descendingMult = 1.0D;
+		double divideByTwo = 1.0D;
 		for (int i = 0; i < bound; i++)
 		{
-			generatorCollection[i].generate(doubles, xC, var4, var6, var8, var9, var10, var11 * descendingMult, var13 * descendingMult, var15 * descendingMult, descendingMult);
-			descendingMult /= 2.0D;
+			generatorCollection[i].generate(values, xVal, yValZero, zVal, size1, size2, size3, var11 * divideByTwo, var13 * divideByTwo, var15 * divideByTwo, divideByTwo);
+			divideByTwo /= 2.0D;
 		}
-		return doubles;
+		return values;
 	}
 
 	public double[] generateNoiseOctaves(double[] doubles, int var2, int var3, int var4, int var5, double var6, double var8, double var10)
