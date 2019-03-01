@@ -2,10 +2,8 @@ package com.mrburgerus.betaplus.world.alpha_plus;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.ResourceHelper;
 import com.mrburgerus.betaplus.world.alpha_plus.sim.AlphaPlusSimulator;
-import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
 import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaFrozenLand;
 import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaFrozenOcean;
 import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaLand;
@@ -13,7 +11,6 @@ import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaOcean;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.provider.BiomeProvider;
@@ -79,11 +76,11 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 			{
 				BlockPos pos = new BlockPos(startX + x, 0, startZ + z);
 				// If we are using the 3x3 Average
-				if (useAverage && simulator.simulateYSingleWithAvg(pos) < 52)
+				if (useAverage && simulator.simulateYAvg(pos) < 52)
 				{
 					biomeArr[counter] = this.oceanBiome;
 				}
-				else if (!useAverage && simulator.simulateYSingle(pos) < 54) //Typically for Shipwrecks, Ruins, and Chests
+				else if (!useAverage && simulator.simulateYChunk(pos) < 54) //Typically for Shipwrecks, Ruins, and Chests
 				{
 					biomeArr[counter] = this.oceanBiome;
 				}
@@ -109,7 +106,7 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 				BetaPlus.LOGGER.warn("Not equal: " + pos + " : " + i);
 			}
 
-			if (simulator.simulateYSingle(new BlockPos(xP, 0, zP)) < 56) // Deep Ocean Value
+			if (simulator.simulateYChunk(new BlockPos(xP, 0, zP)) < 56) // Deep Ocean Value
 			{
 				//BetaPlus.LOGGER.debug("Injecting ocean at: " + xP + ", " + zP);
 				// For Debugging, set to Land Biome
@@ -161,8 +158,6 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 		int i1 = k - i + 1;
 		int j1 = l - j + 1;
 		Set<Biome> set = Sets.newHashSet();
-		//this.generateBiomesWithOceans(i, j, i1, j1) this.generateBiomesWithOceans(j, i, j1, i1)
-		// Try swapping to fix issue? since Alpha generated Z, X
 		Collections.addAll(set, this.generateBiomesWithOceans(i, j, i1, j1, true));
 		return set;
 	}

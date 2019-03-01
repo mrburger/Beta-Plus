@@ -18,10 +18,8 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.gen.feature.structure.Structure;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import javax.annotation.Nonnull;
+import java.util.*;
 
 /* Creates Biome Values */
 /* Oceans are not a part of Beta proper, so I'm injecting them into findBiomePosition() because doing it every time generateBiomes()
@@ -129,7 +127,8 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	/* Adds OCEANS to the mix to the Biome Provider. */
 	/* ONLY CALL WHEN NECESSARY, has to simulate the Y-heights of the world */
 	/* STILL TESTING, USE WITH CAUTION */
-	private Biome[] generateBiomesWithOceans(int startX, int startZ, int xSize, int zSize)
+	/* ERROR: DO NOT CALL THE BLOCKPOS SIMULATOR A BUNCH */
+	private Biome[] generateBiomesWithOceans(int startX, int startZ, int xSize, int zSize, boolean useAverage, Object b)
 	{
 		int xP = startX;
 		int zP = startZ;
@@ -137,41 +136,114 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		temperatures = temperatureOctave.generateOctaves(temperatures, (double) startX, (double) startZ, xSize, xSize, scaleVal, scaleVal, 0.25);
 		humidities = humidityOctave.generateOctaves(humidities, (double) startX, (double) startZ, xSize, xSize, scaleVal * mult, scaleVal * mult, 0.3333333333333333);
 		noise = noiseOctave.generateOctaves(noise, (double) startX, (double) startZ, xSize, xSize, 0.25, 0.25, 0.5882352941176471);
-		for (int i = 0; i < biomeArr.length; i++)
+		for (int counter = 0; counter < biomeArr.length; counter++)
 		{
-			xP = startX + i % xSize;
-			zP = startZ + Math.floorDiv(i, zSize);
+			xP = startX + counter % xSize;
+			zP = startZ + Math.floorDiv(counter, zSize);
 			int pos = (xP - startX) + ((zP - startZ) * zSize);
-			if (pos != i)
+			if (pos != counter)
 			{
-				BetaPlus.LOGGER.warn("Not equal: " + pos + " : " + i);
+				BetaPlus.LOGGER.warn("Not equal: " + pos + " : " + counter);
 			}
-			double var9 = noise[i] * 1.1 + 0.5;
+			double var9 = noise[counter] * 1.1 + 0.5;
 			double oneHundredth = 0.01;
 			double point99 = 1.0 - oneHundredth;
-			double temperatureVal = (temperatures[i] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
+			double temperatureVal = (temperatures[counter] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
 			oneHundredth = 0.002;
 			point99 = 1.0 - oneHundredth;
-			double humidityVal = (humidities[i] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
+			double humidityVal = (humidities[counter] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
 			temperatureVal = 1.0 - (1.0 - temperatureVal) * (1.0 - temperatureVal);
 			temperatureVal = MathHelper.clamp(temperatureVal, 0.0, 1.0);
 			humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
-			temperatures[i] = temperatureVal;
-			humidities[i] = humidityVal;
-			biomeArr[i] = BiomeGenBetaPlus.getBiomeFromLookup(temperatureVal, humidityVal);
-			if (simulator.simulateYSingle(new BlockPos(xP, 0, zP)) < 56) // Deep Ocean Value
+			temperatures[counter] = temperatureVal;
+			humidities[counter] = humidityVal;
+			biomeArr[counter] = BiomeGenBetaPlus.getBiomeFromLookup(temperatureVal, humidityVal);
+			// Previous: 55, 58
+			if (useAverage) // Deep Ocean Value
 			{
-				boolean isDepth = false; // Just because I dont want stuff spawning
-				biomeArr[i] = this.getOceanBiome(new BlockPos(xP, 0, zP), isDepth);
+				if (simulator.simulateYAvg(new BlockPos(xP, 0, zP)) < 56)
+				{
+					BetaPlus.LOGGER.debug("Found Deep Ocean" + new BlockPos(xP, 0, zP));
+					// useAverage is only set to true if searching for a deep ocean, so we can use it.
+					biomeArr[counter] = Biomes.DEEP_OCEAN; //this.getOceanBiome(new BlockPos(xP, 0, zP), true);
+				}
 			}
-			i++;
+			else
+			{
+				if (simulator.simulateYChunk(new BlockPos(xP, 0, zP)) < 57)
+				{
+					biomeArr[counter] = Biomes.OCEAN; //this.getOceanBiome(new BlockPos(xP, 0, zP), false);
+				}
+			}
+			counter++;
+		}
+
+
+		return biomeArr;
+	}
+
+	private Biome[] generateBiomesWithOceans(int startX, int startZ, int xSize, int zSize, final boolean useAverage)
+	{
+		Biome[] biomeArr = new Biome[xSize * zSize];
+		temperatures = temperatureOctave.generateOctaves(temperatures, (double) startX, (double) startZ, xSize, xSize, scaleVal, scaleVal, 0.25);
+		humidities = humidityOctave.generateOctaves(humidities, (double) startX, (double) startZ, xSize, xSize, scaleVal * mult, scaleVal * mult, 0.3333333333333333);
+		noise = noiseOctave.generateOctaves(noise, (double) startX, (double) startZ, xSize, xSize, 0.25, 0.25, 0.5882352941176471);
+		int counter = 0;
+		// Aren't these values WRONG? Like Beta Generates Z, X
+		// ANSWER: NO! The implementation below is correct
+		for (int x = 0; x < xSize; ++x)
+		{
+
+			for (int z = 0; z < zSize; ++z)
+			{
+				// No, x + startX, z + startZ MUST BE USED, by the looks of it
+				// Previously, I made an oops.
+				BlockPos pos = new BlockPos(x + startX, 0 ,z + startZ);
+				double var9 = noise[counter] * 1.1 + 0.5;
+				double oneHundredth = 0.01;
+				double point99 = 1.0 - oneHundredth;
+				double temperatureVal = (temperatures[counter] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
+				oneHundredth = 0.002;
+				point99 = 1.0 - oneHundredth;
+				double humidityVal = (humidities[counter] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
+				temperatureVal = 1.0 - (1.0 - temperatureVal) * (1.0 - temperatureVal);
+				temperatureVal = MathHelper.clamp(temperatureVal, 0.0, 1.0);
+				humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
+				temperatures[counter] = temperatureVal;
+				humidities[counter] = humidityVal;
+				biomeArr[counter] = BiomeGenBetaPlus.getBiomeFromLookup(temperatureVal, humidityVal);
+				// Added to INJECT OCEANS
+				/* useAverage CODE IS SOMEWHAT BROKEN */
+				if (useAverage)
+				{
+					int yV = simulator.simulateYAvg(pos);
+					//BetaPlus.LOGGER.info("Average: " + yV);
+					if(yV < settings.getSeaLevel() - 4)
+					{
+						//BetaPlus.LOGGER.info("Deep Ocean Injected at: " + new ChunkPos(pos));
+						/* DO NOT USE Biomes.OCEAN, it isn't on the enum list! (Which causes a crash) */
+						biomeArr[counter] = this.getOceanBiome(pos, true);
+					}
+				}
+				else
+				{
+					if (simulator.simulateYChunk(pos) < settings.getSeaLevel() - 2)
+					{
+						//BetaPlus.LOGGER.info("Any ocean found for pos: " + new ChunkPos(pos));
+						biomeArr[counter] = this.getOceanBiome(pos, false);
+					}
+				}
+				counter++;
+			}
 		}
 		return biomeArr;
 	}
 
+
 	//BEGIN OVERRIDES
 	/* This HAS to be populated to avoid issues */
 	@Override
+	@Nonnull
 	public List<Biome> getBiomesToSpawnIn()
 	{
 		return Lists.newArrayList(BiomeGenBetaPlus.beach.handle, BiomeGenBetaPlus.desert.handle);
@@ -180,7 +252,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	@Override
 	public Biome getBiome(BlockPos pos, Biome defaultBiome)
 	{
-		return this.generateBiomesWithOceans(pos.getX(), pos.getZ(), 1, 1)[0];
+		return this.generateBiomesWithOceans(pos.getX(), pos.getZ(), 1, 1, false)[0];
 	}
 
 	@Override
@@ -205,7 +277,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		int i1 = k - i + 1;
 		int j1 = l - j + 1;
 		Set<Biome> set = Sets.newHashSet();
-		Collections.addAll(set, this.generateBiomesWithOceans(i, j, i1, j1));
+		Collections.addAll(set, this.generateBiomesWithOceans(i, j, i1, j1, true));
 		return set;
 	}
 
@@ -220,13 +292,13 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		int xSize = k - i + 1;
 		int zSize = l - j + 1;
 		Biome[] biomeArr = this.generateBiomes(i, j, xSize, zSize);
+
 		BlockPos blockpos = null;
 		int k1 = 0;
 
 		for(int counter = 0; counter < xSize * zSize; ++counter) {
 			int i2 = i + counter % xSize << 2;
 			int j2 = j + counter / xSize << 2;
-			// If the input list of BIOMES_LIST has
 			if (biomeList.contains(biomeArr[counter]))
 			{
 				if (blockpos == null || random.nextInt(k1 + 1) == 0) {

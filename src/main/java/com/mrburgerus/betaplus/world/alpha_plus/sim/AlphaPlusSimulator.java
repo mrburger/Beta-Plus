@@ -1,6 +1,6 @@
 package com.mrburgerus.betaplus.world.alpha_plus.sim;
 
-import com.mrburgerus.betaplus.BetaPlus;
+import com.mojang.datafixers.util.Pair;
 import com.mrburgerus.betaplus.util.IWorldSimulator;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlpha;
 import net.minecraft.util.math.BlockPos;
@@ -37,7 +37,10 @@ public class AlphaPlusSimulator implements IWorldSimulator
 
 
 	// Save the data HERE
-	private static HashMap<ChunkPos, Integer> singleYCache;
+	/* Explanation */
+	/* The ChunkPos is a Chunk Position */
+	/* The Pair is simply a Y Average for the ChunkPos and whether any values fall above sea level */
+	private static HashMap<ChunkPos, Pair<Integer, Boolean>> singleYCache;
 
 	public AlphaPlusSimulator(World world)
 	{
@@ -55,16 +58,13 @@ public class AlphaPlusSimulator implements IWorldSimulator
 	}
 
 	@Override
-	public int simulateYSingle(BlockPos pos)
+	public Pair<Integer, Boolean> simulateYChunk(BlockPos pos)
 	{
-		//Formerly xP, zP. This was not a correct assignment.
-		// Could this be an issue?
-		// Attempt to assign blockpos
 		ChunkPos chunkPosForUse = new ChunkPos(pos);
 
 		if (singleYCache.containsKey(chunkPosForUse))
 		{
-			return singleYCache.get(chunkPosForUse);
+			return Pair.of(singleYCache.get(chunkPosForUse);
 		}
 		else
 		{
@@ -74,11 +74,9 @@ public class AlphaPlusSimulator implements IWorldSimulator
 		}
 	}
 
-	public int simulateYSingleWithAvg(BlockPos pos)
+	@Override
+	public Pair<Integer, Boolean> simulateYAvg(BlockPos pos)
 	{
-		//Formerly xP, zP. This was not a correct assignment.
-		// Could this be an issue?
-		// Attempt to assign blockpos
 		ChunkPos chunkPosForUse = new ChunkPos(pos);
 
 		if (singleYCache.containsKey(chunkPosForUse))
@@ -134,7 +132,7 @@ public class AlphaPlusSimulator implements IWorldSimulator
 
 	/* Simulate Y Values every 4 blocks in a chunk */
 	/* Ouput is 2D array Z, X : This is how it used to be. */
-	private int[][] simulateChunkYFast(int chunkX, int chunkZ)
+	public int[][] simulateChunkYFast(int chunkX, int chunkZ)
 	{
 		int[][] output = new int[4][4];
 

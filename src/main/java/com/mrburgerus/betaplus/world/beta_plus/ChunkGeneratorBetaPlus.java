@@ -32,6 +32,7 @@ import net.minecraft.world.gen.feature.structure.SwampHutStructure;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Random;
 
 
@@ -80,8 +81,6 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		scaleNoise = new NoiseGeneratorOctavesBeta(rand, 10);
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
 		biomeProviderS = biomeProvider;
-
-
 	}
 
 	/* This Method is an Analog to generateChunk, albeit HEAVILY modified! */
@@ -124,27 +123,29 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 	@Override
 	public void decorate(WorldGenRegion region)
 	{
+		super.decorate(region);
+		/*
 		BlockFalling.fallInstantly = true;
-		int i = region.getMainChunkX();
-		int j = region.getMainChunkZ();
-		int k = i * CHUNK_SIZE;
-		int l = j * CHUNK_SIZE;
-		BlockPos blockpos = new BlockPos(k, 0, l);
-		// Could be CULPRIT AND FIX ISSUES
-		// Fix this up, it gives the biome
-		Biome biome = region.getChunk(i + 1, j + 1).getBiomes()[0];
+		int chunkX = region.getMainChunkX();
+		int chunkZ = region.getMainChunkZ();
+		int minX = chunkX * 16;
+		int minZ = chunkZ * 16;
+		BlockPos blockpos = new BlockPos(minX, 0, minZ);
+		Biome biome = region.getChunk(chunkX + 1, chunkZ + 1).getBiomes()[0];
 		//Biome biome = region.getBiome(new BlockPos(k + 8, 0, l + 8));
 				//region.getChunk(i, j).getBiomes()[0];
 		SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
-		long seedRegion = sharedseedrandom.setDecorationSeed(region.getSeed(), k, l);
+		long seedRegion = sharedseedrandom.setDecorationSeed(region.getSeed(), minX, minZ);
 
 		for(GenerationStage.Decoration decoration : GenerationStage.Decoration.values())
 		{
-			/* I PUT WORLD INSTEAD OF REGION */
+			// I PUT WORLD INSTEAD OF REGION
 			biome.decorate(decoration, this, region, seedRegion, sharedseedrandom, blockpos);
 		}
 
 		BlockFalling.fallInstantly = false;
+		*/
+
 	}
 
 	@Override
@@ -208,13 +209,6 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 	public BiomeProvider getBiomeProvider()
 	{
 		return this.biomeProviderS;
-	}
-
-	/* Called on World Generation, builds structure map */
-	@Override
-	public boolean hasStructure(Biome biomeIn, Structure<? extends IFeatureConfig> structureIn)
-	{
-		return biomeIn.hasStructure(structureIn);
 	}
 
 	/* -- GENERATION METHODS -- */
@@ -536,4 +530,19 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 			}
 		}
 	}
+
+	/*
+	@Override
+	public boolean hasStructure(Biome biomeIn, Structure<? extends IFeatureConfig> structureIn)
+	{
+		//Should fix?
+		if (biomeIn == null)
+		{
+			BetaPlus.LOGGER.error("Biome in question is NULL! Structure: " + structureIn.toString());
+			return false;
+		}		//BetaPlus.LOGGER.debug("Has Structure: " + Objects.requireNonNull(biomeIn) + " " + structureIn.toString());
+		//return false;
+		return super.hasStructure(biomeIn, structureIn);
+	}
+	*/
 }

@@ -1,12 +1,10 @@
 package com.mrburgerus.betaplus.world.beta_plus.sim;
 
+import com.mojang.datafixers.util.Pair;
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.IWorldSimulator;
-import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
-import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlpha;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -44,7 +42,8 @@ public class BetaPlusSimulator implements IWorldSimulator
 	private double[] stoneNoise = new double[256];
 
 	// Save the data HERE
-	private static HashMap<ChunkPos, Integer> singleYCache;
+	private static HashMap<ChunkPos, Integer> yCache;
+	private static  HashMap<ChunkPos, Integer> avgYCache;
 
 	// Constructor
 	public BetaPlusSimulator(World world)
@@ -63,11 +62,14 @@ public class BetaPlusSimulator implements IWorldSimulator
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
 
 		// Moved down here to remove ANY possiblity of using an old cache across world loads.
-		singleYCache = new HashMap<>();
+		yCache = new HashMap<>();
+		avgYCache = new HashMap<>();
 	}
 
 	/* This method is like setBlocksInChunk, but it only cares about Y Values */
 	//TODO: MODIFY SO IT FITS INTO OTHER METHODS
+	//TODO: MAKE THE SINGLE Y CACHE TAKE VALUES CREATED BY THE 3x3 FOR SPEEDIER PROCESSING
+	//TODO: Find a way to tell the biome provider if ANY of the values inside a block of data fall above sea Level, so I can use it for monuments.
 	// settings.getSeaLevel = 63, btw
 	@Deprecated
 	private void unusedBase(IChunk chunk, int chunkX, int chunkZ)
@@ -136,30 +138,79 @@ public class BetaPlusSimulator implements IWorldSimulator
 	}
 
 	@Override
-	public int simulateYSingle(BlockPos pos)
+	public Pair simulateYChunk(BlockPos pos)
 	{
-		// First, determine chunk position
-		int chunkX = pos.getX() >> 4;
-		int chunkZ = pos.getZ() >> 4;
+		ChunkPos chunkPosForUse = new ChunkPos(pos);
 
-		// Find middle of chunk value (Most consistent results for oceans, since the chances of a "port" are rare */
-		// Working (I think)
-		int xP = chunkX * 16 + 8;
-		int zP = chunkZ * 16 + 8;
-		//Formerly xP, zP. This was not a correct assignment.
-		ChunkPos chunkPosForUse = new ChunkPos(chunkX, chunkZ);
-
-		if (singleYCache.containsKey(chunkPosForUse))
+		if (yCache.containsKey(chunkPosForUse))
 		{
-			return singleYCache.get(chunkPosForUse);
+			return yCache.get(chunkPosForUse);
 		}
 		else
 		{
-			int ret = simulateYZeroZeroChunk(chunkX, chunkZ);
-			singleYCache.put(chunkPosForUse, ret);
+			int ret = getSimulatedAvg(chunkPosForUse.x, chunkPosForUse.z);
 			return ret;
 		}
 	}
+
+	@Override
+	public int simulateYAvg(BlockPos pos)
+	{
+		ChunkPos chunkPosForUse = new ChunkPos(pos);
+
+		if (avgYCache.containsKey(chunkPosForUse))
+		{
+			return avgYCache.get(chunkPosForUse);
+		}
+		else
+		{
+			BetaPlus.LOGGER.info("Simulating: " + chunkPosForUse);
+			int ret = getSimulatedAvg3x3(chunkPosForUse.x, chunkPosForUse.z).getFirst();
+			avgYCache.put(chunkPosForUse, ret);
+			return ret;
+		}
+	}
+
+	/* Averages a Chunk's Y Coordinates, pretty useful */
+	private int getSimulatedAvg(int chunkX, int chunkZ)
+	{
+		int[][] chunkSimY = simulateChunkYFast(chunkX, chunkZ);
+		int sum = 0;
+		int numElem = 0;
+		for (int[] chunkSimA : chunkSimY)
+		{
+			for (int chunkSimB : chunkSimA)
+			{
+				sum += chunkSimB;
+				numElem++;
+			}
+		}
+		// Add it to the list of single Y (moved so that even when a 3x3 average is called for, it applies data for other use.
+		int yAvg =  Math.floorDiv(sum, numElem);
+		yCache.put(new ChunkPos(chunkX, chunkZ), yAvg);
+
+
+		return yAvg;
+	}
+
+	/* Simulates and averages a 3x3 chunk, used to  */
+	/* Added: Boolean corresponding to whether any simulate value is ABOVE sea level */
+	private Pair<Integer, Boolean> getSimulatedAvg3x3(int middleChunkX, int middleChunkZ)
+	{
+		int sum = 0;
+		int numE = 0;
+		for (int xChunk = middleChunkX - 1; xChunk <= middleChunkX + 1; ++xChunk)
+		{
+			for (int zChunk = middleChunkZ -1; zChunk <= middleChunkZ; ++zChunk)
+			{
+				sum += getSimulatedAvg(xChunk, zChunk);
+				numE++;
+			}
+		}
+		return Pair.of(Math.floorDiv(sum, numE), false);
+	}
+
+
 
 	@Override
 	public int simulateYZeroZeroChunk(int chunkX, int chunkZ)
@@ -278,5 +329,55 @@ public class BetaPlusSimulator implements IWorldSimulator
 			}
 		}
 		return values;
+	}
+
+	/* See Alpha Simulator for Example */
+	/* HOPEFULLY THIS WORKS */
+	public int[][] simulateChunkYFast(int chunkX, int chunkZ)
+	{
+		int[][] output = new int[4][4];
+		heightNoise = this.generateOctaves(heightNoise, chunkX * 4, 0,chunkZ * 4, 5, 17, 5);
+		for (int cX = 0; cX < 4; ++cX)
+		{
+			for (int cZ = 0; cZ < 4; ++cZ)
+			{
+				for (int cY = 0; cY < 16; ++cY)
+				{
+					double eigth = 0.125;
+					double noise1 = heightNoise[((cX) * 5 + cZ) * 17 + cY];
+					double var18 = heightNoise[((cX) * 5 + cZ + 1) * 17 + cY];
+					double var20 = heightNoise[((cX + 1) * 5 + cZ) * 17 + cY];
+					double var22 = heightNoise[((cX + 1) * 5 + cZ + 1) * 17 + cY];
+					double eightNoise1 = (heightNoise[((cX) * 5 + cZ) * 17 + cY + 1] - noise1) * eigth;
+					for (int y2 = 0; y2 < 8; ++y2)
+					{
+						double quarter = 0.25;
+						double stoneP2 = noise1;
+						double stoneP1 = var18;
+						double var39 = (var20 - noise1) * quarter;
+						double var41 = (var22 - var18) * quarter;
+						for (int m = 0; m < 4; ++m)
+						{
+							int y = cY * 8 + y2;
+							double stonePosPrime = stoneP2;
+							double stoneAdder = (stoneP1 - stoneP2) * 0.25;
+							for (int n = 0; n < 4; ++n)
+							{
+								if (stonePosPrime > 0.0)
+								{
+									output[cX][cZ] = y;
+								}
+								stonePosPrime += stoneAdder;
+							}
+							stoneP2 += var39;
+							stoneP1 += var41;
+						}
+						noise1 += eightNoise1;
+					}
+
+				}
+			}
+		}
+		return output;
 	}
 }

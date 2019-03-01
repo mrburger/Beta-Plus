@@ -1,6 +1,5 @@
 package com.mrburgerus.betaplus.world.biome.alpha;
 
-import com.mrburgerus.betaplus.world.biome.BiomeHelper;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.util.math.BlockPos;
@@ -8,17 +7,12 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.IFeatureConfig;
-import net.minecraft.world.gen.feature.ProbabilityConfig;
-import net.minecraft.world.gen.feature.RandomDefaultFeatureListConfig;
-import net.minecraft.world.gen.feature.structure.*;
-import net.minecraft.world.gen.placement.AtSurfaceWithExtraConfig;
 import net.minecraft.world.gen.placement.DungeonRoomConfig;
 import net.minecraft.world.gen.placement.IPlacementConfig;
-import net.minecraft.world.gen.placement.TopSolidWithNoiseConfig;
 import net.minecraft.world.gen.surfacebuilders.CompositeSurfaceBuilder;
 
 /* A Necessity to ensure Alpha Snow worlds get some fun stuff. */
-public class BiomeAlphaFrozenOcean extends Biome
+public class BiomeAlphaFrozenOcean extends AbstractAlphaBiome
 {
 	public static final String NAME = "alpha_frozen_ocean";
 	public BiomeAlphaFrozenOcean()
@@ -29,15 +23,16 @@ public class BiomeAlphaFrozenOcean extends Biome
 		this.addFeature(GenerationStage.Decoration.TOP_LAYER_MODIFICATION, createCompositeFeature(Feature.ICE_AND_SNOW, IFeatureConfig.NO_FEATURE_CONFIG, PASSTHROUGH, IPlacementConfig.NO_PLACEMENT_CONFIG));
 
 		//Create Ores
-		BiomeHelper.addAllOres(this);
+		this.addAllOres();
 		// Add structures
 		this.addStructureFeatures();
 		// Add Ocean Features
-		BiomeHelper.addAlphaOceanFeatures(this);
+		this.addAlphaOceanFeatures();
+
 
 		// Add Spawns
-		BiomeHelper.addPassiveOceanSpawns(this);
-		BiomeHelper.addHostileSpawns(this);
+		this.addPassiveOceanSpawns();
+		this.addHostileSpawns();
 		// Add Polar Bears
 		this.addSpawn(EnumCreatureType.CREATURE, new SpawnListEntry(EntityType.POLAR_BEAR, 1, 1, 2));
 

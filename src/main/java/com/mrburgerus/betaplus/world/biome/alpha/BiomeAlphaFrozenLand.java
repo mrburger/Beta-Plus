@@ -1,20 +1,16 @@
 package com.mrburgerus.betaplus.world.biome.alpha;
 
-import com.mrburgerus.betaplus.world.biome.BiomeHelper;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.*;
 import net.minecraft.world.gen.feature.structure.IglooConfig;
-import net.minecraft.world.gen.feature.structure.OceanMonumentConfig;
-import net.minecraft.world.gen.feature.structure.VillageConfig;
-import net.minecraft.world.gen.feature.structure.VillagePieces;
 import net.minecraft.world.gen.placement.*;
 import net.minecraft.world.gen.surfacebuilders.CompositeSurfaceBuilder;
 
 /* Completed Feb 24, 2019 */
-public class BiomeAlphaFrozenLand extends Biome
+public class BiomeAlphaFrozenLand extends AbstractAlphaBiome
 {
 	public static final String NAME = "alpha_frozen_hills";
 	public BiomeAlphaFrozenLand()
@@ -26,17 +22,17 @@ public class BiomeAlphaFrozenLand extends Biome
 		this.addFeature(GenerationStage.Decoration.TOP_LAYER_MODIFICATION, createCompositeFeature(Feature.ICE_AND_SNOW, IFeatureConfig.NO_FEATURE_CONFIG, PASSTHROUGH, IPlacementConfig.NO_PLACEMENT_CONFIG));
 
 		//Create Ores
-		BiomeHelper.addAllOres(this);
+		this.addAllOres();
 		// Add structures (What does it actually do)
 		this.addStructureFeatures();
 		// Add Trees, Caves, features.
-		BiomeHelper.addAlphaLandFeatures(this);
+		this.addAlphaLandFeatures();
 		// Add vegetation
-		BiomeHelper.addAllVegetal(this);
+		this.addAllVegetal();
 
 		// Standard Spawns
-		BiomeHelper.addPassiveLandSpawns(this);
-		BiomeHelper.addHostileSpawns(this);
+		this.addPassiveLandSpawns();
+		this.addHostileSpawns();
 		// Add Polar Bears
 		this.addSpawn(EnumCreatureType.CREATURE, new SpawnListEntry(EntityType.POLAR_BEAR, 1, 1, 2));
 

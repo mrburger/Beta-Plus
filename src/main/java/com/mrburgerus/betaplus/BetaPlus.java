@@ -15,7 +15,6 @@ import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.IUnbakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemUseContext;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldType;
