@@ -12,7 +12,8 @@ import java.util.Random;
 
 /* Simulates Y values */
 /* Potential for the Cache to cause a Stack Overflow, but WHATEVER. If it happens I'll fix it. */
-/* IT WORKS! Feb 28, 2019 */
+/* Seems to work, needs additional testing. */
+/* POTENTIAL ISSUE: 3x3 Averages Not Interacting well with Simple Chunk Averages */
 public class AlphaPlusSimulator implements IWorldSimulator
 {
 	// Basic Fields
@@ -56,16 +57,10 @@ public class AlphaPlusSimulator implements IWorldSimulator
 	@Override
 	public int simulateYSingle(BlockPos pos)
 	{
-		// First, determine chunk position
-		int chunkX = pos.getX() >> 4;
-		int chunkZ = pos.getZ() >> 4;
-
-		// Find middle of chunk value (Most consistent results for oceans, since the chances of a "port" are rare */
-		// Working (I think)
-		int xP = chunkX * 16 + 8;
-		int zP = chunkZ * 16 + 8;
 		//Formerly xP, zP. This was not a correct assignment.
-		ChunkPos chunkPosForUse = new ChunkPos(chunkX, chunkZ);
+		// Could this be an issue?
+		// Attempt to assign blockpos
+		ChunkPos chunkPosForUse = new ChunkPos(pos);
 
 		if (singleYCache.containsKey(chunkPosForUse))
 		{
@@ -73,17 +68,37 @@ public class AlphaPlusSimulator implements IWorldSimulator
 		}
 		else
 		{
-			int ret = simulateYZeroZeroChunk(chunkX, chunkZ);
+			int ret = getSimulatedAvg(chunkPosForUse.x, chunkPosForUse.z);
+			singleYCache.put(chunkPosForUse, ret);
+			return ret;
+		}
+	}
+
+	public int simulateYSingleWithAvg(BlockPos pos)
+	{
+		//Formerly xP, zP. This was not a correct assignment.
+		// Could this be an issue?
+		// Attempt to assign blockpos
+		ChunkPos chunkPosForUse = new ChunkPos(pos);
+
+		if (singleYCache.containsKey(chunkPosForUse))
+		{
+			return singleYCache.get(chunkPosForUse);
+		}
+		else
+		{
+			int ret = getSimulatedAvg3x3(chunkPosForUse.x, chunkPosForUse.z);
 			singleYCache.put(chunkPosForUse, ret);
 			return ret;
 		}
 	}
 
 	/* Simulates a SINGLE Y Value, for usage. */
+	/* Unverified if it works */
 	@Override
 	public int simulateYZeroZeroChunk(int chunkX, int chunkZ)
 	{
-		int output = 0; //Iterated through.
+		int output = 256; //Iterated through.
 
 		byte yHeight = 17;
 		this.heightNoise = this.generateOctaves(this.heightNoise, chunkX * 4, 0, chunkZ * 4, 5, yHeight, 5);
@@ -101,15 +116,18 @@ public class AlphaPlusSimulator implements IWorldSimulator
 				double stonePosPrime = noise1;
 				int yP = cY * 8 + y2;
 
-				// Should hopefully emulate. (I think it does!)
+				// Should hopefully emulate (does not)
 				if(stonePosPrime > 0.0D)
 				{
+					//BetaPlus.LOGGER.debug("Y: " + yP);
 					output = yP;
 				}
 
 				noise1 += eightNoise1;
 			}
 		}
+
+		//BetaPlus.LOGGER.debug("Final Y: " + output);
 		return output;
 	}
 
@@ -120,10 +138,11 @@ public class AlphaPlusSimulator implements IWorldSimulator
 	{
 		int[][] output = new int[4][4];
 
+		// 1+1 converted to var4+1, like original
 		byte var4 = 4;
-		int var6 = 1 + 1;
+		int var6 = var4 + 1;
 		byte yHeight = 17;
-		int var8 = 1 + 1;
+		int var8 = var4 + 1;
 		this.heightNoise = this.generateOctaves(this.heightNoise, chunkX * var4, 0, chunkZ * var4, var6, yHeight, var8);
 
 		/* These go to every 4 blocks only */
@@ -233,21 +252,62 @@ public class AlphaPlusSimulator implements IWorldSimulator
 		return output;
 	}
 
-	/* Generates Octaves similarly to the Chunk Generator */
-	@Override
-	public double[] generateOctaves(double[] values, int xChunkMult, int yValueZero, int zChunkMult, int size1, int size2, int size3)
+	/* Averages a Chunk's Y Coordinates, pretty useful */
+	private int getSimulatedAvg(int chunkX, int chunkZ)
 	{
-		if (values == null) {
-			values = new double[size1 * size2 * size3];
+		int[][] chunkSimY = simulateChunkYFast(chunkX, chunkZ);
+		int sum = 0;
+		int numElem = 0;
+		for (int[] chunkSimA : chunkSimY)
+		{
+			for (int chunkSimB : chunkSimA)
+			{
+				sum += chunkSimB;
+				numElem++;
+			}
 		}
 
-		double scale1 = 684.412D;
-		double scale2 = 684.412D;
-		this.octave4Arr = this.octaves4.generateNoiseOctaves(this.octave4Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, 1, size3, 1.0D, 0.0D, 1.0D);
-		this.octave5Arr = this.octaves5.generateNoiseOctaves(this.octave5Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, 1, size3, 100.0D, 0.0D, 100.0D);
-		this.octave3Arr = this.octaves3.generateNoiseOctaves(this.octave3Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, size2, size3, scale1 / 80.0D, scale2 / 160.0D, scale1 / 80.0D);
-		this.octave1Arr = this.octaves1.generateNoiseOctaves(this.octave1Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, size2, size3, scale1, scale2, scale1);
-		this.octave2Arr = this.octaves2.generateNoiseOctaves(this.octave2Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, size2, size3, scale1, scale2, scale1);
+		return Math.floorDiv(sum, numElem);
+	}
+
+	/* Probably REALLY slow */
+	private int getSimulatedAvg3x3(int middleChunkX, int middleChunkZ)
+	{
+		int sum = 0;
+		int numE = 0;
+		for (int xChunk = middleChunkX - 1; xChunk <= middleChunkX + 1; ++xChunk)
+		{
+			for (int zChunk = middleChunkZ -1; zChunk <= middleChunkZ; ++zChunk)
+			{
+				sum += getSimulatedAvg(xChunk, zChunk);
+				numE++;
+			}
+		}
+		return Math.floorDiv(sum, numE);
+	}
+
+
+	/* Generates Octaves similarly to the Chunk Generator */
+	@Override
+	public double[] generateOctaves(double[] var1, int var2, int var3, int var4, int size1, int size2, int size3)
+	{
+		if (var1 == null) {
+			var1 = new double[size1 * size2 * size3];
+		}
+
+		double var8 = 684.412D;
+		double var10 = 684.412D;
+		this.octave4Arr =
+				this.octaves4.generateNoiseOctaves(this.octave4Arr, (double) var2, (double) var3, (double) var4, size1, 1, size3, 1.0D, 0.0D, 1.0D);
+		this.octave5Arr = this.octaves5
+				.generateNoiseOctaves(this.octave5Arr, (double) var2, (double) var3, (double) var4, size1, 1, size3, 100.0D, 0.0D, 100.0D);
+		this.octave3Arr = this.octaves3
+				.generateNoiseOctaves(this.octave3Arr, (double) var2, (double) var3, (double) var4, size1, size2, size3, var8 / 80.0D, var10 / 160.0D,
+						var8 / 80.0D);
+		this.octave1Arr = this.octaves1
+				.generateNoiseOctaves(this.octave1Arr, (double) var2, (double) var3, (double) var4, size1, size2, size3, var8, var10, var8);
+		this.octave2Arr = this.octaves2
+				.generateNoiseOctaves(this.octave2Arr, (double) var2, (double) var3, (double) var4, size1, size2, size3, var8, var10, var8);
 		int var12 = 0;
 		int var13 = 0;
 
@@ -324,12 +384,12 @@ public class AlphaPlusSimulator implements IWorldSimulator
 						var25 = var25 * (1.0D - var45) + -10.0D * var45;
 					}
 
-					values[var12] = var25;
+					var1[var12] = var25;
 					++var12;
 				}
 			}
 		}
 
-		return values;
+		return var1;
 	}
 }

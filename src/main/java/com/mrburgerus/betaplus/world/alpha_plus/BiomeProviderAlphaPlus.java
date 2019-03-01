@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.ResourceHelper;
 import com.mrburgerus.betaplus.world.alpha_plus.sim.AlphaPlusSimulator;
+import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
 import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaFrozenLand;
 import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaFrozenOcean;
 import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaLand;
@@ -12,6 +13,7 @@ import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaOcean;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.provider.BiomeProvider;
@@ -54,9 +56,9 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	}
 
 	/* Just Like Beta Plus, generates a single landBiome */
-	private Biome[] generateBiomes(int x, int z, int width, int depth)
+	private Biome[] generateBiomes(int startX, int startZ, int xSize, int zSize)
 	{
-		Biome[] biomeArr = new Biome[width * depth];
+		Biome[] biomeArr = new Biome[xSize * zSize];
 		for (int i = 0; i < biomeArr.length; i++)
 		{
 			biomeArr[i] = this.landBiome;
@@ -66,14 +68,40 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 
 	/* Adds OCEANS to the mix to the Biome Provider. */
 	/* ONLY CALL WHEN NECESSARY, has to simulate the Y-heights of the world */
-	private Biome[] generateBiomesWithOceans(int startX, int startZ, int width, int depth)
+	/* useAverage should be TRUE if searching for Monuments, false Otherwise */
+	private Biome[] generateBiomesWithOceans(int startX, int startZ, int xSize, int zSize, boolean useAverage)
 	{
+		Biome[] biomeArr = new Biome[xSize * zSize];
+		int counter = 0;
+		for (int z = 0; z < zSize; ++z)
+		{
+			for (int x = 0; x < xSize; ++x)
+			{
+				BlockPos pos = new BlockPos(startX + x, 0, startZ + z);
+				// If we are using the 3x3 Average
+				if (useAverage && simulator.simulateYSingleWithAvg(pos) < 52)
+				{
+					biomeArr[counter] = this.oceanBiome;
+				}
+				else if (!useAverage && simulator.simulateYSingle(pos) < 54) //Typically for Shipwrecks, Ruins, and Chests
+				{
+					biomeArr[counter] = this.oceanBiome;
+				}
+				else
+				{
+					biomeArr[counter] = this.landBiome;
+				}
+				counter++;
+			}
+		}
+		return biomeArr;
+		/*
 		int xP = startX;
 		int zP = startZ;
 		Biome[] biomeArr = new Biome[width * depth];
 		for (int i = 0; i < biomeArr.length; i++)
 		{
-			xP = startX + i % width;
+			xP = startX + (i % width);
 			zP = startZ + Math.floorDiv(i, depth);
 			int pos = (xP - startX) + ((zP - startZ) * depth);
 			if (pos != i)
@@ -83,7 +111,9 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 
 			if (simulator.simulateYSingle(new BlockPos(xP, 0, zP)) < 56) // Deep Ocean Value
 			{
-				biomeArr[i] = this.oceanBiome;
+				//BetaPlus.LOGGER.debug("Injecting ocean at: " + xP + ", " + zP);
+				// For Debugging, set to Land Biome
+				biomeArr[i] = this.landBiome;
  			}
 			else
 			{
@@ -91,6 +121,7 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 			}
 		}
 		return biomeArr;
+		*/
 	}
 
 	@Override
@@ -104,7 +135,7 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	@Override
 	public Biome getBiome(BlockPos blockPos, @Nullable Biome biome)
 	{
-		return this.generateBiomesWithOceans(blockPos.getX(), blockPos.getZ(), 1, 1)[0];
+		return this.generateBiomesWithOceans(blockPos.getX(), blockPos.getZ(), 1, 1, false)[0];
 	}
 
 	@Override
@@ -130,7 +161,9 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 		int i1 = k - i + 1;
 		int j1 = l - j + 1;
 		Set<Biome> set = Sets.newHashSet();
-		Collections.addAll(set, this.generateBiomesWithOceans(i, j, i1, j1));
+		//this.generateBiomesWithOceans(i, j, i1, j1) this.generateBiomesWithOceans(j, i, j1, i1)
+		// Try swapping to fix issue? since Alpha generated Z, X
+		Collections.addAll(set, this.generateBiomesWithOceans(i, j, i1, j1, true));
 		return set;
 	}
 

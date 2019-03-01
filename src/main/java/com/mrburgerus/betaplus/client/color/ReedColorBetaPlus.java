@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorldReaderBase;
+import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.BiomeColors;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,19 +20,21 @@ public class ReedColorBetaPlus implements IBlockColor
 {
 	/* It really is that simple */
 	@Override
-	public int getColor(IBlockState iBlockState, @Nullable IWorldReaderBase iWorldReaderBase, @Nullable BlockPos blockPos, int i)
+	public int getColor(IBlockState iBlockState, @Nullable IWorldReaderBase worldIn, @Nullable BlockPos blockPos, int i)
 	{
-		if (Minecraft.getInstance().getIntegratedServer().getWorld(DimensionType.OVERWORLD).getWorldType() instanceof WorldTypeBetaPlus)
+		WorldType worldType = worldIn.getDimension().getWorld().getWorldType();
+
+		if (worldType instanceof WorldTypeBetaPlus)
 		{
 			return -1;
 		}
-		if (Minecraft.getInstance().getIntegratedServer().getWorld(DimensionType.OVERWORLD).getWorldType() instanceof WorldTypeAlphaPlus)
+		if (worldType instanceof WorldTypeAlphaPlus)
 		{
 			return -1;
 		}
 		else
 		{
-			return BiomeColors.getGrassColor(iWorldReaderBase, blockPos);
+			return BiomeColors.getGrassColor(worldIn, blockPos);
 		}
 	}
 }

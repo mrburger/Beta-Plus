@@ -6,7 +6,7 @@ import net.minecraft.world.gen.ChunkGenSettings;
 public class AlphaPlusGenSettings extends ChunkGenSettings
 {
 	private boolean isSnowy = false;
-	private final int seaLevel = 64;
+	private final int seaLevel = 63; // Had to be changed :(
 
 	public void setSnowy(boolean snowy)
 	{

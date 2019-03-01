@@ -53,7 +53,7 @@ public class BetaPlusSimulator implements IWorldSimulator
 		rand = new Random(seed);
 		seaLevel = world.getSeaLevel(); // Should work
 
-		// Remember to assign values EXACTLY the same way, otherwise the .next[X] value order will be disturbed.
+		// Remember to assign values EXACTLY the same way, otherwise the .next[X]() value order will be disturbed.
 		octaves1 = new NoiseGeneratorOctavesBeta(rand, 16);
 		octaves2 = new NoiseGeneratorOctavesBeta(rand, 16);
 		octaves3 = new NoiseGeneratorOctavesBeta(rand, 8);
@@ -196,7 +196,7 @@ public class BetaPlusSimulator implements IWorldSimulator
 
 		}
 		// In case
-		BetaPlus.LOGGER.debug("Cannot Guarantee Y Simulator Results!s");
+		BetaPlus.LOGGER.debug("Cannot Guarantee Y Simulator Results!");
 		return output;
 	}
 

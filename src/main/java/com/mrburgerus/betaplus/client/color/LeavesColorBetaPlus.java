@@ -34,9 +34,9 @@ public class LeavesColorBetaPlus implements IBlockColor
 		}
 		if (worldType instanceof WorldTypeBetaPlus)
 		{
-			BiomeProviderBetaPlus provider = (BiomeProviderBetaPlus) worldIn.getDimension().getWorld().getChunkProvider().getChunkGenerator().getBiomeProvider();
+			//BiomeProviderBetaPlus provider = (BiomeProviderBetaPlus) worldIn.getDimension().getWorld().getChunkProvider().getChunkGenerator().getBiomeProvider();
 			/* Working */
-			return provider.getGrassColorBeta(pos);
+			//return provider.getGrassColorBeta(pos);
 		}
 
 		// Otherwise we are on default.

@@ -43,11 +43,6 @@ public class BiomeAlphaFrozenLand extends Biome
 		// Add Igloos
 		this.addStructure(Feature.IGLOO, new IglooConfig());
 
-		// Add Dummy Ocean Monuments? (TESTING)
-		// This is to test exactly what addFeature does. DOES NOT WORK, still crashes.
-		this.addFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, createCompositeFeature(Feature.OCEAN_MONUMENT, new OceanMonumentConfig(), PASSTHROUGH, IPlacementConfig.NO_PLACEMENT_CONFIG));
-
-
 		// Add Dungeons
 		this.addFeature(GenerationStage.Decoration.UNDERGROUND_STRUCTURES, createCompositeFeature(Feature.DUNGEONS, IFeatureConfig.NO_FEATURE_CONFIG, DUNGEON_ROOM, new DungeonRoomConfig(8)));
 	}

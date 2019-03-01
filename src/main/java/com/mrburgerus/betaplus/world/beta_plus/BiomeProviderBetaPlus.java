@@ -146,29 +146,25 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 			{
 				BetaPlus.LOGGER.warn("Not equal: " + pos + " : " + i);
 			}
-
+			double var9 = noise[i] * 1.1 + 0.5;
+			double oneHundredth = 0.01;
+			double point99 = 1.0 - oneHundredth;
+			double temperatureVal = (temperatures[i] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
+			oneHundredth = 0.002;
+			point99 = 1.0 - oneHundredth;
+			double humidityVal = (humidities[i] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
+			temperatureVal = 1.0 - (1.0 - temperatureVal) * (1.0 - temperatureVal);
+			temperatureVal = MathHelper.clamp(temperatureVal, 0.0, 1.0);
+			humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
+			temperatures[i] = temperatureVal;
+			humidities[i] = humidityVal;
+			biomeArr[i] = BiomeGenBetaPlus.getBiomeFromLookup(temperatureVal, humidityVal);
 			if (simulator.simulateYSingle(new BlockPos(xP, 0, zP)) < 56) // Deep Ocean Value
 			{
-				boolean isDepth = true; // Just because
+				boolean isDepth = false; // Just because I dont want stuff spawning
 				biomeArr[i] = this.getOceanBiome(new BlockPos(xP, 0, zP), isDepth);
 			}
-			else
-			{
-				double var9 = noise[i] * 1.1 + 0.5;
-				double oneHundredth = 0.01;
-				double point99 = 1.0 - oneHundredth;
-				double temperatureVal = (temperatures[i] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
-				oneHundredth = 0.002;
-				point99 = 1.0 - oneHundredth;
-				double humidityVal = (humidities[i] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
-				temperatureVal = 1.0 - (1.0 - temperatureVal) * (1.0 - temperatureVal);
-				temperatureVal = MathHelper.clamp(temperatureVal, 0.0, 1.0);
-				humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
-				temperatures[i] = temperatureVal;
-				humidities[i] = humidityVal;
-				biomeArr[i] = BiomeGenBetaPlus.getBiomeFromLookup(temperatureVal, humidityVal);
-				i++;
-			}
+			i++;
 		}
 		return biomeArr;
 	}

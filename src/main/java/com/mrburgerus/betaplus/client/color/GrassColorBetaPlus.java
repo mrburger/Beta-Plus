@@ -8,10 +8,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.GrassColors;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReaderBase;
-import net.minecraft.world.WorldType;
+import net.minecraft.world.*;
 import net.minecraft.world.biome.BiomeColors;
 import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
@@ -53,9 +50,14 @@ public class GrassColorBetaPlus implements IBlockColor
 		if (worldType instanceof WorldTypeBetaPlus)
 		{
 			/* Potential issues with Non-overworld Providers */
-			BiomeProviderBetaPlus provider = (BiomeProviderBetaPlus) worldIn.getDimension().getWorld().getChunkProvider().getChunkGenerator().getBiomeProvider();
-			/* Working */
-			return provider.getGrassColorBeta(pos);
+			//BiomeProviderBetaPlus provider = (BiomeProviderBetaPlus) worldIn.getDimension().getWorld().getChunkProvider().getChunkGenerator().getBiomeProvider();
+			World world = worldIn.getDimension().getWorld();
+			if (world.getChunkProvider().getChunkGenerator() instanceof BiomeProviderBetaPlus)
+			{
+				BiomeProviderBetaPlus provider = (BiomeProviderBetaPlus) world.getChunkProvider().getChunkGenerator().getBiomeProvider();
+				/* Working */
+				return provider.getGrassColorBeta(pos);
+			}
 		}
 
 		return BiomeColors.getGrassColor(worldIn, pos);

@@ -72,9 +72,9 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	{
 		int xPos = iChunk.getPos().x;
 		int zPos =  iChunk.getPos().z;
-		biomesForGeneration = this.biomeProvider.getBiomeBlock(xPos * 16, zPos * 16, 16, 16);
+		biomesForGeneration = this.biomeProviderS.getBiomeBlock(xPos * 16, zPos * 16, 16, 16);
 		setBlocksInChunk(iChunk);
-		DeepenOceanUtil.deepenOcean(iChunk, rand, settings.getSeaLevel(), 7);
+		DeepenOceanUtil.deepenOcean(iChunk, new Random(seed), settings.getSeaLevel(), 7);
 		this.replaceBiomes(iChunk);
 		this.replaceBeaches(iChunk);
 
@@ -123,7 +123,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		Biome biome = world.getBiome(new BlockPos(i * CHUNK_SIZE + 8, 0, j * CHUNK_SIZE + 8));
 
 		/* MODIFIED! */
-		WorldEntitySpawner.performWorldGenSpawning(region, biome, i, j, this.rand);
+		WorldEntitySpawner.performWorldGenSpawning(region, biome, i, j, new Random(seed));
 	}
 
 	@Override
@@ -170,7 +170,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		int chunkX = chunk.getPos().x;
 		int chunkZ = chunk.getPos().z;
 		byte var4 = 4;
-		byte seaLevel = 64;
+		byte seaLevel = 63; //Was 64, Ocean Monuments messed with this.
 		int var6 = var4 + 1;
 		byte var7 = 17;
 		int var8 = var4 + 1;
@@ -202,16 +202,16 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 							int z = var10 * 4;
 
 							double var44 = 0.25D;
-							double var46 = var33;
+							double stoneN = var33;
 							double var48 = (var35 - var33) * var44;
 
 							for (int var50 = 0; var50 < 4; ++var50) {
 								Block block = null;
-								if (var11 * 8 + var30 < seaLevel) {
+								if (y < seaLevel) {
 									block = Blocks.WATER;
 								}
 
-								if (var46 > 0.0D) {
+								if (stoneN > 0.0D) {
 									block = Blocks.STONE;
 								}
 
@@ -219,7 +219,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 									chunk.setBlockState(new BlockPos(x, y, z), block.getDefaultState(), false);
 								}
 								++z;
-								var46 += var48;
+								stoneN += var48;
 							}
 
 							var33 += var37;
@@ -237,29 +237,29 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 
 	}
 
-	private double[] generateOctaves(double[] var1, int var2, int var3, int var4, int var5, int var6, int var7) {
+	private double[] generateOctaves(double[] var1, int var2, int var3, int var4, int size1, int size2, int size3) {
 		if (var1 == null) {
-			var1 = new double[var5 * var6 * var7];
+			var1 = new double[size1 * size2 * size3];
 		}
 
 		double var8 = 684.412D;
 		double var10 = 684.412D;
 		this.octave4Arr =
-				this.octaves4.generateNoiseOctaves(this.octave4Arr, (double) var2, (double) var3, (double) var4, var5, 1, var7, 1.0D, 0.0D, 1.0D);
+				this.octaves4.generateNoiseOctaves(this.octave4Arr, (double) var2, (double) var3, (double) var4, size1, 1, size3, 1.0D, 0.0D, 1.0D);
 		this.octave5Arr = this.octaves5
-				.generateNoiseOctaves(this.octave5Arr, (double) var2, (double) var3, (double) var4, var5, 1, var7, 100.0D, 0.0D, 100.0D);
+				.generateNoiseOctaves(this.octave5Arr, (double) var2, (double) var3, (double) var4, size1, 1, size3, 100.0D, 0.0D, 100.0D);
 		this.octave3Arr = this.octaves3
-				.generateNoiseOctaves(this.octave3Arr, (double) var2, (double) var3, (double) var4, var5, var6, var7, var8 / 80.0D, var10 / 160.0D,
+				.generateNoiseOctaves(this.octave3Arr, (double) var2, (double) var3, (double) var4, size1, size2, size3, var8 / 80.0D, var10 / 160.0D,
 						var8 / 80.0D);
 		this.octave1Arr = this.octaves1
-				.generateNoiseOctaves(this.octave1Arr, (double) var2, (double) var3, (double) var4, var5, var6, var7, var8, var10, var8);
+				.generateNoiseOctaves(this.octave1Arr, (double) var2, (double) var3, (double) var4, size1, size2, size3, var8, var10, var8);
 		this.octave2Arr = this.octaves2
-				.generateNoiseOctaves(this.octave2Arr, (double) var2, (double) var3, (double) var4, var5, var6, var7, var8, var10, var8);
+				.generateNoiseOctaves(this.octave2Arr, (double) var2, (double) var3, (double) var4, size1, size2, size3, var8, var10, var8);
 		int var12 = 0;
 		int var13 = 0;
 
-		for (int var14 = 0; var14 < var5; ++var14) {
-			for (int var15 = 0; var15 < var7; ++var15) {
+		for (int var14 = 0; var14 < size1; ++var14) {
+			for (int var15 = 0; var15 < size3; ++var15) {
 				double var16 = (this.octave4Arr[var13] + 256.0D) / 512.0D;
 				if (var16 > 1.0D) {
 					var16 = 1.0D;
@@ -290,11 +290,11 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 				}
 
 				var16 = var16 + 0.5D;
-				var20 = var20 * (double) var6 / 16.0D;
-				double var22 = (double) var6 / 2.0D + var20 * 4.0D;
+				var20 = var20 * (double) size2 / 16.0D;
+				double var22 = (double) size2 / 2.0D + var20 * 4.0D;
 				++var13;
 
-				for (int var24 = 0; var24 < var6; ++var24) {
+				for (int var24 = 0; var24 < size2; ++var24) {
 					double var25 = 0.0D;
 					double var27 = ((double) var24 - var22) * 12.0D / var16;
 					if (var27 < 0.0D) {
@@ -313,8 +313,8 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 					}
 
 					var25 = var25 - var27;
-					if (var24 > var6 - 4) {
-						double var35 = (double) ((float) (var24 - (var6 - 4)) / 3.0F);
+					if (var24 > size2 - 4) {
+						double var35 = (double) ((float) (var24 - (size2 - 4)) / 3.0F);
 						var25 = var25 * (1.0D - var35) + -10.0D * var35;
 					}
 
@@ -345,7 +345,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		int chunkX = chunk.getPos().x;
 		int chunkZ = chunk.getPos().z;
 
-		byte seaLevel = 64;
+		byte seaLevel = 63;
 		double var5 = 0.03125D;
 
 

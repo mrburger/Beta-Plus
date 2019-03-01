@@ -31,5 +31,6 @@ public class BiomeAlphaLand extends Biome
 
 		// Add Dungeons
 		this.addFeature(GenerationStage.Decoration.UNDERGROUND_STRUCTURES, createCompositeFeature(Feature.DUNGEONS, IFeatureConfig.NO_FEATURE_CONFIG, DUNGEON_ROOM, new DungeonRoomConfig(8)));
+
 	}
 }
