@@ -14,7 +14,7 @@ import net.minecraft.world.chunk.IChunk;
 import java.util.HashMap;
 import java.util.Random;
 
-public class BetaPlusSimulator implements IWorldSimulator
+public class BetaPlusSimulatorOLD
 {
 	// Basic Fields
 	private final long seed;
@@ -46,7 +46,7 @@ public class BetaPlusSimulator implements IWorldSimulator
 	private static  HashMap<ChunkPos, Integer> avgYCache;
 
 	// Constructor
-	public BetaPlusSimulator(World world)
+	public BetaPlusSimulatorOLD(World world)
 	{
 		seed = world.getSeed();
 		rand = new Random(seed);
@@ -137,37 +137,36 @@ public class BetaPlusSimulator implements IWorldSimulator
 		}
 	}
 
-	@Override
-	public Pair simulateYChunk(BlockPos pos)
+
+	public Pair<Integer, Boolean> simulateYChunk(BlockPos pos)
 	{
 		ChunkPos chunkPosForUse = new ChunkPos(pos);
 
 		if (yCache.containsKey(chunkPosForUse))
 		{
-			return yCache.get(chunkPosForUse);
+			return Pair.of(avgYCache.get(chunkPosForUse), false);
 		}
 		else
 		{
 			int ret = getSimulatedAvg(chunkPosForUse.x, chunkPosForUse.z);
-			return ret;
+			return Pair.of(ret, false);
 		}
 	}
 
-	@Override
-	public int simulateYAvg(BlockPos pos)
+	public Pair<Integer, Boolean> simulateYAvg(BlockPos pos)
 	{
 		ChunkPos chunkPosForUse = new ChunkPos(pos);
 
 		if (avgYCache.containsKey(chunkPosForUse))
 		{
-			return avgYCache.get(chunkPosForUse);
+			return Pair.of(avgYCache.get(chunkPosForUse), false);
 		}
 		else
 		{
 			BetaPlus.LOGGER.info("Simulating: " + chunkPosForUse);
 			int ret = getSimulatedAvg3x3(chunkPosForUse.x, chunkPosForUse.z).getFirst();
 			avgYCache.put(chunkPosForUse, ret);
-			return ret;
+			return Pair.of(ret, false);
 		}
 	}
 
@@ -211,8 +210,6 @@ public class BetaPlusSimulator implements IWorldSimulator
 	}
 
 
-
-	@Override
 	public int simulateYZeroZeroChunk(int chunkX, int chunkZ)
 	{
 		int output = 0;
@@ -253,7 +250,6 @@ public class BetaPlusSimulator implements IWorldSimulator
 
 	/* EXACTLY like ChunkGeneratorBetaPlus, with slight modifications */
 	/* Modifications: Removed Calls to temperature */
-	@Override
 	public double[] generateOctaves(double[] values, int xChunkMult, int yValueZero, int zChunkMult, int size1, int size2, int size3)
 	{
 		if (values == null)

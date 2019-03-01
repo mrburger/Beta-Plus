@@ -3,18 +3,17 @@ package com.mrburgerus.betaplus.world.noise;
 import java.util.Random;
 
 public class NoiseGeneratorOctavesOld
-		extends NoiseGenerator
 {
-	private NoiseGenerator2[] generatorCollection;
+	private NoiseGeneratorOld[] generatorCollection;
 	private int bound;
 
 	public NoiseGeneratorOctavesOld(Random random, int bound1)
 	{
 		bound = bound1;
-		generatorCollection = new NoiseGenerator2[bound1];
+		generatorCollection = new NoiseGeneratorOld[bound1];
 		for (int var3 = 0; var3 < bound1; var3++)
 		{
-			generatorCollection[var3] = new NoiseGenerator2(random);
+			generatorCollection[var3] = new NoiseGeneratorOld(random);
 		}
 	}
 

@@ -459,7 +459,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 			{
 				int xPos = iChunk.getPos().getXStart() + x;
 				int zPos = iChunk.getPos().getZStart() + z;
-				int yVal = BiomeReplaceUtil.getSolidHeightY(xPos, zPos, iChunk);
+				int yVal = BiomeReplaceUtil.getSolidHeightY(new BlockPos(xPos, 0, zPos), iChunk);
 				if (yVal < 64 - 1)
 				{
 					if(settings.getSnowy())
@@ -491,8 +491,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 			{
 				int xPos = chunk.getPos().getXStart() + x;
 				int zPos = chunk.getPos().getZStart() + z;
-				int yVal = BiomeReplaceUtil.getSolidHeightY(xPos, zPos, chunk);
-				//Inject Beaches (MODIFIED)
+				int yVal = BiomeReplaceUtil.getSolidHeightY(new BlockPos(xPos, 0, zPos), chunk);
 				if ((yVal <= (settings.getSeaLevel() + 1) && yVal >= settings.getSeaLevel() - 1) && chunk.getBlockState(new BlockPos(xPos, yVal, zPos)) == Blocks.SAND.getDefaultState())
 				{
 					if (settings.getSnowy())

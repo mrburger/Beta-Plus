@@ -14,20 +14,18 @@ public class BiomeReplaceUtil
 		Biome[] biomesOut = new Biome[biomesIn.length];
 		for (int i = 0; i < biomesOut.length; i++)
 		{
-			//int z = i / 16;
-			//int x = i % 16;
 			int place = (i & 15) << 4 | i >> 4 & 15;
-			//System.out.println(place + " " + x + " " + z + " " + (x << 4 | z));
 			biomesOut[i] = biomesIn[place];
 		}
 		return biomesOut;
 	}
 
-	public static int getSolidHeightY(int x, int z, IChunk chunk)
+	/* Gets the first solid block at a Position */
+	public static int getSolidHeightY(BlockPos pos, IChunk chunk)
 	{
 		for (int y = 130; y >= 0; --y)
 		{
-			Block block = chunk.getBlockState(new BlockPos(x, y, z)).getBlock();
+			Block block = chunk.getBlockState(pos).getBlock();
 			if (block != Blocks.AIR && block != Blocks.WATER)
 			{
 				return y;

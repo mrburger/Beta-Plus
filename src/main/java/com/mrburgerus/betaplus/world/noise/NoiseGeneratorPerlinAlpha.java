@@ -2,7 +2,8 @@ package com.mrburgerus.betaplus.world.noise;
 
 import java.util.Random;
 
-public class NoiseGeneratorPerlinAlpha extends NoiseGenerator {
+public class NoiseGeneratorPerlinAlpha
+{
 
     private int[] permutations;
     public double xCoord;

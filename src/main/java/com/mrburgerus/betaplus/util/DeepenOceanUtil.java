@@ -20,7 +20,7 @@ public class DeepenOceanUtil
 		{
 			for (int zV = 0; zV < depthValues[xV].length; ++zV)
 			{
-				int y = BiomeReplaceUtil.getSolidHeightY(xStart + xV, zStart + zV, chunk);
+				int y = BiomeReplaceUtil.getSolidHeightY(new BlockPos(xStart + xV, 0, zStart + zV), chunk);
 				int depth = (seaLevel - y) - 1; // Depth is -1 because of lowered sea level.
 				depthValues[xV][zV] = depth;
 			}
@@ -43,7 +43,7 @@ public class DeepenOceanUtil
 		{
 			for (int zV = 0; zV < newDepths[xV].length; ++zV)
 			{
-				int y = BiomeReplaceUtil.getSolidHeightY(xStart + xV, zStart + zV, chunk);
+				int y = BiomeReplaceUtil.getSolidHeightY(new BlockPos(xStart + xV, 0, zStart + zV), chunk);
 				int yNew = seaLevel - (int) newDepths[xV][zV];
 				if (yNew < y && y < seaLevel) // We are Deep, yo.
 				{

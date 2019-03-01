@@ -2,7 +2,7 @@ package com.mrburgerus.betaplus.world.noise;
 
 import java.util.Random;
 
-public class NoiseGenerator2
+public class NoiseGeneratorOld
 {
 	private static final double DOUBLE_ROOT3_2 = 0.5D * (Math.sqrt(3.0D) - 1.0D);
 	private static final double DOUBLE_ROOT3_6 = (3.0D - Math.sqrt(3.0D)) / 6.0D;
@@ -12,12 +12,12 @@ public class NoiseGenerator2
 	public double noiseField3;
 	private int[] ints512;
 
-	public NoiseGenerator2()
+	public NoiseGeneratorOld()
 	{
 		this(new Random());
 	}
 
-	public NoiseGenerator2(Random random)
+	public NoiseGeneratorOld(Random random)
 	{
 		ints512 = new int[512];
 		noiseField1 = (random.nextDouble() * 256.0D);

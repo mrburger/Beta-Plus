@@ -2,15 +2,13 @@ package com.mrburgerus.betaplus.world.noise;
 
 import java.util.Random;
 
-public class NoiseGeneratorOctavesBeta
-		extends NoiseGenerator
+public class NoiseGeneratorOctavesBeta extends AbstractOctavesGenerator
 {
 	private NoiseGeneratorPerlinBeta[] generatorCollection;
-	private int boundNum;
 
 	public NoiseGeneratorOctavesBeta(Random random, int bound)
 	{
-		boundNum = bound;
+		super(bound);
 		generatorCollection = new NoiseGeneratorPerlinBeta[bound];
 		for (int i = 0; i < bound; i++)
 		{
@@ -22,7 +20,7 @@ public class NoiseGeneratorOctavesBeta
 	{
 		double returnVal = 0.0D;
 		double descendingMult = 1.0D;
-		for (int i = 0; i < boundNum; i++)
+		for (int i = 0; i < bound; i++)
 		{
 			returnVal += generatorCollection[i].generateNoiseZero(dMult1 * descendingMult, dMult2 * descendingMult) / descendingMult;
 			descendingMult /= 2.0D;
@@ -44,7 +42,7 @@ public class NoiseGeneratorOctavesBeta
 			}
 		}
 		double descendingMult = 1.0D;
-		for (int i = 0; i < boundNum; i++)
+		for (int i = 0; i < bound; i++)
 		{
 			generatorCollection[i].generate(doubles, xC, var4, var6, var8, var9, var10, var11 * descendingMult, var13 * descendingMult, var15 * descendingMult, descendingMult);
 			descendingMult /= 2.0D;
