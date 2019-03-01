@@ -2,6 +2,7 @@ package com.mrburgerus.betaplus.world.noise;
 
 import java.util.Random;
 
+@Deprecated
 public class NoiseGeneratorPerlinAlphaOLD
 {
 
@@ -85,10 +86,10 @@ public class NoiseGeneratorPerlinAlphaOLD
         return ((var8 & 1) == 0 ? var9 : -var9) + ((var8 & 2) == 0 ? var11 : -var11);
     }
 
-    public void generate(double[] var1, double var2, double var4, double var6, int var8, int var9, int var10, double var11, double var13,
-                         double var15, double var17) {
+    public void generate(double[] values, double x, double z, double d2, int i2, int j, int k, double d3, double d4,
+                         double d5, double d6) {
         int var19 = 0;
-        double var20 = 1.0D / var17;
+        double var20 = 1.0D / d6;
         int var22 = -1;
         int var23 = 0;
         int var24 = 0;
@@ -101,8 +102,8 @@ public class NoiseGeneratorPerlinAlphaOLD
         double var33 = 0.0D;
         double var35 = 0.0D;
 
-        for (int i = 0; i < var8; ++i) {
-            double var38 = (var2 + (double) i) * var11 + this.xCoord;
+        for (int i = 0; i < i2; ++i) {
+            double var38 = (x + (double) i) * d3 + this.xCoord;
             int var40 = (int) var38;
             if (var38 < (double) var40) {
                 --var40;
@@ -112,8 +113,8 @@ public class NoiseGeneratorPerlinAlphaOLD
             var38 = var38 - (double) var40;
             double var42 = var38 * var38 * var38 * (var38 * (var38 * 6.0D - 15.0D) + 10.0D);
 
-            for (int var44 = 0; var44 < var10; ++var44) {
-                double var45 = (var6 + (double) var44) * var15 + this.zCoord;
+            for (int var44 = 0; var44 < k; ++var44) {
+                double var45 = (d2 + (double) var44) * d5 + this.zCoord;
                 int var47 = (int) var45;
                 if (var45 < (double) var47) {
                     --var47;
@@ -123,8 +124,8 @@ public class NoiseGeneratorPerlinAlphaOLD
                 var45 = var45 - (double) var47;
                 double var49 = var45 * var45 * var45 * (var45 * (var45 * 6.0D - 15.0D) + 10.0D);
 
-                for (int var51 = 0; var51 < var9; ++var51) {
-                    double var52 = (var4 + (double) var51) * var13 + this.yCoord;
+                for (int var51 = 0; var51 < j; ++var51) {
+                    double var52 = (z + (double) var51) * d4 + this.yCoord;
                     int var54 = (int) var52;
                     if (var52 < (double) var54) {
                         --var54;
@@ -155,7 +156,7 @@ public class NoiseGeneratorPerlinAlphaOLD
                     double var60 = this.lerp(var56, var33, var35);
                     double var62 = this.lerp(var49, var58, var60);
                     int var10001 = var19++;
-                    var1[var10001] += var62 * var20;
+                    values[var10001] += var62 * var20;
                 }
             }
         }

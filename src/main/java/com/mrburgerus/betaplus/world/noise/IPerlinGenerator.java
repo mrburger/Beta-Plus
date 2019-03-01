@@ -3,7 +3,7 @@ package com.mrburgerus.betaplus.world.noise;
 public interface IPerlinGenerator
 {
 	/* Generates Perlin Noise */
-	void generate(double[] values, double x, double z, double d2, int i, int j, int k, double d3, double d4, double d5, double d6);
+	void generate(double[] values, double x, double y, double z, int i, int j, int k, double xNoise, double yNoise, double zNoise, double multiplier);
 
 	/* Grad-ify */
 	double grad(int var1, double var2, double var4, double var6);

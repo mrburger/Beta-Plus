@@ -2,7 +2,7 @@ package com.mrburgerus.betaplus.world.noise;
 
 import java.util.Random;
 
-//TODO: MAKE THIS EXTEND THE ABSTRACT CLASS AND UNIFY.
+@Deprecated
 public class NoiseGeneratorOctavesAlphaOLD extends AbstractOctavesGenerator
 {
 

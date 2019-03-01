@@ -2,18 +2,23 @@ package com.mrburgerus.betaplus.world.noise;
 
 import java.util.Random;
 
-public class NoiseGeneratorOctavesBiome extends AbstractOctavesGenerator
+@Deprecated
+public class NoiseGeneratorOctavesBiomeOLD
 {
-	public NoiseGeneratorOctavesBiome(Random random, int boundIn)
+	private NoiseGeneratorPerlinBiomeOLD[] generatorCollection;
+	private int bound;
+
+	public NoiseGeneratorOctavesBiomeOLD(Random random, int bound1)
 	{
-		super(boundIn);
-		generatorCollection = new NoiseGeneratorPerlinBiome[bound];
-		for (int i = 0; i < bound; i++)
+		bound = bound1;
+		generatorCollection = new NoiseGeneratorPerlinBiomeOLD[bound1];
+		for (int i = 0; i < bound1; i++)
 		{
-			generatorCollection[i] = new NoiseGeneratorPerlinBiome(random);
+			generatorCollection[i] = new NoiseGeneratorPerlinBiomeOLD(random);
 		}
 	}
 
+	// Probably Amplitude
 	public double[] generateOctaves(double[] doubles, double xChunkCoord, double zChunkCoord, int xSize, int zSize, double var8, double var10, double amplitude)
 	{
 		return generateOctaves(doubles, xChunkCoord, zChunkCoord, xSize, zSize, var8, var10, amplitude, 0.5D);
@@ -38,12 +43,11 @@ public class NoiseGeneratorOctavesBiome extends AbstractOctavesGenerator
 		double mult2 = 1.0D;
 		for (int i = 0; i < bound; i++)
 		{
-			// Assign y = 0 since Biomes are only based on Y
-			generatorCollection[i].generate(doubles, xChunk, 0, zChunk, xSize, 0, zSize, var8 * mult2, 0, var10 * mult2, 0.55D / mult1);
-			//generatorCollection[i].generateN(doubles, xChunk, zChunk, xSize, zSize, var8 * mult2, var10 * mult2, 0.55D / mult1);
+			generatorCollection[i].generate(doubles, xChunk, zChunk, xSize, zSize, var8 * mult2, var10 * mult2, 0.55D / mult1);
 			mult2 *= amplitude2;
 			mult1 *= multiplier;
 		}
 		return doubles;
 	}
 }
+

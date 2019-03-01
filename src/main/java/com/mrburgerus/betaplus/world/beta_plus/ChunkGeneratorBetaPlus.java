@@ -1,17 +1,13 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
-import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.BiomeReplaceUtil;
 import com.mrburgerus.betaplus.util.DeepenOceanUtil;
-import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulator;
 import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockFalling;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.PhantomSpawner;
@@ -25,14 +21,12 @@ import net.minecraft.world.gen.AbstractChunkGenerator;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.WorldGenRegion;
 import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.IFeatureConfig;
 import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.gen.feature.structure.SwampHutStructure;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Random;
 
 
@@ -47,8 +41,8 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 	private NoiseGeneratorOctavesBeta octaves1;
 	private NoiseGeneratorOctavesBeta octaves2;
 	private NoiseGeneratorOctavesBeta octaves3;
-	private NoiseGeneratorOctavesBeta beachBlockNoise; // Formerly octaves4, used for Gravel and Sand, so probably beaches.
-	private NoiseGeneratorOctavesBeta surfaceNoise; // Formerly octaves5
+	private NoiseGeneratorOctavesBeta beachBlockNoise; // Formerly scaleNoise, used for Gravel and Sand, so probably beaches.
+	private NoiseGeneratorOctavesBeta surfaceNoise; // Formerly octaves7
 	private NoiseGeneratorOctavesBeta scaleNoise; // Formerly octaves6, renamed using ChunkGeneratorOverworld
 	private NoiseGeneratorOctavesBeta octaves7;
 	//Noise Arrays
@@ -289,7 +283,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 			{
 				int xPos = iChunk.getPos().getXStart() + x;
 				int zPos = iChunk.getPos().getZStart() + z;
-				int yVal = BiomeReplaceUtil.getSolidHeightY(xPos, zPos, iChunk);
+				int yVal = BiomeReplaceUtil.getSolidHeightY(new BlockPos(xPos, 0, zPos), iChunk);
 				if (yVal > settings.getHighAltitude())
 				{
 					biomesForGeneration[(x << 4 | z)] = BiomeGenBetaPlus.mountain.handle;
@@ -319,7 +313,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 			{
 				int xPos = chunk.getPos().getXStart() + x;
 				int zPos = chunk.getPos().getZStart() + z;
-				int yVal = BiomeReplaceUtil.getSolidHeightY(xPos, zPos, chunk);
+				int yVal = BiomeReplaceUtil.getSolidHeightY(new BlockPos(xPos, 0, zPos), chunk);
 				// New Line
 				Biome biome = biomesForGeneration[(x << 4 | z)];
 				//Inject Beaches (MODIFIED)

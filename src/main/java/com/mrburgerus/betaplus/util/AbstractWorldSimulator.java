@@ -2,6 +2,7 @@ package com.mrburgerus.betaplus.util;
 
 import com.mojang.datafixers.util.Pair;
 import com.mrburgerus.betaplus.world.noise.AbstractOctavesGenerator;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 
@@ -20,8 +21,8 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 	protected AbstractOctavesGenerator octaves1;
 	protected AbstractOctavesGenerator octaves2;
 	protected AbstractOctavesGenerator octaves3;
-	protected AbstractOctavesGenerator octaves4;
-	protected AbstractOctavesGenerator octaves5;
+	protected AbstractOctavesGenerator scaleNoise;
+	protected AbstractOctavesGenerator octaves7;
 
 	// Arrays of Noise "density"
 	protected double[] octaveArr1;
@@ -51,12 +52,12 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 	}
 
 	/* Averages a Chunk's Y Coordinates, pretty useful */
-	protected Pair<Integer, Boolean> getSimulatedAvg(ChunkPos pos)
+	private Pair<Integer, Boolean> getSimulatedAvg(ChunkPos pos)
 	{
-		Pair<Integer[][], Boolean> chunkSimY = simulateChunkYFast(pos);
+		Pair<int[][], Boolean> chunkSimY = simulateChunkYFast(pos);
 		int sum = 0;
 		int numE = 0;
-		for (Integer[] chunkSimA : chunkSimY.getFirst())
+		for (int[] chunkSimA : chunkSimY.getFirst())
 		{
 			for (int chunkSimB : chunkSimA)
 			{
@@ -73,26 +74,36 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 	}
 
 	/* Simulate, then Average a 3x3 chunk area centered on the ChunkPos */
-	protected Pair<Integer, Boolean> getSimulatedAvg3x3(ChunkPos pos)
+	public Pair<Integer, Boolean> simulateYAvg(BlockPos blockPos)
 	{
-		int sum = 0;
-		int numE = 0;
-		// If any chunk has a value above sea level
-		boolean hasValueAbove = false;
-		for (int xChunk = pos.x - 1; xChunk <= pos.x + 1; ++xChunk)
+		ChunkPos pos = new ChunkPos(blockPos);
+		if (avgYCache.containsKey(pos))
 		{
-			for (int zChunk = pos.z -1; zChunk <= pos.z; ++zChunk)
-			{
-				Pair<Integer, Boolean> posPair = getSimulatedAvg(new ChunkPos(xChunk, zChunk));
-				sum += posPair.getFirst();
-				if (posPair.getSecond())
-				{
-					hasValueAbove = true;
-				}
-				numE++;
-			}
+			return yCache.get(pos);
 		}
-		return Pair.of(Math.floorDiv(sum, numE), hasValueAbove);
+		else
+		{
+			int sum = 0;
+			int numE = 0;
+			// If any chunk has a value above sea level
+			boolean hasValueAbove = false;
+			for (int xChunk = pos.x - 1; xChunk <= pos.x + 1; ++xChunk)
+			{
+				for (int zChunk = pos.z - 1; zChunk <= pos.z; ++zChunk)
+				{
+					Pair<Integer, Boolean> posPair = getSimulatedAvg(new ChunkPos(xChunk, zChunk));
+					sum += posPair.getFirst();
+					if (posPair.getSecond())
+					{
+						hasValueAbove = true;
+					}
+					numE++;
+				}
+			}
+			Pair<Integer, Boolean> ret = Pair.of(Math.floorDiv(sum, numE), hasValueAbove);
+			avgYCache.put(pos, ret);
+			return ret;
+		}
 	}
 
 	/* Generate the Noise Octaves for the Generator to Use */
@@ -103,5 +114,38 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 	protected abstract int simulateYZeroZeroChunk(ChunkPos pos);
 
 	/* Simulate Every 4 Blocks in a Chunk */
-	protected abstract Pair<Integer[][], Boolean> simulateChunkYFast(ChunkPos pos);
+	protected abstract Pair<int[][], Boolean> simulateChunkYFast(ChunkPos pos);
+
+	/* Simulates a single chunk's average */
+	public Pair<Integer, Boolean> simulateYChunk(BlockPos pos)
+	{
+		ChunkPos chunkPosForUse = new ChunkPos(pos);
+
+		if (yCache.containsKey(chunkPosForUse))
+		{
+			return yCache.get(chunkPosForUse);
+		}
+		else
+		{
+			Pair<Integer, Boolean> retPair = getSimulatedAvg(chunkPosForUse);
+			yCache.put(chunkPosForUse, retPair);
+			return retPair;
+		}
+	}
+
+	/* Returns whether ANY value in simulatedY is greater than sea level */
+	protected boolean landValExists(int[][] simulatedY)
+	{
+		for (int i = 0; i < simulatedY.length; i++)
+		{
+			for (int j = 0; j < simulatedY[i].length; j++)
+			{
+				if (simulatedY[i][j] > seaLevel)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }

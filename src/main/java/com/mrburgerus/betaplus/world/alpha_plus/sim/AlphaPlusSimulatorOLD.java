@@ -14,6 +14,7 @@ import java.util.Random;
 /* Seems to work, needs additional testing. */
 /* POTENTIAL ISSUE: 3x3 Averages Not Interacting well with Simple Chunk Averages */
 /* FOR REFERENCE ONLY, REFACTORING IN PROGRESS */
+@Deprecated
 public class AlphaPlusSimulatorOLD
 {
 	// Basic Fields
@@ -40,7 +41,7 @@ public class AlphaPlusSimulatorOLD
 	/* Explanation */
 	/* The ChunkPos is a Chunk Position */
 	/* The Pair is simply a Y Average for the ChunkPos and whether any values fall above sea level */
-	private static HashMap<ChunkPos, Pair<Integer, Boolean>> singleYCache;
+	private static HashMap<ChunkPos, Pair<Integer, Boolean>> yCache;
 
 	public AlphaPlusSimulatorOLD(World world)
 	{
@@ -54,7 +55,7 @@ public class AlphaPlusSimulatorOLD
 		this.octaves4 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 10);
 		this.octaves5 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 16);
 		// Moved down here to remove ANY possiblity of using an old cache across world loads.
-		singleYCache = new HashMap<>();
+		yCache = new HashMap<>();
 	}
 
 
@@ -62,14 +63,14 @@ public class AlphaPlusSimulatorOLD
 	{
 		ChunkPos chunkPosForUse = new ChunkPos(pos);
 
-		if (singleYCache.containsKey(chunkPosForUse))
+		if (yCache.containsKey(chunkPosForUse))
 		{
-			return singleYCache.get(chunkPosForUse);
+			return yCache.get(chunkPosForUse);
 		}
 		else
 		{
 			int ret = getSimulatedAvg(chunkPosForUse.x, chunkPosForUse.z);
-			singleYCache.put(chunkPosForUse, Pair.of(ret, false));
+			yCache.put(chunkPosForUse, Pair.of(ret, false));
 			return Pair.of(ret, false);
 		}
 	}
@@ -79,14 +80,14 @@ public class AlphaPlusSimulatorOLD
 	{
 		ChunkPos chunkPosForUse = new ChunkPos(pos);
 
-		if (singleYCache.containsKey(chunkPosForUse))
+		if (yCache.containsKey(chunkPosForUse))
 		{
-			return singleYCache.get(chunkPosForUse);
+			return yCache.get(chunkPosForUse);
 		}
 		else
 		{
 			int ret = getSimulatedAvg3x3(chunkPosForUse.x, chunkPosForUse.z);
-			singleYCache.put(chunkPosForUse, Pair.of(ret, false));
+			yCache.put(chunkPosForUse, Pair.of(ret, false));
 			return Pair.of(ret, false);
 		}
 	}
@@ -268,6 +269,7 @@ public class AlphaPlusSimulatorOLD
 	}
 
 	/* Probably REALLY slow */
+	// Transferred to simulateYAvg
 	private int getSimulatedAvg3x3(int middleChunkX, int middleChunkZ)
 	{
 		int sum = 0;

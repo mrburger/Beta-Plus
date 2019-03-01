@@ -1,14 +1,21 @@
 package com.mrburgerus.betaplus.world.noise;
 
-public abstract class AbstractOctavesGenerator implements IOctavesGenerator
-{
-	final int bound;
-	IPerlinGenerator[] generatorCollection;
+import java.util.Random;
 
-	/* Probably horrible Data Management, but I'm not a computer scientist! */
-	AbstractOctavesGenerator(int boundIn)
+/* ONLY FOR REFERENCE */
+@Deprecated
+public class NoiseGeneratorOctavesBetaOLD extends AbstractOctavesGenerator
+{
+	private NoiseGeneratorPerlinBeta[] generatorCollection;
+
+	public NoiseGeneratorOctavesBetaOLD(Random random, int bound)
 	{
-		this.bound = boundIn;
+		super(bound);
+		generatorCollection = new NoiseGeneratorPerlinBeta[bound];
+		for (int i = 0; i < bound; i++)
+		{
+			generatorCollection[i] = new NoiseGeneratorPerlinBeta(random);
+		}
 	}
 
 	public double[] generateNoiseOctaves(double[] values, double xVal, double yValZero, double zVal, int size1, int size2, int size3, double var11, double var13, double var15)
@@ -33,7 +40,6 @@ public abstract class AbstractOctavesGenerator implements IOctavesGenerator
 		return values;
 	}
 
-	/* Used by Beta Methods */
 	public double[] generateNoiseOctaves(double[] values, int var2, int var3, int var4, int var5, double var6, double var8, double var10)
 	{
 		return generateNoiseOctaves(values, var2, 10.0D, var3, var4, 1, var5, var6, 1.0D, var8);

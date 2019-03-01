@@ -4,6 +4,7 @@ import net.minecraft.world.gen.NoiseGenerator;
 
 import java.util.Random;
 
+@Deprecated
 public class NoiseGeneratorPerlinBetaOLD extends NoiseGenerator
 {
 	public double xCoord;
@@ -95,7 +96,10 @@ public class NoiseGeneratorPerlinBetaOLD extends NoiseGenerator
 		return ((var8 & 1) != 0 ? -d3 : d3) + ((var8 & 2) != 0 ? -d4 : d4);
 	}
 
-	public void generate(double[] values, double x, double z, double d2, int i, int j, int k, double d3, double d4, double d5, double d6)
+
+	// Most likely diff
+	//Renaming for reference
+	public void generate(double[] values, double x, double yP, double zP, int i, int j, int k, double d3, double d4, double d5, double d6)
 	{
 		if (j == 1)
 		{
@@ -114,7 +118,7 @@ public class NoiseGeneratorPerlinBetaOLD extends NoiseGenerator
 				double d17 = d14 * d14 * d14 * (d14 * (d14 * 6D - 15D) + 10D);
 				for (int l4 = 0; l4 < k; l4++)
 				{
-					double d19 = (d2 + (double) l4) * d5 + zCoord;
+					double d19 = (zP + (double) l4) * d5 + zCoord;
 					int j5 = (int) d19;
 					if (d19 < (double) j5)
 					{
@@ -157,7 +161,7 @@ public class NoiseGeneratorPerlinBetaOLD extends NoiseGenerator
 			double d22 = d20 * d20 * d20 * (d20 * (d20 * 6D - 15D) + 10D);
 			for (int j6 = 0; j6 < k; j6++)
 			{
-				double d24 = (d2 + (double) j6) * d5 + zCoord;
+				double d24 = (zP + (double) j6) * d5 + zCoord;
 				int k6 = (int) d24;
 				if (d24 < (double) k6)
 				{
@@ -168,7 +172,7 @@ public class NoiseGeneratorPerlinBetaOLD extends NoiseGenerator
 				double d25 = d24 * d24 * d24 * (d24 * (d24 * 6D - 15D) + 10D);
 				for (int i7 = 0; i7 < j; i7++)
 				{
-					double d26 = (z + (double) i7) * d4 + yCoord;
+					double d26 = (yP + (double) i7) * d4 + yCoord;
 					int j7 = (int) d26;
 					if (d26 < (double) j7)
 					{

@@ -2,20 +2,51 @@ package com.mrburgerus.betaplus.world.noise;
 
 import java.util.Random;
 
-public class NoiseGeneratorPerlinBiome extends AbstractPerlinGenerator
+/* ONLY FOR REFERENCE */
+@Deprecated
+public class NoiseGeneratorPerlinBiomeOLD
 {
-	// Fields
 	private static final double DOUBLE_ROOT3_2 = 0.5D * (Math.sqrt(3.0D) - 1.0D);
 	private static final double DOUBLE_ROOT3_6 = (3.0D - Math.sqrt(3.0D)) / 6.0D;
 	private static int[][] intPlot = {{1, 1, 0}, {-1, 1, 0}, {1, -1, 0}, {-1, -1, 0}, {1, 0, 1}, {-1, 0, 1}, {1, 0, -1}, {-1, 0, -1}, {0, 1, 1}, {0, -1, 1}, {0, 1, -1}, {0, -1, -1}};
+	public double xCoord;
+	public double yCoord;
+	public double zCoord;
+	private int[] permutations;
 
-	NoiseGeneratorPerlinBiome(Random random)
+	public NoiseGeneratorPerlinBiomeOLD(Random random)
 	{
-		super(random);
+		permutations = new int[512];
+		xCoord = (random.nextDouble() * 256.0D);
+		yCoord = (random.nextDouble() * 256.0D);
+		zCoord = (random.nextDouble() * 256.0D);
+		for (int i = 0; i < 256; permutations[i] = (i++))
+		{
+		}
+		for (int i = 0; i < 256; i++)
+		{
+			int nextRand = random.nextInt(256 - i) + i;
+			int selected = permutations[i];
+			permutations[i] = permutations[nextRand];
+			permutations[nextRand] = selected;
+			permutations[(i + 256)] = permutations[i];
+		}
 	}
 
-	@Override
-	public void generate(double[] values, double x, double y, double z, int i, int j, int k, double xNoise, double yNoise, double zNoise, double multiplier)
+	private static int wrap(double doubleIn)
+	{
+		return doubleIn > 0.0D ? (int) doubleIn : (int) doubleIn - 1;
+	}
+
+	private static double sumFirstTwoMult(int[] ints, double mult1, double mult2)
+	{
+		return ints[0] * mult1 + ints[1] * mult2;
+	}
+
+	/*
+	public void generate(double[] values, double
+	 */
+	public void generate(double[] values, double x, double z, int i, int k, double xNoise, double zNoise, double multiplier)
 	{
 		int zeroVal = 0;
 		for (int c1 = 0; c1 < i; c1++)
@@ -90,20 +121,5 @@ public class NoiseGeneratorPerlinBiome extends AbstractPerlinGenerator
 				values[pos1] += 70.0D * (var21 + var23 + var25) * multiplier;
 			}
 		}
-	}
-
-	private static int wrap(double doubleIn)
-	{
-		return doubleIn > 0.0D ? (int) doubleIn : (int) doubleIn - 1;
-	}
-
-	private static double sumFirstTwoMult(int[] ints, double mult1, double mult2)
-	{
-		return ints[0] * mult1 + ints[1] * mult2;
-	}
-
-	public void generateN(double[] values, double x, double z, int i, int k, double xMult, double zMult, double multiplier)
-	{
-		this.generate(values, x, 0, z, i, 0, k, xMult, 0, zMult, multiplier);
 	}
 }

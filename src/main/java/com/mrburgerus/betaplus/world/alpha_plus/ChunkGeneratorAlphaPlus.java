@@ -506,4 +506,14 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 			}
 		}
 	}
+
+	//Added
+
+	@Override
+	public boolean hasStructure(Biome biomeIn, Structure structureIn)
+	{
+		if (biomeIn == null)
+			BetaPlus.LOGGER.info("NULL BIOME!");
+		return false;
+	}
 }

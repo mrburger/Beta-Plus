@@ -2,6 +2,8 @@ package com.mrburgerus.betaplus.world.alpha_plus;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.mojang.datafixers.util.Pair;
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.ResourceHelper;
 import com.mrburgerus.betaplus.world.alpha_plus.sim.AlphaPlusSimulator;
 import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaFrozenLand;
@@ -76,16 +78,22 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 			{
 				BlockPos pos = new BlockPos(startX + x, 0, startZ + z);
 				// If we are using the 3x3 Average
-				if (useAverage && simulator.simulateYAvg(pos) < 52)
+				if (useAverage)
 				{
-					biomeArr[counter] = this.oceanBiome;
-				}
-				else if (!useAverage && simulator.simulateYChunk(pos) < 54) //Typically for Shipwrecks, Ruins, and Chests
-				{
-					biomeArr[counter] = this.oceanBiome;
+					Pair<Integer, Boolean> avg = simulator.simulateYAvg(pos);
+					if (avg.getFirst() < 56 && !avg.getSecond())
+					{
+						BetaPlus.LOGGER.info("Ocean At: " + pos);
+						biomeArr[counter] = this.oceanBiome;
+					}
 				}
 				else
 				{
+					Pair<Integer, Boolean> avg = simulator.simulateYAvg(pos);
+					if (avg.getFirst() < 56 && !avg.getSecond())  //Typically for Shipwrecks, Ruins, and Chests
+					{
+						biomeArr[counter] = this.oceanBiome;
+					}
 					biomeArr[counter] = this.landBiome;
 				}
 				counter++;

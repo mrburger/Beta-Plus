@@ -19,16 +19,18 @@ abstract class AbstractPerlinGenerator implements IPerlinGenerator
 		this.zCoord = random.nextDouble() * 256.0D;
 
 		// Carried Across Alpha and Beta, by the look of it
-		for (int i = 0; i < 256; this.permutations[i] = i++)
+		for (int i = 0; i < 256; i++)
 		{
-			// Do Nothing here
+			permutations[i] = i;
 		}
-		for (int j = 0; j < 256; ++j) {
+
+		for (int j = 0; j < 256; j++)
+		{
 			int k = random.nextInt(256 - j) + j;
-			int l = this.permutations[j];
-			this.permutations[j] = this.permutations[k];
-			this.permutations[k] = l;
-			this.permutations[j + 256] = this.permutations[j];
+			int l = permutations[j];
+			permutations[j] = permutations[k];
+			permutations[k] = l;
+			permutations[j + 256] = permutations[j];
 		}
 	}
 

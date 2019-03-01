@@ -14,6 +14,7 @@ import net.minecraft.world.chunk.IChunk;
 import java.util.HashMap;
 import java.util.Random;
 
+@Deprecated
 public class BetaPlusSimulatorOLD
 {
 	// Basic Fields
@@ -26,8 +27,8 @@ public class BetaPlusSimulatorOLD
 	private NoiseGeneratorOctavesBeta octaves1;
 	private NoiseGeneratorOctavesBeta octaves2;
 	private NoiseGeneratorOctavesBeta octaves3;
-	private NoiseGeneratorOctavesBeta beachBlockNoise; // Formerly octaves4, used for Gravel and Sand, so probably beaches.
-	private NoiseGeneratorOctavesBeta surfaceNoise; // Formerly octaves5
+	private NoiseGeneratorOctavesBeta beachBlockNoise; // Formerly scaleNoise, used for Gravel and Sand, so probably beaches.
+	private NoiseGeneratorOctavesBeta surfaceNoise; // Formerly octaves7
 	private NoiseGeneratorOctavesBeta scaleNoise; // Formerly octaves6, renamed using ChunkGeneratorOverworld
 	private NoiseGeneratorOctavesBeta octaves7;
 	//Noise Arrays

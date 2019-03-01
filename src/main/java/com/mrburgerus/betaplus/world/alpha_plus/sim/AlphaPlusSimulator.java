@@ -10,7 +10,7 @@ import net.minecraft.world.World;
 public class AlphaPlusSimulator extends AbstractWorldSimulator
 {
 
-	protected AlphaPlusSimulator(World world)
+	public AlphaPlusSimulator(World world)
 	{
 		super(world);
 		this.octaves1 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
@@ -20,8 +20,8 @@ public class AlphaPlusSimulator extends AbstractWorldSimulator
 		// Could be used later to implement the "Only Spawn on Sand" feature.
 		new NoiseGeneratorOctavesAlpha(this.rand, 4);
 		new NoiseGeneratorOctavesAlpha(this.rand, 4);
-		this.octaves4 = new NoiseGeneratorOctavesAlpha(this.rand, 10);
-		this.octaves5 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
+		this.scaleNoise = new NoiseGeneratorOctavesAlpha(this.rand, 10);
+		this.octaves7 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
 	}
 
 	@Override
@@ -34,8 +34,8 @@ public class AlphaPlusSimulator extends AbstractWorldSimulator
 		double scaleX = 684.412D;
 		double scaleZ = 684.412D;
 		this.octaveArr4 =
-				this.octaves4.generateNoiseOctaves(this.octaveArr4, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, 1, size3, 1.0D, 0.0D, 1.0D);
-		this.octaveArr5 = this.octaves5
+				this.scaleNoise.generateNoiseOctaves(this.octaveArr4, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, 1, size3, 1.0D, 0.0D, 1.0D);
+		this.octaveArr5 = this.octaves7
 				.generateNoiseOctaves(this.octaveArr5, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, 1, size3, 100.0D, 0.0D, 100.0D);
 		this.octaveArr3 = this.octaves3
 				.generateNoiseOctaves(this.octaveArr3, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, size2, size3, scaleX / 80.0D, scaleZ / 160.0D,
@@ -129,6 +129,7 @@ public class AlphaPlusSimulator extends AbstractWorldSimulator
 		return values;
 	}
 
+	/* Unused */
 	@Override
 	protected int simulateYZeroZeroChunk(ChunkPos pos)
 	{
@@ -136,20 +137,46 @@ public class AlphaPlusSimulator extends AbstractWorldSimulator
 	}
 
 	@Override
-	protected Pair<Integer[][], Boolean> simulateChunkYFast(ChunkPos pos)
+	protected Pair<int[][], Boolean> simulateChunkYFast(ChunkPos pos)
 	{
-		return null;
-	}
+		int[][] output = new int[4][4];
 
-	@Override
-	public Pair<Integer, Boolean> simulateYChunk(BlockPos pos)
-	{
-		return null;
-	}
+		// 1+1 converted to var4+1, like original
+		byte var4 = 4;
+		int var6 = var4 + 1;
+		byte yHeight = 17;
+		int var8 = var4 + 1;
+		this.heightNoise = this.generateOctaves(this.heightNoise, pos.x * var4, 0, pos.z * var4, var6, yHeight, var8);
 
-	@Override
-	public Pair<Integer, Boolean> simulateYAvg(BlockPos pos)
-	{
-		return null;
+		/* These go to every 4 blocks only */
+		for (int cX = 0; cX < var4; ++cX)
+		{
+			for (int cZ = 0; cZ < var4; ++cZ)
+			{
+				for (int cY = 0; cY < 16; ++cY)
+				{
+					// Assign these values like world gen.
+					double noise1 = this.heightNoise[(((cX * var8) + cZ) * yHeight) + cY];
+					double eightNoise1 = (this.heightNoise[(cX * var8 + cZ) * yHeight + cY + 1] - noise1) * 0.125D;
+
+					// Iterate through Y
+					for (int y2 = 0; y2 < 8; ++y2)
+					{
+						// Since we only care about the Pos at Prime values, we can simplify.
+						double stonePosPrime = noise1;
+						int yP = cY * 8 + y2;
+
+						// Should hopefully emulate. (I think it does!)
+						if(stonePosPrime > 0.0D)
+						{
+							output[cX][cZ] = yP;
+						}
+
+						noise1 += eightNoise1;
+					}
+				}
+			}
+		}
+		return Pair.of(output, landValExists(output));
 	}
 }

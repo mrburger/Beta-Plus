@@ -2,12 +2,14 @@ package com.mrburgerus.betaplus.world.beta_plus;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.mojang.datafixers.util.Pair;
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulator;
 import com.mrburgerus.betaplus.world.biome.BetaPlusSelectBiome;
 import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBiome;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.util.math.BlockPos;
@@ -56,7 +58,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	private long seedLong;
 
 	// The simulator for Y-heights.
-	//private BetaPlusSimulator simulator;
+	private BetaPlusSimulator simulator;
 
 	public BiomeProviderBetaPlus(World world, BetaPlusGenSettings settingsIn)
 	{
@@ -75,7 +77,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 
 		seedLong = world.getSeed();
 
-		//simulator = new BetaPlusSimulator(world);
+		simulator = new BetaPlusSimulator(world);
 	}
 
 	/* Builds Possible Biome List */
@@ -156,9 +158,10 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 			humidities[counter] = humidityVal;
 			biomeArr[counter] = BiomeGenBetaPlus.getBiomeFromLookup(temperatureVal, humidityVal);
 			// Previous: 55, 58
-			if (useAverage) // Deep Ocean Value
+			if (useAverage)
 			{
-				if (simulator.simulateYAvg(new BlockPos(xP, 0, zP)) < 56)
+				Pair<Integer, Boolean> avg = simulator.simulateYAvg(new BlockPos(xP, 0, zP));
+				if (avg.getFirst() < 56 && !avg.getSecond())
 				{
 					BetaPlus.LOGGER.debug("Found Deep Ocean" + new BlockPos(xP, 0, zP));
 					// useAverage is only set to true if searching for a deep ocean, so we can use it.
@@ -167,7 +170,8 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 			}
 			else
 			{
-				if (simulator.simulateYChunk(new BlockPos(xP, 0, zP)) < 57)
+				Pair<Integer, Boolean> avg = simulator.simulateYChunk(new BlockPos(xP, 0, zP));
+				if (avg.getFirst() < 57 && !avg.getSecond())
 				{
 					biomeArr[counter] = Biomes.OCEAN; //this.getOceanBiome(new BlockPos(xP, 0, zP), false);
 				}
@@ -209,25 +213,22 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				temperatures[counter] = temperatureVal;
 				humidities[counter] = humidityVal;
 				biomeArr[counter] = BiomeGenBetaPlus.getBiomeFromLookup(temperatureVal, humidityVal);
-				// Added to INJECT OCEANS
-				/* useAverage CODE IS SOMEWHAT BROKEN */
 				if (useAverage)
 				{
-					int yV = simulator.simulateYAvg(pos);
-					//BetaPlus.LOGGER.info("Average: " + yV);
-					if(yV < settings.getSeaLevel() - 4)
+					Pair<Integer, Boolean> avg = simulator.simulateYAvg(pos);
+					if (avg.getFirst() < 56 && !avg.getSecond())
 					{
-						//BetaPlus.LOGGER.info("Deep Ocean Injected at: " + new ChunkPos(pos));
-						/* DO NOT USE Biomes.OCEAN, it isn't on the enum list! (Which causes a crash) */
-						biomeArr[counter] = this.getOceanBiome(pos, true);
+						BetaPlus.LOGGER.debug("Found Deep Ocean" + pos);
+						// useAverage is only set to true if searching for a deep ocean, so we can use it.
+						biomeArr[counter] = Biomes.DEEP_OCEAN; //this.getOceanBiome(new BlockPos(xP, 0, zP), true);
 					}
 				}
 				else
 				{
-					if (simulator.simulateYChunk(pos) < settings.getSeaLevel() - 2)
+					Pair<Integer, Boolean> avg = simulator.simulateYChunk(pos);
+					if (avg.getFirst() < 57 && !avg.getSecond())
 					{
-						//BetaPlus.LOGGER.info("Any ocean found for pos: " + new ChunkPos(pos));
-						biomeArr[counter] = this.getOceanBiome(pos, false);
+						biomeArr[counter] = Biomes.OCEAN; //this.getOceanBiome(new BlockPos(xP, 0, zP), false);
 					}
 				}
 				counter++;
