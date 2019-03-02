@@ -25,8 +25,8 @@ public class AlphaPlusSimulatorOLD
 	private NoiseGeneratorOctavesAlphaOLD octaves1;
 	private NoiseGeneratorOctavesAlphaOLD octaves2;
 	private NoiseGeneratorOctavesAlphaOLD octaves3;
-	private NoiseGeneratorOctavesAlphaOLD octaves4;
-	private NoiseGeneratorOctavesAlphaOLD octaves5;
+	private NoiseGeneratorOctavesAlphaOLD octaves6;
+	private NoiseGeneratorOctavesAlphaOLD octaves7;
 
 	// Noise Arrays
 	private double[] heightNoise;
@@ -52,8 +52,8 @@ public class AlphaPlusSimulatorOLD
 		this.octaves3 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 8);
 		new NoiseGeneratorOctavesAlphaOLD(this.rand, 4);
 		new NoiseGeneratorOctavesAlphaOLD(this.rand, 4);
-		this.octaves4 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 10);
-		this.octaves5 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 16);
+		this.octaves6 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 10);
+		this.octaves7 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 16);
 		// Moved down here to remove ANY possiblity of using an old cache across world loads.
 		yCache = new HashMap<>();
 	}
@@ -296,8 +296,8 @@ public class AlphaPlusSimulatorOLD
 		double scaleX = 684.412D;
 		double scaleZ = 684.412D;
 		this.octave4Arr =
-				this.octaves4.generateNoiseOctaves(this.octave4Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, 1, size3, 1.0D, 0.0D, 1.0D);
-		this.octave5Arr = this.octaves5
+				this.octaves6.generateNoiseOctaves(this.octave4Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, 1, size3, 1.0D, 0.0D, 1.0D);
+		this.octave5Arr = this.octaves7
 				.generateNoiseOctaves(this.octave5Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, 1, size3, 100.0D, 0.0D, 100.0D);
 		this.octave3Arr = this.octaves3
 				.generateNoiseOctaves(this.octave3Arr, (double) xChunkMult, (double) yValueZero, (double) zChunkMult, size1, size2, size3, scaleX / 80.0D, scaleZ / 160.0D,

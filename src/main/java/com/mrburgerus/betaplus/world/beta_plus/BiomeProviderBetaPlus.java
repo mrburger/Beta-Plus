@@ -163,7 +163,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				Pair<Integer, Boolean> avg = simulator.simulateYAvg(new BlockPos(xP, 0, zP));
 				if (avg.getFirst() < 56 && !avg.getSecond())
 				{
-					BetaPlus.LOGGER.debug("Found Deep Ocean" + new BlockPos(xP, 0, zP));
+					BetaPlus.LOGGER.debug("Found Deep Ocean: " + new BlockPos(xP, 0, zP));
 					// useAverage is only set to true if searching for a deep ocean, so we can use it.
 					biomeArr[counter] = Biomes.DEEP_OCEAN; //this.getOceanBiome(new BlockPos(xP, 0, zP), true);
 				}
@@ -216,7 +216,8 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				if (useAverage)
 				{
 					Pair<Integer, Boolean> avg = simulator.simulateYAvg(pos);
-					if (avg.getFirst() < 56 && !avg.getSecond())
+					// Tried 56, 58
+					if (avg.getFirst() < 58 && !avg.getSecond())
 					{
 						BetaPlus.LOGGER.debug("Found Deep Ocean" + pos);
 						// useAverage is only set to true if searching for a deep ocean, so we can use it.

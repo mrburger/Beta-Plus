@@ -11,6 +11,7 @@ import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaFrozenOcean;
 import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaLand;
 import com.mrburgerus.betaplus.world.biome.alpha.BiomeAlphaOcean;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Biomes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -72,29 +73,46 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	{
 		Biome[] biomeArr = new Biome[xSize * zSize];
 		int counter = 0;
-		for (int z = 0; z < zSize; ++z)
+		// Swapped X and Z, to match beta (HAD NO EFFECT!)
+		for (int z = 0; z < xSize; ++z)
 		{
 			for (int x = 0; x < xSize; ++x)
 			{
 				BlockPos pos = new BlockPos(startX + x, 0, startZ + z);
+				//Assign this first
+				biomeArr[counter] = this.landBiome;
 				// If we are using the 3x3 Average
 				if (useAverage)
 				{
+					// Replaced SimulateYAvg with chunk
 					Pair<Integer, Boolean> avg = simulator.simulateYAvg(pos);
-					if (avg.getFirst() < 56 && !avg.getSecond())
+					// This is super restrictive because it requires a WIDE spawn space
+					if (avg.getFirst() < 57)
 					{
-						BetaPlus.LOGGER.info("Ocean At: " + pos);
-						biomeArr[counter] = this.oceanBiome;
+						// Try inverting, or leaving the same.
+						// Whe without inversion: Ocean Monuments generate on land
+						if (!avg.getSecond())
+						{
+							BetaPlus.LOGGER.info("Deep Ocean At: " + pos);
+							biomeArr[counter] = this.oceanBiome;
+						}
+						else
+						{
+							BetaPlus.LOGGER.info("NOT DEEP OCEAN");
+						}
+
+						// CAUSES OCEAN MONUMENT ERRORS
+						//biomeArr[counter] = this.landBiome;
 					}
 				}
 				else
 				{
-					Pair<Integer, Boolean> avg = simulator.simulateYAvg(pos);
-					if (avg.getFirst() < 56 && !avg.getSecond())  //Typically for Shipwrecks, Ruins, and Chests
+					Pair<Integer, Boolean> avg = simulator.simulateYChunk(pos);
+					if (avg.getFirst() < 56) //&& !avg.getSecond())  //Typically for Shipwrecks, Ruins, and Chests
 					{
+						//BetaPlus.LOGGER.info("Ocean At: " + pos);
 						biomeArr[counter] = this.oceanBiome;
 					}
-					biomeArr[counter] = this.landBiome;
 				}
 				counter++;
 			}
@@ -159,6 +177,7 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	@Override
 	public Set<Biome> getBiomesInSquare(int centerX, int centerZ, int sideLength)
 	{
+		BetaPlus.LOGGER.info("Getting Square Biomes");
 		int i = centerX - sideLength >> 2;
 		int j = centerZ - sideLength >> 2;
 		int k = centerX + sideLength >> 2;

@@ -3,7 +3,7 @@ package com.mrburgerus.betaplus.world.alpha_plus;
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.BiomeReplaceUtil;
 import com.mrburgerus.betaplus.util.DeepenOceanUtil;
-import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlphaOLD;
+import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlpha;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.entity.EnumCreatureType;
@@ -29,13 +29,13 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 {
 	// Fields
 	private Random rand;
-	private NoiseGeneratorOctavesAlphaOLD octaves1;
-	private NoiseGeneratorOctavesAlphaOLD octaves2;
-	private NoiseGeneratorOctavesAlphaOLD octaves3;
-	private NoiseGeneratorOctavesAlphaOLD beachBlockNoise;
-	private NoiseGeneratorOctavesAlphaOLD surfaceNoise;
-	public NoiseGeneratorOctavesAlphaOLD octaves4;
-	public NoiseGeneratorOctavesAlphaOLD octaves5;
+	private NoiseGeneratorOctavesAlpha octaves1;
+	private NoiseGeneratorOctavesAlpha octaves2;
+	private NoiseGeneratorOctavesAlpha octaves3;
+	private NoiseGeneratorOctavesAlpha beachBlockNoise;
+	private NoiseGeneratorOctavesAlpha surfaceNoise;
+	public NoiseGeneratorOctavesAlpha octaves4;
+	public NoiseGeneratorOctavesAlpha octaves5;
 	private double[] heightNoise;
 	double[] octave3Arr;
 	double[] octave1Arr;
@@ -56,13 +56,13 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		super(world, biomeProvider);
 		this.rand = new Random(seed);
 		/* Declaration Order Matters */
-		this.octaves1 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 16);
-		this.octaves2 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 16);
-		this.octaves3 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 8);
-		this.beachBlockNoise = new NoiseGeneratorOctavesAlphaOLD(this.rand, 4);
-		this.surfaceNoise = new NoiseGeneratorOctavesAlphaOLD(this.rand, 4);
-		this.octaves4 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 10);
-		this.octaves5 = new NoiseGeneratorOctavesAlphaOLD(this.rand, 16);
+		this.octaves1 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
+		this.octaves2 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
+		this.octaves3 = new NoiseGeneratorOctavesAlpha(this.rand, 8);
+		this.beachBlockNoise = new NoiseGeneratorOctavesAlpha(this.rand, 4);
+		this.surfaceNoise = new NoiseGeneratorOctavesAlpha(this.rand, 4);
+		this.octaves4 = new NoiseGeneratorOctavesAlpha(this.rand, 10);
+		this.octaves5 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
 		settings = settingsIn;
 		biomeProviderS = biomeProvider;
 	}
@@ -74,7 +74,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		int zPos =  iChunk.getPos().z;
 		biomesForGeneration = this.biomeProviderS.getBiomeBlock(xPos * 16, zPos * 16, 16, 16);
 		setBlocksInChunk(iChunk);
-		DeepenOceanUtil.deepenOcean(iChunk, new Random(seed), settings.getSeaLevel(), 7);
+		DeepenOceanUtil.deepenOcean(iChunk, new Random(seed), settings.getSeaLevel(), 7, 3.1);
 		this.replaceBiomes(iChunk);
 		this.replaceBeaches(iChunk);
 
@@ -460,7 +460,7 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 				int xPos = iChunk.getPos().getXStart() + x;
 				int zPos = iChunk.getPos().getZStart() + z;
 				int yVal = BiomeReplaceUtil.getSolidHeightY(new BlockPos(xPos, 0, zPos), iChunk);
-				if (yVal < 64 - 1)
+				if (yVal < settings.getSeaLevel() - 1)
 				{
 					if(settings.getSnowy())
 					{
@@ -507,13 +507,18 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 		}
 	}
 
-	//Added
 
+	/*
+	// DEBUG ONLY
 	@Override
 	public boolean hasStructure(Biome biomeIn, Structure structureIn)
 	{
 		if (biomeIn == null)
-			BetaPlus.LOGGER.info("NULL BIOME!");
-		return false;
+		{
+			BetaPlus.LOGGER.info("NULL BIOME INPUT: " + structureIn);
+			return false;
+		}
+		return biomeIn.hasStructure(structureIn);
 	}
+	*/
 }

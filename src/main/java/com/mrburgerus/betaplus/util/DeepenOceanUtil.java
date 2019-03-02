@@ -8,7 +8,7 @@ import java.util.Random;
 
 public class DeepenOceanUtil
 {
-	public static void deepenOcean(IChunk chunk, Random random, int seaLevel, int smoothSize)
+	public static void deepenOcean(IChunk chunk, Random random, int seaLevel, int smoothSize, double scaleFactor)
 	{
 		// Get X and Z start
 		int xStart = chunk.getPos().getXStart();
@@ -31,7 +31,8 @@ public class DeepenOceanUtil
 			for (int zV = 0; zV < depthValues[xV].length; ++zV)
 			{
 				// Should eventually have some call to the Seed, like rand.nextDouble()
-				depthValues[xV][zV] = depthValues[xV][zV] * (2.85 + (random.nextDouble() * 0.125));
+				// Changed to 2.95 from 2.85
+				depthValues[xV][zV] = depthValues[xV][zV] * (scaleFactor + (random.nextDouble() * 0.125));
 			}
 		}
 		// Gaussian BLUR

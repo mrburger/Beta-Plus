@@ -27,7 +27,8 @@ public class AlphaPlusSimulator extends AbstractWorldSimulator
 	@Override
 	protected double[] generateOctaves(double[] values, int xChunkMult, int yValueZero, int zChunkMult, int size1, int size2, int size3)
 	{
-		if (values == null) {
+		if (values == null)
+		{
 			values = new double[size1 * size2 * size3];
 		}
 

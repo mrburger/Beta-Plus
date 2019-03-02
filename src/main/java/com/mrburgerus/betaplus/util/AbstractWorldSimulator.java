@@ -1,6 +1,7 @@
 package com.mrburgerus.betaplus.util;
 
 import com.mojang.datafixers.util.Pair;
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.world.noise.AbstractOctavesGenerator;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -16,7 +17,7 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 	private final long seed;
 	/* Random Generator, based on seed. (Used concurrently to the original, it will generate the SAME results */
 	protected final Random rand;
-	protected final int seaLevel;
+	//protected final int seaLevel;
 	// Noise Generators
 	protected AbstractOctavesGenerator octaves1;
 	protected AbstractOctavesGenerator octaves2;
@@ -44,7 +45,7 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 	{
 		seed = world.getSeed();
 		rand = new Random(seed);
-		seaLevel = world.getSeaLevel();
+		//seaLevel = world.getSeaLevel();
 
 		// Initialize Caches
 		yCache = new HashMap<>();
@@ -79,7 +80,9 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 		ChunkPos pos = new ChunkPos(blockPos);
 		if (avgYCache.containsKey(pos))
 		{
-			return yCache.get(pos);
+			// Fixed!
+			//BetaPlus.LOGGER.info("Getting Cached Value");
+			return avgYCache.get(pos);
 		}
 		else
 		{
@@ -95,12 +98,14 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 					sum += posPair.getFirst();
 					if (posPair.getSecond())
 					{
+						//BetaPlus.LOGGER.info("Has Value Above! " + new ChunkPos(xChunk, zChunk));
 						hasValueAbove = true;
 					}
 					numE++;
 				}
 			}
-			Pair<Integer, Boolean> ret = Pair.of(Math.floorDiv(sum, numE), hasValueAbove);
+			// If it has a value above, notify.
+			Pair<Integer, Boolean> ret = Pair.of(Math.floorDiv(sum, numE), true);
 			avgYCache.put(pos, ret);
 			return ret;
 		}
@@ -136,16 +141,17 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 	/* Returns whether ANY value in simulatedY is greater than sea level */
 	protected boolean landValExists(int[][] simulatedY)
 	{
-		for (int i = 0; i < simulatedY.length; i++)
+		for (int[] simulated : simulatedY)
 		{
-			for (int j = 0; j < simulatedY[i].length; j++)
+			for (int val : simulated)
 			{
-				if (simulatedY[i][j] > seaLevel)
+				if (val > 61) //Modified
 				{
 					return true;
 				}
 			}
 		}
+		//BetaPlus.LOGGER.info("Simulated contains no values above sea level");
 		return false;
 	}
 }

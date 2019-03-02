@@ -105,7 +105,7 @@ public class AbstractAlphaBiome extends Biome
 		this.addStructure(Feature.SHIPWRECK, new ShipwreckConfig(false));
 		// Ruins
 		this.addStructure(Feature.OCEAN_RUIN, new OceanRuinConfig(OceanRuinStructure.Type.COLD, 0.3F, 0.9F));
-		// Add Ocean Monuments (Works?)
+		// Add Ocean Monuments (Works?) FEATURE DISABLED WHILE I CHECK
 		this.addStructure(Feature.OCEAN_MONUMENT, new OceanMonumentConfig());
 
 		// Underwater Ravine

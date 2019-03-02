@@ -104,6 +104,6 @@ public class NoiseGeneratorPerlinBiome extends AbstractPerlinGenerator
 
 	public void generateN(double[] values, double x, double z, int i, int k, double xMult, double zMult, double multiplier)
 	{
-		this.generate(values, x, 0, z, i, 0, k, xMult, 0, zMult, multiplier);
+		//this.generate(values, x, 0, z, i, 0, k, xMult, 0, zMult, multiplier);
 	}
 }

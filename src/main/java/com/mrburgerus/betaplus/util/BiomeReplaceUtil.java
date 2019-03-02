@@ -25,7 +25,8 @@ public class BiomeReplaceUtil
 	{
 		for (int y = 130; y >= 0; --y)
 		{
-			Block block = chunk.getBlockState(pos).getBlock();
+			//DUH
+			Block block = chunk.getBlockState(new BlockPos(pos.getX(), y, pos.getZ())).getBlock();
 			if (block != Blocks.AIR && block != Blocks.WATER)
 			{
 				return y;
