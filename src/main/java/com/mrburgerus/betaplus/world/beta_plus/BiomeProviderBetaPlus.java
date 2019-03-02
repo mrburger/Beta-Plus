@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulator;
+import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulatorOLD;
 import com.mrburgerus.betaplus.world.biome.BetaPlusSelectBiome;
 import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
@@ -13,6 +14,7 @@ import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GrassColors;
 import net.minecraft.world.World;
@@ -123,66 +125,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		return biomeArr;
 	}
 
-	/* Adds OCEANS to the mix to the Biome Provider. */
-	/* ONLY CALL WHEN NECESSARY, has to simulate the Y-heights of the world */
-	/* STILL TESTING, USE WITH CAUTION */
-	/* ERROR: DO NOT CALL THE BLOCKPOS SIMULATOR A BUNCH */
-	private Biome[] generateBiomesWithOceans(int startX, int startZ, int xSize, int zSize, boolean useAverage, Object b)
-	{
-		int xP = startX;
-		int zP = startZ;
-		Biome[] biomeArr = new Biome[xSize * zSize];
-		temperatures = temperatureOctave.generateOctaves(temperatures, (double) startX, (double) startZ, xSize, xSize, scaleVal, scaleVal, 0.25);
-		humidities = humidityOctave.generateOctaves(humidities, (double) startX, (double) startZ, xSize, xSize, scaleVal * mult, scaleVal * mult, 0.3333333333333333);
-		noise = noiseOctave.generateOctaves(noise, (double) startX, (double) startZ, xSize, xSize, 0.25, 0.25, 0.5882352941176471);
-		for (int counter = 0; counter < biomeArr.length; counter++)
-		{
-			xP = startX + counter % xSize;
-			zP = startZ + Math.floorDiv(counter, zSize);
-			int pos = (xP - startX) + ((zP - startZ) * zSize);
-			if (pos != counter)
-			{
-				BetaPlus.LOGGER.warn("Not equal: " + pos + " : " + counter);
-			}
-			double var9 = noise[counter] * 1.1 + 0.5;
-			double oneHundredth = 0.01;
-			double point99 = 1.0 - oneHundredth;
-			double temperatureVal = (temperatures[counter] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
-			oneHundredth = 0.002;
-			point99 = 1.0 - oneHundredth;
-			double humidityVal = (humidities[counter] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
-			temperatureVal = 1.0 - (1.0 - temperatureVal) * (1.0 - temperatureVal);
-			temperatureVal = MathHelper.clamp(temperatureVal, 0.0, 1.0);
-			humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
-			temperatures[counter] = temperatureVal;
-			humidities[counter] = humidityVal;
-			biomeArr[counter] = BiomeGenBetaPlus.getBiomeFromLookup(temperatureVal, humidityVal);
-			// Previous: 55, 58
-			if (useAverage)
-			{
-				Pair<Integer, Boolean> avg = simulator.simulateYAvg(new BlockPos(xP, 0, zP));
-				if (avg.getFirst() < 56 && !avg.getSecond())
-				{
-					BetaPlus.LOGGER.debug("Found Deep Ocean: " + new BlockPos(xP, 0, zP));
-					// useAverage is only set to true if searching for a deep ocean, so we can use it.
-					biomeArr[counter] = Biomes.DEEP_OCEAN; //this.getOceanBiome(new BlockPos(xP, 0, zP), true);
-				}
-			}
-			else
-			{
-				Pair<Integer, Boolean> avg = simulator.simulateYChunk(new BlockPos(xP, 0, zP));
-				if (avg.getFirst() < 57 && !avg.getSecond())
-				{
-					biomeArr[counter] = Biomes.OCEAN; //this.getOceanBiome(new BlockPos(xP, 0, zP), false);
-				}
-			}
-			counter++;
-		}
-
-
-		return biomeArr;
-	}
-
+	/* Could be possible that a conversion Z,X to X,Z needed */
 	private Biome[] generateBiomesWithOceans(int startX, int startZ, int xSize, int zSize, final boolean useAverage)
 	{
 		Biome[] biomeArr = new Biome[xSize * zSize];
@@ -215,21 +158,32 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				biomeArr[counter] = BiomeGenBetaPlus.getBiomeFromLookup(temperatureVal, humidityVal);
 				if (useAverage)
 				{
+					// Changed from avg to chunk
 					Pair<Integer, Boolean> avg = simulator.simulateYAvg(pos);
-					// Tried 56, 58
-					if (avg.getFirst() < 58 && !avg.getSecond())
+					// Tried 56, 58, 57
+					if (avg.getFirst() < 59)
 					{
-						BetaPlus.LOGGER.debug("Found Deep Ocean" + pos);
-						// useAverage is only set to true if searching for a deep ocean, so we can use it.
-						biomeArr[counter] = Biomes.DEEP_OCEAN; //this.getOceanBiome(new BlockPos(xP, 0, zP), true);
+
+						// Inversion was the intent, so false was supposed to be "all values below sea level"
+						if (!avg.getSecond())
+						{
+							//BetaPlus.LOGGER.info("Average Input: " + new ChunkPos(pos) + " " + avg.getFirst() + " ; " + avg.getSecond());
+							// For Testing
+							biomeArr[counter] = Biomes.DEEP_WARM_OCEAN; //this.getOceanBiome(pos, true);
+						}
+						else
+						{
+							biomeArr[counter] = Biomes.LUKEWARM_OCEAN; //this.getOceanBiome(pos, false);
+						}
 					}
 				}
 				else
 				{
 					Pair<Integer, Boolean> avg = simulator.simulateYChunk(pos);
-					if (avg.getFirst() < 57 && !avg.getSecond())
+					// Removed call to avg.getSecond()
+					if (avg.getFirst() < 59)
 					{
-						biomeArr[counter] = Biomes.OCEAN; //this.getOceanBiome(new BlockPos(xP, 0, zP), false);
+						biomeArr[counter] = Biomes.WARM_OCEAN; //this.getOceanBiome(pos, false);
 					}
 				}
 				counter++;
@@ -263,20 +217,36 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	@Override
 	public Biome[] getBiomes(int x, int z, int width, int length, boolean cacheFlag)
 	{
-		return generateBiomes(x, z, width, length);
+		//Modified from simple generateBiomes to test how this assigns Biomes
+		return generateBiomesWithOceans(x, z, width, length, true);
 	}
 
 	@Override
 	public Set<Biome> getBiomesInSquare(int centerX, int centerZ, int sideLength)
 	{
-		int i = centerX - sideLength >> 2;
-		int j = centerZ - sideLength >> 2;
-		int k = centerX + sideLength >> 2;
-		int l = centerZ + sideLength >> 2;
-		int i1 = k - i + 1;
-		int j1 = l - j + 1;
+		// Like centerX - 4 if sideLength=16
+		// like centerX - 7 if sidelength =29
+		// AHH! 7,4 is the number I have seen as an error
+		int startX = centerX - sideLength >> 2;
+		int startZ = centerZ - sideLength >> 2;
+		// probably end-X coordinate
+		int endX = centerX + sideLength >> 2;
+		int endZ = centerZ + sideLength >> 2;
+		int xSize = endX - startX + 1;
+		int zSize = endZ - startZ + 1;
 		Set<Biome> set = Sets.newHashSet();
-		Collections.addAll(set, this.generateBiomesWithOceans(i, j, i1, j1, true));
+		// Debug
+		BetaPlus.LOGGER.info("Square: " + xSize + ", " + zSize + " ; " + sideLength);
+		BetaPlus.LOGGER.info("Bounds: " + "[" + startX + "," + startZ + "]" + "x" + "[" +
+				(startX + sideLength) + "," + (startZ + sideLength) + "]");
+		// If there exists the Biome in question it does NOT care.
+		// Test this with various Combos:
+		// startX, startZ, xSize, zSize -> Weird Locations, not correct.
+		// startX, startZ, sideLength, sideLength -> Same result as above
+		// xSize, zSize, sideLength, sideLength -> Loops infinitely
+		// endX, endZ, sideLength, sideLength -> Same result as first.
+		// centerX, centerZ, sideLength, sideLength -> Working???
+		Collections.addAll(set, this.generateBiomesWithOceans(centerX, centerZ, sideLength, sideLength, true));
 		return set;
 	}
 

@@ -1,6 +1,7 @@
 package com.mrburgerus.betaplus.world.alpha_plus.sim;
 
 import com.mojang.datafixers.util.Pair;
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.AbstractWorldSimulator;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlpha;
 import net.minecraft.util.math.BlockPos;
@@ -13,6 +14,7 @@ public class AlphaPlusSimulator extends AbstractWorldSimulator
 	public AlphaPlusSimulator(World world)
 	{
 		super(world);
+		BetaPlus.LOGGER.info("Making Simulator");
 		this.octaves1 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
 		this.octaves2 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
 		this.octaves3 = new NoiseGeneratorOctavesAlpha(this.rand, 8);
@@ -137,17 +139,20 @@ public class AlphaPlusSimulator extends AbstractWorldSimulator
 		return 0;
 	}
 
+	/* Seems to NOT be working */
 	@Override
 	protected Pair<int[][], Boolean> simulateChunkYFast(ChunkPos pos)
 	{
 		int[][] output = new int[4][4];
+		int chunkX = pos.x;
+		int chunkZ = pos.z;
 
 		// 1+1 converted to var4+1, like original
 		byte var4 = 4;
 		int var6 = var4 + 1;
 		byte yHeight = 17;
 		int var8 = var4 + 1;
-		this.heightNoise = this.generateOctaves(this.heightNoise, pos.x * var4, 0, pos.z * var4, var6, yHeight, var8);
+		this.heightNoise = this.generateOctaves(this.heightNoise, chunkX * var4, 0, chunkZ * var4, var6, yHeight, var8);
 
 		/* These go to every 4 blocks only */
 		for (int cX = 0; cX < var4; ++cX)
@@ -178,6 +183,7 @@ public class AlphaPlusSimulator extends AbstractWorldSimulator
 				}
 			}
 		}
+
 		return Pair.of(output, landValExists(output));
 	}
 }

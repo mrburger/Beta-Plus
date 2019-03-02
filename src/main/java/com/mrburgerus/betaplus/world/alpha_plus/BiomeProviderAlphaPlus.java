@@ -74,43 +74,37 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 		Biome[] biomeArr = new Biome[xSize * zSize];
 		int counter = 0;
 		// Swapped X and Z, to match beta (HAD NO EFFECT!)
-		for (int z = 0; z < xSize; ++z)
+		for (int x = startX; x < xSize + startX; ++x)
 		{
-			for (int x = 0; x < xSize; ++x)
+			for (int z = startZ; z < zSize + startZ; ++z)
 			{
-				BlockPos pos = new BlockPos(startX + x, 0, startZ + z);
+				BlockPos blockPos = new BlockPos(x, 0, z);
 				//Assign this first
 				biomeArr[counter] = this.landBiome;
-				// If we are using the 3x3 Average
+				// If using the 3x3 Average
 				if (useAverage)
 				{
 					// Replaced SimulateYAvg with chunk
-					Pair<Integer, Boolean> avg = simulator.simulateYAvg(pos);
-					// This is super restrictive because it requires a WIDE spawn space
-					if (avg.getFirst() < 57)
+					Pair<Integer, Boolean> avg = simulator.simulateYChunk(blockPos);
+					// This is supposed to be super restrictive because it requires a WIDE spawn space
+					if (avg.getFirst() < 55 && !avg.getSecond())
 					{
 						// Try inverting, or leaving the same.
-						// Whe without inversion: Ocean Monuments generate on land
+						// When without inversion: Ocean Monuments generate on land
+						// With inversion, garbage structure generations near shores
 						if (!avg.getSecond())
 						{
-							BetaPlus.LOGGER.info("Deep Ocean At: " + pos);
+							BetaPlus.LOGGER.info("Deep Ocean At: " + blockPos);
 							biomeArr[counter] = this.oceanBiome;
 						}
-						else
-						{
-							BetaPlus.LOGGER.info("NOT DEEP OCEAN");
-						}
-
-						// CAUSES OCEAN MONUMENT ERRORS
-						//biomeArr[counter] = this.landBiome;
 					}
 				}
 				else
 				{
-					Pair<Integer, Boolean> avg = simulator.simulateYChunk(pos);
+					Pair<Integer, Boolean> avg = simulator.simulateYChunk(blockPos);
 					if (avg.getFirst() < 56) //&& !avg.getSecond())  //Typically for Shipwrecks, Ruins, and Chests
 					{
-						//BetaPlus.LOGGER.info("Ocean At: " + pos);
+						//BetaPlus.LOGGER.info("Ocean At: " + blockPos);
 						biomeArr[counter] = this.oceanBiome;
 					}
 				}
@@ -118,33 +112,6 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 			}
 		}
 		return biomeArr;
-		/*
-		int xP = startX;
-		int zP = startZ;
-		Biome[] biomeArr = new Biome[width * depth];
-		for (int i = 0; i < biomeArr.length; i++)
-		{
-			xP = startX + (i % width);
-			zP = startZ + Math.floorDiv(i, depth);
-			int pos = (xP - startX) + ((zP - startZ) * depth);
-			if (pos != i)
-			{
-				BetaPlus.LOGGER.warn("Not equal: " + pos + " : " + i);
-			}
-
-			if (simulator.simulateYChunk(new BlockPos(xP, 0, zP)) < 56) // Deep Ocean Value
-			{
-				//BetaPlus.LOGGER.debug("Injecting ocean at: " + xP + ", " + zP);
-				// For Debugging, set to Land Biome
-				biomeArr[i] = this.landBiome;
- 			}
-			else
-			{
-				biomeArr[i] = this.landBiome;
-			}
-		}
-		return biomeArr;
-		*/
 	}
 
 	@Override
@@ -177,7 +144,7 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	@Override
 	public Set<Biome> getBiomesInSquare(int centerX, int centerZ, int sideLength)
 	{
-		BetaPlus.LOGGER.info("Getting Square Biomes");
+		BetaPlus.LOGGER.info("Getting Square Biomes: " + sideLength);
 		int i = centerX - sideLength >> 2;
 		int j = centerZ - sideLength >> 2;
 		int k = centerX + sideLength >> 2;

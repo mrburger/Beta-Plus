@@ -1,11 +1,16 @@
 package com.mrburgerus.betaplus.world.beta_plus.sim;
 
 import com.mojang.datafixers.util.Pair;
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.AbstractWorldSimulator;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
+
+import java.util.Arrays;
 
 public class BetaPlusSimulator extends AbstractWorldSimulator
 {
@@ -111,6 +116,71 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 	@Override
 	protected Pair<int[][], Boolean> simulateChunkYFast(ChunkPos pos)
 	{
+		int[][] output = new int[16][16];
+		heightNoise = generateOctaves(heightNoise, pos.x * 4, 0,pos.z * 4, 5, 17, 5);
+		for (int i = 0; i < 4; ++i)
+		{
+			for (int j = 0; j < 4; ++j)
+			{
+				for (int k = 0; k < 16; ++k)
+				{
+					double eigth = 0.125;
+					double var16 = heightNoise[((i) * 5 + j) * 17 + k];
+					double var18 = heightNoise[((i) * 5 + j + 1) * 17 + k];
+					double var20 = heightNoise[((i + 1) * 5 + j) * 17 + k];
+					double var22 = heightNoise[((i + 1) * 5 + j + 1) * 17 + k];
+					double var24 = (heightNoise[((i) * 5 + j) * 17 + k + 1] - var16) * eigth;
+					double var26 = (heightNoise[((i) * 5 + j + 1) * 17 + k + 1] - var18) * eigth;
+					double var28 = (heightNoise[((i + 1) * 5 + j) * 17 + k + 1] - var20) * eigth;
+					double var30 = (heightNoise[((i + 1) * 5 + j + 1) * 17 + k + 1] - var22) * eigth;
+					for (int l = 0; l < 8; ++l)
+					{
+						double quarter = 0.25;
+						double var35 = var16;
+						double var37 = var18;
+						double var39 = (var20 - var16) * quarter;
+						double var41 = (var22 - var18) * quarter;
+						for (int m = 0; m < 4; ++m)
+						{
+							int x = m + i * 4;
+							int y = k * 8 + l;
+							int z = j * 4;
+							double var46 = 0.25;
+							double var48 = var35;
+							double var50 = (var37 - var35) * var46;
+							for (int n = 0; n < 4; ++n)
+							{
+								if (var48 > 0.0)
+								{
+									output[x][z] = y;
+								}
+								++z;
+								var48 += var50;
+							}
+							var35 += var39;
+							var37 += var41;
+						}
+						var16 += var24;
+						var18 += var26;
+						var20 += var28;
+						var22 += var30;
+					}
+
+				}
+			}
+		}
+		//Debug, looks like this is working (The simulator)
+		if (pos.x == -49 && pos.z == 52)
+		{
+			BetaPlus.LOGGER.info(Arrays.deepToString(output));
+		}
+		return Pair.of(output, landValExists(output));
+	}
+
+	/*
+	@Override
+	protected Pair<int[][], Boolean> simulateChunkYFast(ChunkPos pos)
+	{
 		int[][] output = new int[4][4];
 		heightNoise = this.generateOctaves(heightNoise, pos.x * 4, 0,pos.z * 4, 5, 17, 5);
 		for (int cX = 0; cX < 4; ++cX)
@@ -154,6 +224,13 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 				}
 			}
 		}
-		return Pair.of(output, landValExists(output));
+		boolean above = landValExists(output);
+		if (!above)
+		{
+			BetaPlus.LOGGER.info(Arrays.deepToString(output));
+		}
+
+		return Pair.of(output, above);
 	}
+	*/
 }

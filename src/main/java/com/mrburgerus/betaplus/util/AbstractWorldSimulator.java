@@ -68,46 +68,50 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 		}
 		// Add it to the list of single Y (moved so that even when a 3x3 average is called for, it applies data for other use.
 		int yAvg =  Math.floorDiv(sum, numE);
-		Pair<Integer, Boolean> retPair = Pair.of(yAvg, chunkSimY.getSecond());
-		yCache.put(pos, retPair);
+		// Removed cache put
 
-		return retPair;
+		return Pair.of(yAvg, chunkSimY.getSecond());
 	}
 
 	/* Simulate, then Average a 3x3 chunk area centered on the ChunkPos */
+	// WARNING: COULD BE WRONG
 	public Pair<Integer, Boolean> simulateYAvg(BlockPos blockPos)
 	{
-		ChunkPos pos = new ChunkPos(blockPos);
-		if (avgYCache.containsKey(pos))
+		ChunkPos chunkPosForUse = new ChunkPos(blockPos);
+		if (avgYCache.containsKey(chunkPosForUse))
 		{
 			// Fixed!
-			//BetaPlus.LOGGER.info("Getting Cached Value");
-			return avgYCache.get(pos);
+			return avgYCache.get(chunkPosForUse);
 		}
 		else
 		{
 			int sum = 0;
 			int numE = 0;
+			// size * 2 + 1 is real size in chunks
+			int size = 1; // Could cause issues with the Y value average being weird and assigning a bunch
 			// If any chunk has a value above sea level
 			boolean hasValueAbove = false;
-			for (int xChunk = pos.x - 1; xChunk <= pos.x + 1; ++xChunk)
+			for (int xChunk = chunkPosForUse.x - size; xChunk <= chunkPosForUse.x + size; ++xChunk)
 			{
-				for (int zChunk = pos.z - 1; zChunk <= pos.z; ++zChunk)
+				// Fixed looping error
+				for (int zChunk = chunkPosForUse.z - size; zChunk <= chunkPosForUse.z + size; ++zChunk)
 				{
 					Pair<Integer, Boolean> posPair = getSimulatedAvg(new ChunkPos(xChunk, zChunk));
+					//BetaPlus.LOGGER.info("Pos: " + new ChunkPos(xChunk, zChunk) + " ; " + posPair.getFirst());
 					sum += posPair.getFirst();
 					if (posPair.getSecond())
 					{
-						//BetaPlus.LOGGER.info("Has Value Above! " + new ChunkPos(xChunk, zChunk));
 						hasValueAbove = true;
 					}
 					numE++;
 				}
 			}
+			//BetaPlus.LOGGER.info("Sum: " + sum + ", NumE: " + numE);
+			int yV = Math.floorDiv(sum, numE) + 1; // Adding 1 because of FloorDiv
 			// If it has a value above, notify.
-			Pair<Integer, Boolean> ret = Pair.of(Math.floorDiv(sum, numE), true);
-			avgYCache.put(pos, ret);
-			return ret;
+			Pair<Integer, Boolean> retPair = Pair.of(yV, hasValueAbove);
+			avgYCache.put(chunkPosForUse, retPair);
+			return retPair;
 		}
 	}
 
@@ -145,13 +149,12 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 		{
 			for (int val : simulated)
 			{
-				if (val > 61) //Modified
+				if (val >= 60) //Modified
 				{
 					return true;
 				}
 			}
 		}
-		//BetaPlus.LOGGER.info("Simulated contains no values above sea level");
 		return false;
 	}
 }

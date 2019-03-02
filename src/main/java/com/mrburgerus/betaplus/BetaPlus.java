@@ -104,7 +104,7 @@ public class BetaPlus
         }
         else
 		{
-			BetaPlus.LOGGER.info("Not an alpha world.");
+			//BetaPlus.LOGGER.info("Not an alpha world.");
 		}
     }
 

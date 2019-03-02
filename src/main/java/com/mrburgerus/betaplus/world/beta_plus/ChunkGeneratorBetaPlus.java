@@ -90,9 +90,10 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		biomesForGeneration = biomeProviderS.getBiomes(x * 16, z * 16, 16, 16);
 		// Written similarly to "generateTerrain" from earlier versions.
 		setBlocksInChunk(chunkIn);
-		DeepenOceanUtil.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize(), 2.85);
+		// Scale factor formerly 2.85
+		DeepenOceanUtil.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize(), 2.95);
 		// Replace Biomes (Oceans)
-		this.replaceBiomes(chunkIn);
+		//this.replaceBiomes(chunkIn);
 
 		// Replace Blocks (DIRT & SAND & STUFF)
 		replaceBlocksForBiome(x, z, chunkIn, BiomeGenBetaPlus.convertBiomeTable(biomesForGeneration));
@@ -524,19 +525,4 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 			}
 		}
 	}
-
-	/*
-	@Override
-	public boolean hasStructure(Biome biomeIn, Structure<? extends IFeatureConfig> structureIn)
-	{
-		//Should fix?
-		if (biomeIn == null)
-		{
-			BetaPlus.LOGGER.error("Biome in question is NULL! Structure: " + structureIn.toString());
-			return false;
-		}		//BetaPlus.LOGGER.debug("Has Structure: " + Objects.requireNonNull(biomeIn) + " " + structureIn.toString());
-		//return false;
-		return super.hasStructure(biomeIn, structureIn);
-	}
-	*/
 }

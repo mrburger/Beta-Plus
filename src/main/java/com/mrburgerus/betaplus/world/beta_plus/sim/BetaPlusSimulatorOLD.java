@@ -154,20 +154,20 @@ public class BetaPlusSimulatorOLD
 		}
 	}
 
-	public Pair<Integer, Boolean> simulateYAvg(BlockPos pos)
+	public int simulateYAvg(BlockPos pos)
 	{
 		ChunkPos chunkPosForUse = new ChunkPos(pos);
 
 		if (avgYCache.containsKey(chunkPosForUse))
 		{
-			return Pair.of(avgYCache.get(chunkPosForUse), false);
+			return avgYCache.get(chunkPosForUse);
 		}
 		else
 		{
 			BetaPlus.LOGGER.info("Simulating: " + chunkPosForUse);
-			int ret = getSimulatedAvg3x3(chunkPosForUse.x, chunkPosForUse.z).getFirst();
+			int ret = getSimulatedAvg3x3(chunkPosForUse.x, chunkPosForUse.z);
 			avgYCache.put(chunkPosForUse, ret);
-			return Pair.of(ret, false);
+			return ret;
 		}
 	}
 
@@ -195,7 +195,7 @@ public class BetaPlusSimulatorOLD
 
 	/* Simulates and averages a 3x3 chunk, used to  */
 	/* Added: Boolean corresponding to whether any simulate value is ABOVE sea level */
-	private Pair<Integer, Boolean> getSimulatedAvg3x3(int middleChunkX, int middleChunkZ)
+	private int getSimulatedAvg3x3(int middleChunkX, int middleChunkZ)
 	{
 		int sum = 0;
 		int numE = 0;
@@ -207,7 +207,7 @@ public class BetaPlusSimulatorOLD
 				numE++;
 			}
 		}
-		return Pair.of(Math.floorDiv(sum, numE), false);
+		return Math.floorDiv(sum, numE);
 	}
 
 
