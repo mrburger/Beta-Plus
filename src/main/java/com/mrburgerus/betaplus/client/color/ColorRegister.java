@@ -4,12 +4,14 @@ import com.mrburgerus.betaplus.BetaPlus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 
-@Mod.EventBusSubscriber(Dist.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class ColorRegister
 {
+	// Tried: FMLCLIENTSETUPEVENT, FMLLOADCOMPLETEEVENT
 	public static void clientSide(final FMLLoadCompleteEvent event)
 	{
 		Minecraft mc = Minecraft.getInstance();

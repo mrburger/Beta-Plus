@@ -23,11 +23,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
@@ -36,18 +39,12 @@ import org.apache.logging.log4j.Logger;
 import java.util.HashSet;
 import java.util.function.Function;
 
-// The value here should match an entry in the META-INF/mods.toml file
+// The value here should match an entry in the META-INF/mods.toml_old file
 @Mod("betaplus")
 public class BetaPlus
 {
 	//Fields
 	public static final String MOD_NAME = "betaplus";
-
-	private static final ResourceLocation GRASS_BLOCK_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_grass_block"));
-	private static final ResourceLocation GRASS_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_grass"));
-	private static final ResourceLocation LEAVES_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_oak_leaves"));
-
-	private static final Function<ResourceLocation, IUnbakedModel> DEFAULT_GETTER =  ModelLoaderRegistry::getModelOrMissing;
 
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
@@ -60,22 +57,12 @@ public class BetaPlus
         // Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
 
-        // Register Client-side features
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(ColorRegister::clientSide);
-
-		// Register Alpha Textures
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::addTextures);
-
-		// Register Alpha Grass Model
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerAlphaLoader);
-		//FMLJavaModLoadingContext.get().getModEventBus().addListener(AlphaGrassModelLoader);
-
-		// Register Block Replacement for Alpha Green Grass
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::bakeAlphaGrass);
-
+        // Register Client-side Coloration
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
 
 		// Register ourselves for server, registry and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(this);
+		MinecraftForge.EVENT_BUS.register(this);
+
     }
 
     private void setup(final FMLCommonSetupEvent event)
@@ -84,8 +71,12 @@ public class BetaPlus
 		WorldTypeAlphaPlus.register();
     }
 
+    private void clientSetup (final FMLClientSetupEvent e)
+	{
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(ColorRegister::clientSide);
+	}
+
     /* Turns on Perpetual Snow for Snowy Alpha Worlds */
-    @SubscribeEvent
     public void setAlphaSnow(final WorldEvent.Load event)
     {
         /* If World is Snowy */
@@ -112,8 +103,13 @@ public class BetaPlus
     //TODO: ADD FOR EACH LOOP TO SIMPLIFY ADDING RESOURCES
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-	public void bakeAlphaGrass(final ModelBakeEvent event)
+	public void bakeAlphaModels(final ModelBakeEvent event)
 	{
+		final ResourceLocation GRASS_BLOCK_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_grass_block"));
+		final ResourceLocation GRASS_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_grass"));
+		final ResourceLocation LEAVES_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_oak_leaves"));
+
+
 		AlphaModelLoader.INSTANCE.setLoader(event.getModelLoader());
 
 		IBlockState grassBlockState = Blocks.GRASS_BLOCK.getDefaultState();
@@ -124,7 +120,7 @@ public class BetaPlus
 		ModelResourceLocation grassLocation = BlockModelShapes.getModelLocation(grassState);
 
 
-		/* Built with Help from @Cadiboo from Minecraft Forge, Thanks! */
+		// Built with Help from @Cadiboo from Minecraft Forge, Thanks!
 		Object object = event.getModelRegistry().get(grassBlockLocation);
 
 		if (object != null)
@@ -167,6 +163,7 @@ public class BetaPlus
 		}
 	}
 
+	@OnlyIn(Dist.CLIENT)
 	@SubscribeEvent
 	public void registerAlphaLoader(final ModelRegistryEvent event)
 	{
@@ -178,22 +175,26 @@ public class BetaPlus
 	@SubscribeEvent
 	public void addTextures(TextureStitchEvent.Pre event)
 	{
+		final ResourceLocation GRASS_BLOCK_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_grass_block"));
+		final ResourceLocation GRASS_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_grass"));
+		final ResourceLocation LEAVES_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_oak_leaves"));
+
 		IResourceManager manager = Minecraft.getInstance().getResourceManager();
 		IUnbakedModel model = ModelsCache.INSTANCE.getOrLoadModel(GRASS_BLOCK_LOCATION);
-		for(ResourceLocation location : model.getTextures(DEFAULT_GETTER, new HashSet<>()))
+		for(ResourceLocation location : model.getTextures(ModelLoader.defaultModelGetter(), new HashSet<>()))
 		{
 			event.getMap().registerSprite(manager, location);
 		}
 
 		model = ModelsCache.INSTANCE.getOrLoadModel(GRASS_LOCATION);
-		for(ResourceLocation location : model.getTextures(DEFAULT_GETTER, new HashSet<>()))
+		for(ResourceLocation location : model.getTextures(ModelLoader.defaultModelGetter(), new HashSet<>()))
 		{
 			event.getMap().registerSprite(manager, location);
 		}
 
 		model = ModelsCache.INSTANCE.getOrLoadModel(LEAVES_LOCATION);
 		//BetaPlus.LOGGER.info("Leaves Model: " + model.toString());
-		for(ResourceLocation location : model.getTextures(DEFAULT_GETTER, new HashSet<>()))
+		for(ResourceLocation location : model.getTextures(ModelLoader.defaultModelGetter(), new HashSet<>()))
 		{
 			event.getMap().registerSprite(manager, location);
 		}

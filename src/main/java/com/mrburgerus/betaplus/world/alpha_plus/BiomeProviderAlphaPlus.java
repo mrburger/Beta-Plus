@@ -144,15 +144,7 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	@Override
 	public Set<Biome> getBiomesInSquare(int centerX, int centerZ, int sideLength)
 	{
-		//BetaPlus.LOGGER.info("Getting Square Biomes: " + sideLength);
-		int i = centerX - sideLength >> 2;
-		int j = centerZ - sideLength >> 2;
-		int k = centerX + sideLength >> 2;
-		int l = centerZ + sideLength >> 2;
-		int i1 = k - i + 1;
-		int j1 = l - j + 1;
 		Set<Biome> set = Sets.newHashSet();
-		// Testing, similar to Beta+
 		Collections.addAll(set, this.generateBiomesWithOceans(centerX, centerZ, sideLength, sideLength, true));
 		return set;
 	}

@@ -172,7 +172,7 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 		//Debug, looks like this is working (The simulator)
 		if (pos.x == -49 && pos.z == 52)
 		{
-			BetaPlus.LOGGER.info(Arrays.deepToString(output));
+			//BetaPlus.LOGGER.info(Arrays.deepToString(output));
 		}
 		return Pair.of(output, landValExists(output));
 	}

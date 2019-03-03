@@ -4,13 +4,12 @@ import com.mrburgerus.betaplus.world.alpha_plus.WorldTypeAlphaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.WorldTypeBetaPlus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(Dist.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class GuiBetaNumber extends Gui
 {
 	GuiBetaNumber()

@@ -5,16 +5,13 @@ import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulator;
-import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulatorOLD;
 import com.mrburgerus.betaplus.world.biome.BetaPlusSelectBiome;
 import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBiome;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GrassColors;
 import net.minecraft.world.World;
@@ -23,7 +20,10 @@ import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.gen.feature.structure.Structure;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 /* Creates Biome Values */
 /* Oceans are not a part of Beta proper, so I'm injecting them */
@@ -169,11 +169,11 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 						{
 							//BetaPlus.LOGGER.info("Average Input: " + new ChunkPos(pos) + " " + avg.getFirst() + " ; " + avg.getSecond());
 							// For Testing
-							biomeArr[counter] = Biomes.DEEP_WARM_OCEAN; //this.getOceanBiome(pos, true);
+							biomeArr[counter] = this.getOceanBiome(pos, true); //this.getOceanBiome(pos, true);
 						}
 						else
 						{
-							biomeArr[counter] = Biomes.LUKEWARM_OCEAN; //this.getOceanBiome(pos, false);
+							biomeArr[counter] = this.getOceanBiome(pos, false); //this.getOceanBiome(pos, false);
 						}
 					}
 				}
@@ -181,9 +181,9 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				{
 					Pair<Integer, Boolean> avg = simulator.simulateYChunk(pos);
 					// Removed call to avg.getSecond()
-					if (avg.getFirst() < 59)
+					if (avg.getFirst() < 60)
 					{
-						biomeArr[counter] = Biomes.WARM_OCEAN; //this.getOceanBiome(pos, false);
+						biomeArr[counter] = this.getOceanBiome(pos, false); //this.getOceanBiome(pos, false);
 					}
 				}
 				counter++;
@@ -218,7 +218,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	public Biome[] getBiomes(int x, int z, int width, int length, boolean cacheFlag)
 	{
 		//Modified from simple generateBiomes to test how this assigns Biomes
-		return generateBiomesWithOceans(x, z, width, length, true);
+		return generateBiomes(x, z, width, length);
 	}
 
 	@Override
@@ -236,9 +236,11 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		int zSize = endZ - startZ + 1;
 		Set<Biome> set = Sets.newHashSet();
 		// Debug
+		/*
 		BetaPlus.LOGGER.info("Square: " + xSize + ", " + zSize + " ; " + sideLength);
 		BetaPlus.LOGGER.info("Bounds: " + "[" + startX + "," + startZ + "]" + "x" + "[" +
 				(startX + sideLength) + "," + (startZ + sideLength) + "]");
+				*/
 		// If there exists the Biome in question it does NOT care.
 		// Test this with various Combos:
 		// startX, startZ, xSize, zSize -> Weird Locations, not correct.

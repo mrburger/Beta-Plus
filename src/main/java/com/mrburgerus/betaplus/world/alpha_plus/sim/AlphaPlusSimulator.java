@@ -14,7 +14,7 @@ public class AlphaPlusSimulator extends AbstractWorldSimulator
 	public AlphaPlusSimulator(World world)
 	{
 		super(world);
-		BetaPlus.LOGGER.info("Making Simulator");
+		//BetaPlus.LOGGER.info("Making Simulator");
 		this.octaves1 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
 		this.octaves2 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
 		this.octaves3 = new NoiseGeneratorOctavesAlpha(this.rand, 8);

@@ -6,7 +6,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiCreateWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.IChunkGenerator;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 
 /* Line 99, or where the Buffet World Type is assigned is the bbest location to get info on Customized Worlds. */
@@ -32,6 +35,10 @@ public class WorldTypeAlphaPlus extends WorldType
 	public IChunkGenerator<?> createChunkGenerator(World world)
 	{
 		AlphaPlusGenSettings settings = AlphaPlusGenSettings.createSettings(world.getWorldInfo().getGeneratorOptions());
+		if (world.dimension.getType() != DimensionType.OVERWORLD)
+		{
+			return world.dimension.createChunkGenerator();
+		}
 		return new ChunkGeneratorAlphaPlus(world, new BiomeProviderAlphaPlus(world), settings);
 	}
 
@@ -50,6 +57,7 @@ public class WorldTypeAlphaPlus extends WorldType
 	}
 
 	@Override
+	@OnlyIn(Dist.CLIENT)
 	public void onCustomizeButton(Minecraft mc, GuiCreateWorld gui)
 	{
 		mc.displayGuiScreen(new GuiCreateAlphaWorld(gui, gui.chunkProviderSettingsJson));

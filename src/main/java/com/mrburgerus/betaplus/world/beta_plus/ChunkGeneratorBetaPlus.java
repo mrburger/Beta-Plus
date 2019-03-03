@@ -200,12 +200,6 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		return new double[0];
 	}
 
-	@Override
-	public BiomeProvider getBiomeProvider()
-	{
-		return this.biomeProviderS;
-	}
-
 	/* -- GENERATION METHODS -- */
 
 	/* GENERATES THE BLOCKS */
