@@ -120,10 +120,10 @@ public class ChunkGeneratorAlphaPlus extends AbstractChunkGenerator
 	{
 		int i = region.getMainChunkX();
 		int j = region.getMainChunkZ();
-		Biome biome = world.getBiome(new BlockPos(i * CHUNK_SIZE + 8, 0, j * CHUNK_SIZE + 8));
-
-		/* MODIFIED! */
-		WorldEntitySpawner.performWorldGenSpawning(region, biome, i, j, new Random(seed));
+		Biome biome = region.getChunk(i, j).getBiomes()[0];
+		SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
+		sharedseedrandom.setDecorationSeed(region.getSeed(), i << 4, j << 4);
+		WorldEntitySpawner.performWorldGenSpawning(region, biome, i, j, sharedseedrandom);
 	}
 
 	@Override

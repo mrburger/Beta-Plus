@@ -4,12 +4,15 @@ import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.world.alpha_plus.WorldTypeAlphaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.WorldTypeBetaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.BiomeProviderBetaPlus;
+import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusClimate;
+import com.mrburgerus.betaplus.world.biome.BetaPlusBiome;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.BiomeColors;
+import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -34,29 +37,23 @@ public class GrassColorBetaPlus implements IBlockColor
 		// If we are in an Alpha World
 		if (worldType instanceof WorldTypeAlphaPlus)
 		{
-			//return 9026389;
-			//return 9043797;
-			//return 9895680;
-			//return 10802036;
-			//return 7712841;
-			//return 11131001;
-			//return -65281;
-			//return 0xABFF67;
-			//return 0x32CD32;
-			//return 0xA9D879;
 			return -1; // Don't tint since we are using a pre-colored model.
 			/* Return -1 Makes grass gray */
 		}
 		if (worldType instanceof WorldTypeBetaPlus)
 		{
 			/* Potential issues with Non-overworld Providers */
+			/* Errors last I Checked */
 			//BiomeProviderBetaPlus provider = (BiomeProviderBetaPlus) worldIn.getDimension().getWorld().getChunkProvider().getChunkGenerator().getBiomeProvider();
-			World world = worldIn.getDimension().getWorld();
-			if (world.getChunkProvider().getChunkGenerator() instanceof BiomeProviderBetaPlus)
+			//BiomeProvider provider = worldIn.getDimension().getWorld().getChunkProvider().getChunkGenerator().getBiomeProvider();
+			if (true)
 			{
-				BiomeProviderBetaPlus provider = (BiomeProviderBetaPlus) world.getChunkProvider().getChunkGenerator().getBiomeProvider();
+
+				// FOR TESTING ONLY
+				BetaPlusClimate climate = new BetaPlusClimate(worldIn.getDimension().getWorld(), 0.02500000037252903, 2);
 				/* Working */
-				return provider.getGrassColorBeta(pos);
+				double[] vals = climate.getClimateValuesatPos(pos);
+				//return GrassColors.get(vals[0], vals[1]);
 			}
 		}
 

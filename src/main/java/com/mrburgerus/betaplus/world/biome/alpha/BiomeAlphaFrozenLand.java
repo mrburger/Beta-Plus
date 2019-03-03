@@ -16,7 +16,7 @@ public class BiomeAlphaFrozenLand extends AbstractAlphaBiome
 	public BiomeAlphaFrozenLand()
 	{
 		/* Woo! Explicit Declarations */
-		super((new Biome.BiomeBuilder()).surfaceBuilder(new CompositeSurfaceBuilder<>(DEFAULT_SURFACE_BUILDER, GRASS_DIRT_SAND_SURFACE)).precipitation(RainType.SNOW).category(Category.PLAINS).depth(0.0F).scale(0.1F).temperature(0.0F).downfall(100.0F).waterColor(3750089).waterFogColor(329011).parent((String)null));
+		super((new Biome.BiomeBuilder()).surfaceBuilder(new CompositeSurfaceBuilder<>(DEFAULT_SURFACE_BUILDER, GRASS_DIRT_SAND_SURFACE)).precipitation(RainType.SNOW).category(Category.PLAINS).depth(0.0F).scale(0.1F).temperature(0.0F).downfall(100.0F).waterColor(4159204).waterFogColor(329011).parent((String)null));
 
 		// Create Snow
 		this.addFeature(GenerationStage.Decoration.TOP_LAYER_MODIFICATION, createCompositeFeature(Feature.ICE_AND_SNOW, IFeatureConfig.NO_FEATURE_CONFIG, PASSTHROUGH, IPlacementConfig.NO_PLACEMENT_CONFIG));

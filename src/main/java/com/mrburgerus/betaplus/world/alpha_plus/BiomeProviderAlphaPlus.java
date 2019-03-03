@@ -81,22 +81,15 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 				BlockPos blockPos = new BlockPos(x, 0, z);
 				//Assign this first
 				biomeArr[counter] = this.landBiome;
-				// If using the 3x3 Average
+				// If using the 3x3 Average (Monuments and Mansions)
 				if (useAverage)
 				{
-					// Replaced SimulateYAvg with chunk
-					Pair<Integer, Boolean> avg = simulator.simulateYChunk(blockPos);
-					// This is supposed to be super restrictive because it requires a WIDE spawn space
-					if (avg.getFirst() < 55 && !avg.getSecond())
+					// Changed from avg to chunk
+					Pair<Integer, Boolean> avg = simulator.simulateYAvg(blockPos);
+					// Tried 56, 58, 57
+					if (avg.getFirst() < 57 && !avg.getSecond())
 					{
-						// Try inverting, or leaving the same.
-						// When without inversion: Ocean Monuments generate on land
-						// With inversion, garbage structure generations near shores
-						if (!avg.getSecond())
-						{
-							BetaPlus.LOGGER.info("Deep Ocean At: " + blockPos);
-							biomeArr[counter] = this.oceanBiome;
-						}
+						biomeArr[counter] = this.oceanBiome;
 					}
 				}
 				else
@@ -104,7 +97,6 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 					Pair<Integer, Boolean> avg = simulator.simulateYChunk(blockPos);
 					if (avg.getFirst() < 56) //&& !avg.getSecond())  //Typically for Shipwrecks, Ruins, and Chests
 					{
-						//BetaPlus.LOGGER.info("Ocean At: " + blockPos);
 						biomeArr[counter] = this.oceanBiome;
 					}
 				}

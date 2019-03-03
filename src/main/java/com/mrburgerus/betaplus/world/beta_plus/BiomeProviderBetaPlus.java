@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import com.mrburgerus.betaplus.BetaPlus;
+import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusClimate;
 import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulator;
 import com.mrburgerus.betaplus.world.biome.BetaPlusSelectBiome;
 import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
@@ -37,13 +38,11 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	public double[] humidities;
 	public double[] noise;
 	private static final Biome[] BIOMES_LIST = buildBiomesList();
-	private double[] temps2;
-	private double[] humid2;
-	private double[] noise2;
+
 	// New Fields
-	private BetaPlusGenSettings settings;
-	private double scaleVal;
-	private double mult;
+	private final BetaPlusGenSettings settings;
+	private final double scaleVal;
+	private final double mult;
 	private static int chunkSize = 16;
 
 	NoiseGeneratorOctavesBeta octaves12;
@@ -51,13 +50,13 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	NoiseGeneratorOctavesBeta octaves32;
 	NoiseGeneratorOctavesBeta octaves62;
 	NoiseGeneratorOctavesBeta octaves72;
-	private static double[] hNoiseSim;
 	private static double octaveArr42[];
 	private static double octaveArr52[];
 	private static double octaveArr12[];
 	private static double octaveArr22[];
 	private static double octaveArr32[];
 	private long seedLong;
+	private BetaPlusClimate climateSim;
 
 	// The simulator for Y-heights.
 	private BetaPlusSimulator simulator;
@@ -71,15 +70,18 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		scaleVal = settings.getScale();
 		mult = settings.getMultiplierBiome();
 
+		/*
 		octaves12 = new NoiseGeneratorOctavesBeta(new Random(world.getSeed()), 16);
 		octaves22 = new NoiseGeneratorOctavesBeta(new Random(world.getSeed()), 16);
 		octaves32 = new NoiseGeneratorOctavesBeta(new Random(world.getSeed()), 8);
 		octaves62 = new NoiseGeneratorOctavesBeta(new Random(world.getSeed()), 10);
 		octaves72 = new NoiseGeneratorOctavesBeta(new Random(world.getSeed()), 16);
+		*/
 
 		seedLong = world.getSeed();
 
 		simulator = new BetaPlusSimulator(world);
+		climateSim = new BetaPlusClimate(world, scaleVal, mult);
 	}
 
 	/* Builds Possible Biome List */
@@ -158,7 +160,6 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				biomeArr[counter] = BiomeGenBetaPlus.getBiomeFromLookup(temperatureVal, humidityVal);
 				if (useAverage)
 				{
-					// Changed from avg to chunk
 					Pair<Integer, Boolean> avg = simulator.simulateYAvg(pos);
 					// Tried 56, 58, 57
 					if (avg.getFirst() < 59)
@@ -316,40 +317,11 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	}
 
 
-	// Working Feb 21, 2019
-	/* Gets Climate Values */
-	public double[] getClimateValuesatPos(BlockPos pos)
-	{
-		//Copied Over
-		int startX = pos.getX();
-		int startZ = pos.getZ();
-		int xSize = 1;
-
-		temps2 = temperatureOctave.generateOctaves(temps2, startX, startZ, xSize, xSize, scaleVal, scaleVal, 0.25);
-		humid2 = humidityOctave.generateOctaves(humid2, startX, startZ, xSize, xSize, scaleVal * mult, scaleVal * mult, 0.3333333333333333);
-		noise2 = noiseOctave.generateOctaves(noise2, startX, startZ, xSize, xSize, 0.25, 0.25, 0.5882352941176471);
-
-		double var9 = noise2[0] * 1.1 + 0.5;
-		double oneHundredth = 0.01;
-		double point99 = 1.0 - oneHundredth;
-		double temperatureVal = (temps2[0] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
-		oneHundredth = 0.002;
-		point99 = 1.0 - oneHundredth;
-		double humidityVal = (humid2[0] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
-		temperatureVal = 1.0 - (1.0 - temperatureVal) * (1.0 - temperatureVal);
-		temperatureVal = MathHelper.clamp(temperatureVal, 0.0, 1.0);
-		humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
-
-		//BetaPlus.LOGGER.info("T: " + temperatureVal + " H: " + humidityVal);
-
-		double[] returnVal = {MathHelper.clamp(temperatureVal, 0.0, 1.0), MathHelper.clamp(humidityVal, 0.0, 1.0)};
-		return returnVal;
-	}
 
 	/* Provides Ocean Biomes appropriate to temperature */
 	public Biome getOceanBiome(BlockPos pos, boolean isDeep)
 	{
-		double[] climate = this.getClimateValuesatPos(pos);
+		double[] climate = climateSim.getClimateValuesatPos(pos);
 		double temperature = climate[0];
 		//return BiomeGenBetaPlus.getBiomeFromLookup(temperature, climate[1]);
 		if (temperature < BetaPlusSelectBiome.FROZEN_VALUE)
@@ -385,7 +357,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 
 	public Biome getBeachBiome(BlockPos pos)
 	{
-		double[] climate = this.getClimateValuesatPos(pos);
+		double[] climate = climateSim.getClimateValuesatPos(pos);
 		if (climate[0] < BetaPlusSelectBiome.FROZEN_VALUE)
 		{
 			return Biomes.SNOWY_BEACH;
@@ -393,9 +365,5 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		return Biomes.BEACH;
 	}
 
-	public int getGrassColorBeta(BlockPos pos)
-	{
-		double[] climate = getClimateValuesatPos(pos);
-		return GrassColors.get(climate[0], climate[1]);
-	}
+
 }
