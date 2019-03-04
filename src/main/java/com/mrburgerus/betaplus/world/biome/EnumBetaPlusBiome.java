@@ -5,7 +5,7 @@ import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.biome.Biome;
 
-public enum BiomeGenBetaPlus implements BetaPlusBiome
+public enum EnumBetaPlusBiome implements IBetaPlusBiome
 {
 	//Enums
 	rainforest(Biomes.JUNGLE),
@@ -55,12 +55,12 @@ public enum BiomeGenBetaPlus implements BetaPlusBiome
 	private static final Biome[] BIOME_LOOKUP_TABLE;
 
 	//Constructors
-	BiomeGenBetaPlus(Biome handle)
+	EnumBetaPlusBiome(Biome handle)
 	{
 		this(handle, Blocks.GRASS_BLOCK, Blocks.DIRT);
 	}
 
-	BiomeGenBetaPlus(Biome biomeHandle, Block top, Block filler)
+	EnumBetaPlusBiome(Biome biomeHandle, Block top, Block filler)
 	{
 		handle = biomeHandle;
 		topBlock = top;
@@ -71,7 +71,7 @@ public enum BiomeGenBetaPlus implements BetaPlusBiome
 	static
 	{
 		BIOME_LOOKUP_TABLE = new Biome[4096];
-		BiomeGenBetaPlus.generateBiomeLookup();
+		EnumBetaPlusBiome.generateBiomeLookup();
 	}
 
 	//Methods
@@ -82,7 +82,7 @@ public enum BiomeGenBetaPlus implements BetaPlusBiome
 			for (int j = 0; j < 64; ++j)
 			{
 				//EDITED
-				BIOME_LOOKUP_TABLE[i + j * 64] = BetaPlusSelectBiome.getBiome((float) i / 63.0f, (float) j / 63.0f);
+				BIOME_LOOKUP_TABLE[i + j * 64] = BetaPlusBiomeSelector.getBiome((float) i / 63.0f, (float) j / 63.0f);
 			}
 		}
 	}
@@ -96,14 +96,14 @@ public enum BiomeGenBetaPlus implements BetaPlusBiome
 	}
 
 	// Convert Biome map to Enum Map, Respective.
-	public static BiomeGenBetaPlus[] convertBiomeTable(Biome[] biomeLookupTable)
+	public static EnumBetaPlusBiome[] convertBiomeTable(Biome[] biomeLookupTable)
 	{
 		// Create Equal Length Array
-		BiomeGenBetaPlus[] biomePlus = new BiomeGenBetaPlus[biomeLookupTable.length];
+		EnumBetaPlusBiome[] biomePlus = new EnumBetaPlusBiome[biomeLookupTable.length];
 
 		for (int i = 0; i < biomeLookupTable.length; i++)
 		{
-			for (BiomeGenBetaPlus biomeGenBetaPlus : BiomeGenBetaPlus.values())
+			for (EnumBetaPlusBiome biomeGenBetaPlus : EnumBetaPlusBiome.values())
 			{
 				if (biomeGenBetaPlus.handle == biomeLookupTable[i])
 				{
@@ -113,7 +113,7 @@ public enum BiomeGenBetaPlus implements BetaPlusBiome
 			}
 			if (biomePlus[i] == null)
 			{
-				biomePlus[i] = BiomeGenBetaPlus.defaultB;
+				biomePlus[i] = EnumBetaPlusBiome.defaultB;
 			}
 		}
 		return biomePlus;

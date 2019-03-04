@@ -2,7 +2,7 @@ package com.mrburgerus.betaplus.world.beta_plus;
 
 import com.mrburgerus.betaplus.util.BiomeReplaceUtil;
 import com.mrburgerus.betaplus.util.DeepenOceanUtil;
-import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
+import com.mrburgerus.betaplus.world.biome.EnumBetaPlusBiome;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -14,7 +14,6 @@ import net.minecraft.world.PhantomSpawner;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEntitySpawner;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.AbstractChunkGenerator;
@@ -93,12 +92,13 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		// Scale factor formerly 2.85
 		DeepenOceanUtil.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize(), 3.25);
 		// Replace Biomes (Oceans)
+		// This is because detection of Oceans is an average operation.
 		this.replaceBiomes(chunkIn);
 
 		// Replace Blocks (DIRT & SAND & STUFF)
-		replaceBlocksForBiome(x, z, chunkIn, BiomeGenBetaPlus.convertBiomeTable(biomesForGeneration));
+		replaceBlocksForBiome(x, z, chunkIn, EnumBetaPlusBiome.convertBiomeTable(biomesForGeneration));
 		// Replace Beaches, done afterwards.
-		this.replaceBeaches(chunkIn);
+		//this.replaceBeaches(chunkIn);
 
 		// Set Biomes
 		chunkIn.setBiomes(BiomeReplaceUtil.convertBiomeArray(biomesForGeneration));
@@ -281,7 +281,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 				int yVal = BiomeReplaceUtil.getSolidHeightY(new BlockPos(xPos, 0, zPos), iChunk);
 				if (yVal > settings.getHighAltitude())
 				{
-					biomesForGeneration[(x << 4 | z)] = BiomeGenBetaPlus.mountain.handle;
+					biomesForGeneration[(x << 4 | z)] = EnumBetaPlusBiome.mountain.handle;
 				}
 				else if (yVal < settings.getSeaLevel() - 1)
 				{
@@ -312,7 +312,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 				// New Line
 				Biome biome = biomesForGeneration[(x << 4 | z)];
 				//Inject Beaches (MODIFIED)
-				if ((yVal <= (settings.getSeaLevel() + 1) && yVal >= settings.getSeaLevel() - 1) && (biome != BiomeGenBetaPlus.desert.handle) && chunk.getBlockState(new BlockPos(xPos, yVal, zPos)) == Blocks.SAND.getDefaultState())
+				if ((yVal <= (settings.getSeaLevel() + 1) && yVal >= settings.getSeaLevel() - 1) && (biome != EnumBetaPlusBiome.desert.handle) && chunk.getBlockState(new BlockPos(xPos, yVal, zPos)) == Blocks.SAND.getDefaultState())
 				{
 						this.biomesForGeneration[(x << 4 | z)] = biomeProviderS.getBeachBiome(new BlockPos(xPos, yVal, zPos));
 				}
@@ -425,7 +425,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 	}
 
 	/* YES, IT IS COPIED AND MODIFIED FROM 1.12 */
-	private void replaceBlocksForBiome(int chunkX, int chunkZ, IChunk chunkprimer, BiomeGenBetaPlus[] biomes)
+	private void replaceBlocksForBiome(int chunkX, int chunkZ, IChunk chunkprimer, EnumBetaPlusBiome[] biomes)
 	{
 		double thirtySecond = 0.03125;
 		this.sandNoise = this.beachBlockNoise.generateNoiseOctaves(this.sandNoise, chunkX * 16, chunkZ * 16, 0.0, 16, 16, 1, thirtySecond, thirtySecond, 1.0);
@@ -435,7 +435,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		{
 			for (int x = 0; x < 16; ++x)
 			{
-				BiomeGenBetaPlus biome = biomes[z + x * 16];
+				EnumBetaPlusBiome biome = biomes[z + x * 16];
 				boolean sandN = this.sandNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 0.0;
 				boolean gravelN = this.gravelNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 3.0;
 				int stoneN = (int) (this.stoneNoise[z + x * 16] / 3.0 + 3.0 + this.rand.nextDouble() * 0.25);

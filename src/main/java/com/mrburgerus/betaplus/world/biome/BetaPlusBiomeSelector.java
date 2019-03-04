@@ -2,7 +2,7 @@ package com.mrburgerus.betaplus.world.biome;
 
 import net.minecraft.world.biome.Biome;
 
-public class BetaPlusSelectBiome
+public class BetaPlusBiomeSelector
 {
 	// Fields
 	public static final double COLD_VALUE = 0.5;
@@ -20,13 +20,13 @@ public class BetaPlusSelectBiome
 		{
 			if ((temperature < FROZEN_VALUE))
 			{
-				return BiomeGenBetaPlus.iceSpikes.handle;
+				return EnumBetaPlusBiome.iceSpikes.handle;
 			}
 			if (humidity < 0.2)
 			{
-				return BiomeGenBetaPlus.tundra.handle;
+				return EnumBetaPlusBiome.tundra.handle;
 			}
-			return BiomeGenBetaPlus.taiga.handle;
+			return EnumBetaPlusBiome.taiga.handle;
 		}
 		if (temperature < HOT_VALUE)
 		{
@@ -34,45 +34,46 @@ public class BetaPlusSelectBiome
 			{
 				if (temperature > WARM_VAL)
 				{
-					return BiomeGenBetaPlus.savanna.handle;
+					return EnumBetaPlusBiome.savanna.handle;
 				}
-				return BiomeGenBetaPlus.flowerPlains.handle;
+				return EnumBetaPlusBiome.flowerPlains.handle;
 			}
 			if (humidity > 0.75)
 			{
-				return BiomeGenBetaPlus.swampland.handle;
+				return EnumBetaPlusBiome.swampland.handle;
 			}
 			if (humidity > 0.6)
 			{
-				return BiomeGenBetaPlus.seasonalForest.handle;
+				return EnumBetaPlusBiome.seasonalForest.handle;
 			}
 			if (temperature < 0.675) // Modified
 			{
-				return BiomeGenBetaPlus.megaTaiga.handle;
+				return EnumBetaPlusBiome.megaTaiga.handle;
 			}
 			if (humidity < 0.3)
 			{
 				if (humidity > 0.23)
 				{
-					return BiomeGenBetaPlus.birchForest.handle;
+					return EnumBetaPlusBiome.birchForest.handle;
 				}
-				return BiomeGenBetaPlus.flowerForest.handle;
+				return EnumBetaPlusBiome.flowerForest.handle;
 			}
-			return BiomeGenBetaPlus.forest.handle;
+			return EnumBetaPlusBiome.forest.handle;
 		}
 		if (humidity < 0.2)
 		{
 			if (temperature > VERY_HOT_VAL && humidity <= 0.0025)
 			{
-				return BiomeGenBetaPlus.mesa.handle;
+				return EnumBetaPlusBiome.mesa.handle;
 			}
-			return BiomeGenBetaPlus.desert.handle;
+			return EnumBetaPlusBiome.desert.handle;
 		}
 		if (humidity > 0.75D)
 		{
-			return BiomeGenBetaPlus.rainforest.handle;
+			return EnumBetaPlusBiome.rainforest.handle;
 		}
-		return BiomeGenBetaPlus.plains.handle;
+		return EnumBetaPlusBiome.plains.handle;
 	}
+
 
 }

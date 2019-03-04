@@ -3,18 +3,16 @@ package com.mrburgerus.betaplus.world.beta_plus;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
-import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusClimate;
 import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulator;
-import com.mrburgerus.betaplus.world.biome.BetaPlusSelectBiome;
-import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
+import com.mrburgerus.betaplus.world.biome.BetaPlusBiomeSelector;
+import com.mrburgerus.betaplus.world.biome.EnumBetaPlusBiome;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBiome;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.GrassColors;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.provider.BiomeProvider;
@@ -87,7 +85,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	/* Builds Possible Biome List */
 	private static Biome[] buildBiomesList()
 	{
-		BiomeGenBetaPlus[] betaPlusBiomes = BiomeGenBetaPlus.defaultB.getDeclaringClass().getEnumConstants();
+		EnumBetaPlusBiome[] betaPlusBiomes = EnumBetaPlusBiome.defaultB.getDeclaringClass().getEnumConstants();
 		Set<Biome> biomeSet = Sets.newHashSet();
 		for (int i = 0; i < betaPlusBiomes.length; i++)
 		{
@@ -120,7 +118,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
 				temperatures[counter] = temperatureVal;
 				humidities[counter] = humidityVal;
-				biomeArr[counter] = BiomeGenBetaPlus.getBiomeFromLookup(temperatureVal, humidityVal);
+				biomeArr[counter] = EnumBetaPlusBiome.getBiomeFromLookup(temperatureVal, humidityVal);
 				counter++;
 			}
 		}
@@ -157,7 +155,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
 				temperatures[counter] = temperatureVal;
 				humidities[counter] = humidityVal;
-				biomeArr[counter] = BiomeGenBetaPlus.getBiomeFromLookup(temperatureVal, humidityVal);
+				biomeArr[counter] = EnumBetaPlusBiome.getBiomeFromLookup(temperatureVal, humidityVal);
 				if (useAverage)
 				{
 					Pair<Integer, Boolean> avg = simulator.simulateYAvg(pos);
@@ -181,10 +179,13 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				else
 				{
 					Pair<Integer, Boolean> avg = simulator.simulateYChunk(pos);
-					// Removed call to avg.getSecond()
-					if (avg.getFirst() < 60)
+					if (avg.getFirst() < settings.getSeaLevel() - 1) // 62 usually
 					{
 						biomeArr[counter] = this.getOceanBiome(pos, false); //this.getOceanBiome(pos, false);
+					}
+					else if (avg.getFirst() < settings.getSeaLevel() + 1) // Used for assigning Beaches
+					{
+						biomeArr[counter] = this.getBeachBiome(pos);
 					}
 				}
 				counter++;
@@ -200,7 +201,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	@Nonnull
 	public List<Biome> getBiomesToSpawnIn()
 	{
-		return Lists.newArrayList(BiomeGenBetaPlus.beach.handle, BiomeGenBetaPlus.desert.handle);
+		return Lists.newArrayList(EnumBetaPlusBiome.beach.handle, EnumBetaPlusBiome.desert.handle);
 	}
 
 	@Override
@@ -323,8 +324,8 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	{
 		double[] climate = climateSim.getClimateValuesatPos(pos);
 		double temperature = climate[0];
-		//return BiomeGenBetaPlus.getBiomeFromLookup(temperature, climate[1]);
-		if (temperature < BetaPlusSelectBiome.FROZEN_VALUE)
+		//return EnumBetaPlusBiome.getBiomeFromLookup(temperature, climate[1]);
+		if (temperature < BetaPlusBiomeSelector.FROZEN_VALUE)
 		{
 			if(isDeep)
 			{
@@ -332,11 +333,11 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 			}
 			return Biomes.FROZEN_OCEAN;
 		}
-		else if (temperature > BetaPlusSelectBiome.VERY_HOT_VAL && climate[1] >= 0.725)
+		else if (temperature > BetaPlusBiomeSelector.VERY_HOT_VAL && climate[1] >= 0.725)
 		{
 			return Biomes.WARM_OCEAN;
 		}
-		else if (temperature > BetaPlusSelectBiome.WARM_VAL)
+		else if (temperature > BetaPlusBiomeSelector.WARM_VAL)
 		{
 			if(isDeep)
 			{
@@ -358,7 +359,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	public Biome getBeachBiome(BlockPos pos)
 	{
 		double[] climate = climateSim.getClimateValuesatPos(pos);
-		if (climate[0] < BetaPlusSelectBiome.FROZEN_VALUE)
+		if (climate[0] < BetaPlusBiomeSelector.FROZEN_VALUE)
 		{
 			return Biomes.SNOWY_BEACH;
 		}

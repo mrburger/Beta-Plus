@@ -3,8 +3,10 @@ package com.mrburgerus.betaplus.world.beta_plus.sim;
 import com.mojang.datafixers.util.Pair;
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.AbstractWorldSimulator;
+import com.mrburgerus.betaplus.world.biome.EnumBetaPlusBiome;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -21,8 +23,8 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 		octaves1 = new NoiseGeneratorOctavesBeta(rand, 16);
 		octaves2 = new NoiseGeneratorOctavesBeta(rand, 16);
 		octaves3 = new NoiseGeneratorOctavesBeta(rand, 8);
-		new NoiseGeneratorOctavesBeta(rand, 4);
-		new NoiseGeneratorOctavesBeta(rand, 4);
+		beachNoise = new NoiseGeneratorOctavesBeta(rand, 4);
+		surfaceNoise = new NoiseGeneratorOctavesBeta(rand, 4);
 		scaleNoise = new NoiseGeneratorOctavesBeta(rand, 10);
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
 	}
@@ -113,6 +115,7 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 		return 0;
 	}
 
+	//TODO: SAMPLE EVERY 4 BLOCKS
 	@Override
 	protected Pair<int[][], Boolean> simulateChunkYFast(ChunkPos pos)
 	{
@@ -168,11 +171,6 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 
 				}
 			}
-		}
-		//Debug, looks like this is working (The simulator)
-		if (pos.x == -49 && pos.z == 52)
-		{
-			//BetaPlus.LOGGER.info(Arrays.deepToString(output));
 		}
 		return Pair.of(output, landValExists(output));
 	}
@@ -233,4 +231,46 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 		return Pair.of(output, above);
 	}
 	*/
+
+	//TODO: TEST
+	/* Simulates sand blocks, for spawning on beaches, and Buried Treasure */
+	public boolean[][] isSandBlockSim(ChunkPos chunkPos)
+	{
+		// Chunksize is 16
+		boolean[][] outputBool = new boolean[16][16];
+
+		double thirtySecond = 0.03125;
+		this.sandNoise = this.beachNoise.generateNoiseOctaves(this.sandNoise, chunkPos.x * 16, chunkPos.z * 16, 0.0, 16, 16, 1, thirtySecond, thirtySecond, 1.0);
+		this.gravelNoise = this.beachNoise.generateNoiseOctaves(this.gravelNoise, chunkPos.x * 16, 109.0134, chunkPos.z * 16, 16, 1, 16, thirtySecond, 1.0, thirtySecond);
+		this.stoneNoise = this.surfaceNoise.generateNoiseOctaves(this.stoneNoise, chunkPos.x * 16, chunkPos.z * 16, 0.0, 16, 16, 1, thirtySecond * 2.0, thirtySecond * 2.0, thirtySecond * 2.0);
+		for (int z = 0; z < 16; ++z)
+		{
+			for (int x = 0; x < 16; ++x)
+			{
+				boolean sandN = this.sandNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 0.0;
+				boolean gravelN = this.gravelNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 3.0;
+				int stoneN = (int) (this.stoneNoise[z + x * 16] / 3.0 + 3.0 + this.rand.nextDouble() * 0.25);
+				//TODO: GET THE Y VAL OF POSITION, or possibly just use the values as is?
+				outputBool[x][z] = false;
+				/*
+				if (stoneN <= 0)
+				{
+					continue;
+				}
+
+				else if (y >= settings.getSeaLevel() - 4 && y <= settings.getSeaLevel() + 1)
+				{
+					if (gravelN)
+					{
+
+					}
+					*/
+					if (sandN)
+					{
+						outputBool[x][z] = true;
+					}
+				}
+			}
+		return outputBool;
+	}
 }

@@ -10,7 +10,8 @@ import net.minecraft.world.World;
 import java.util.HashMap;
 import java.util.Random;
 
-/* Basis For World Simulators, which sample the Y-Height of thw world and add Oceans */
+/* Basis for World Simulators, which sample the Y-Height of the world and add Oceans, Biome structures, and Beaches */
+/* Only simulates critical points for speed */
 public abstract class AbstractWorldSimulator implements IWorldSimulator
 {
 	// The world seed
@@ -24,6 +25,8 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 	protected AbstractOctavesGenerator octaves3;
 	protected AbstractOctavesGenerator scaleNoise;
 	protected AbstractOctavesGenerator octaves7;
+	protected AbstractOctavesGenerator beachNoise;
+	protected AbstractOctavesGenerator surfaceNoise;
 
 	// Arrays of Noise "density"
 	protected double[] octaveArr1;
@@ -32,6 +35,10 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 	protected double[] octaveArr4;
 	protected double[] octaveArr5;
 	protected double[] heightNoise;
+	// Arrays of sand / gravel position
+	protected double[] sandNoise = new double[256];
+	protected double[] gravelNoise = new double[256];
+	protected double[] stoneNoise = new double[256];
 
 	/* DATA CACHED HERE */
 	/* The Pair is simply a Y Average for the ChunkPos and whether any values fall above sea level */
