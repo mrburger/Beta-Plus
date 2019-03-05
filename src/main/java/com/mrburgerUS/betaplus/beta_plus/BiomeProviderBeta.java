@@ -1,6 +1,6 @@
 package com.mrburgerUS.betaplus.beta_plus;
 
-import com.mrburgerUS.betaplus.beta_plus.biome.BiomeGenBeta;
+import com.mrburgerUS.betaplus.beta_plus.biome.EnumBetaBiome;
 import com.mrburgerUS.betaplus.beta_plus.noise.NoiseGeneratorOctavesBiome;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -82,7 +82,7 @@ public class BiomeProviderBeta extends BiomeProvider
 				humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
 				temperatures[counter] = temperatureVal;
 				humidities[counter] = humidityVal;
-				biomeBases[counter++] = BiomeGenBeta.getBiomeFromLookup(temperatureVal, humidityVal);
+				biomeBases[counter++] = EnumBetaBiome.getBiomeFromLookup(temperatureVal, humidityVal);
 			}
 		}
 		return biomeBases;

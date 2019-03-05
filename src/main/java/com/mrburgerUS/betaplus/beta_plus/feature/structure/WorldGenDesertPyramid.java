@@ -1,6 +1,6 @@
 package com.mrburgerUS.betaplus.beta_plus.feature.structure;
 
-import com.mrburgerUS.betaplus.beta_plus.biome.BiomeGenBeta;
+import com.mrburgerUS.betaplus.beta_plus.biome.EnumBetaBiome;
 import net.minecraft.block.BlockSandStone;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockStoneSlab;
@@ -75,7 +75,7 @@ public class WorldGenDesertPyramid extends MapGenStructure
 
 		if (i == k && j == l)
 		{
-			return world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == BiomeGenBeta.desert.handle;
+			return world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == EnumBetaBiome.desert.handle;
 		}
 
 		return false;
@@ -91,7 +91,7 @@ public class WorldGenDesertPyramid extends MapGenStructure
 	{
 		public Start(Random random, int chunkX, int yVal, int chunkZ, Biome biomeIn)
 		{
-			if (biomeIn == BiomeGenBeta.desert.handle)
+			if (biomeIn == EnumBetaBiome.desert.handle)
 			{
 				DesertPyramid desertPyramidPieces = new DesertPyramid(random, chunkX * 16, yVal, chunkZ * 16);
 				components.add(desertPyramidPieces);

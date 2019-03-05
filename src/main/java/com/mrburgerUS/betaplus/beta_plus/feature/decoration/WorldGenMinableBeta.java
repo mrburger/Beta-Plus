@@ -1,6 +1,6 @@
 package com.mrburgerUS.betaplus.beta_plus.feature.decoration;
 
-import com.mrburgerUS.betaplus.beta_plus.biome.BiomeGenBeta;
+import com.mrburgerUS.betaplus.beta_plus.biome.EnumBetaBiome;
 import net.minecraft.block.BlockStone;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -33,7 +33,7 @@ public class WorldGenMinableBeta
 		generateOre2(world, random, chunkX, chunkZ, 1, 16, 6, Blocks.LAPIS_ORE.getDefaultState());
 
 		//Emeralds
-		if (world.getBiome(new BlockPos(chunkX * 16 + 8, 64, chunkZ * 16 + 8)) == BiomeGenBeta.seasonalForest.handle)
+		if (world.getBiome(new BlockPos(chunkX * 16 + 8, 64, chunkZ * 16 + 8)) == EnumBetaBiome.seasonalForest.handle)
 		{
 			generateOre(world, random, chunkX, chunkZ, 1, 16, 4, Blocks.EMERALD_ORE.getDefaultState());
 		}

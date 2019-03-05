@@ -1,6 +1,6 @@
 package com.mrburgerUS.betaplus.beta_plus.feature.structure;
 
-import com.mrburgerUS.betaplus.beta_plus.biome.BiomeGenBeta;
+import com.mrburgerUS.betaplus.beta_plus.biome.EnumBetaBiome;
 import net.minecraft.block.BlockFlowerPot;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.BlockStairs;
@@ -75,7 +75,7 @@ public class WorldGenSwampHut extends MapGenStructure
 
 		if (i == k && j == l)
 		{
-			return world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == BiomeGenBeta.swampland.handle;
+			return world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == EnumBetaBiome.swampland.handle;
 		}
 
 		return false;
@@ -91,7 +91,7 @@ public class WorldGenSwampHut extends MapGenStructure
 	{
 		public Start(Random random, int chunkX, int yVal, int chunkZ, Biome biomeIn)
 		{
-			if (biomeIn == BiomeGenBeta.swampland.handle)
+			if (biomeIn == EnumBetaBiome.swampland.handle)
 			{
 				SwampHut swampPieces = new SwampHut(random, chunkX * 16, chunkZ * 16);
 				components.add(swampPieces);

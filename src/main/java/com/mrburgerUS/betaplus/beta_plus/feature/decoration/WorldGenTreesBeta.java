@@ -7,7 +7,7 @@ import net.minecraft.world.gen.feature.WorldGenAbstractTree;
 
 import java.util.Random;
 
-import static com.mrburgerUS.betaplus.beta_plus.biome.BiomeGenBeta.*;
+import static com.mrburgerUS.betaplus.beta_plus.biome.EnumBetaBiome.*;
 
 public class WorldGenTreesBeta
 {

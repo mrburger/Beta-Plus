@@ -1,6 +1,6 @@
 package com.mrburgerUS.betaplus.beta_plus.feature.structure;
 
-import com.mrburgerUS.betaplus.beta_plus.biome.BiomeGenBeta;
+import com.mrburgerUS.betaplus.beta_plus.biome.EnumBetaBiome;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -68,7 +68,7 @@ public class WorldGenJunglePyramid extends MapGenStructure
 
 		if (i == k && j == l)
 		{
-			return world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == BiomeGenBeta.rainforest.handle;
+			return world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == EnumBetaBiome.rainforest.handle;
 		}
 
 		return false;
@@ -84,7 +84,7 @@ public class WorldGenJunglePyramid extends MapGenStructure
 	{
 		public Start(Random random, int chunkX, int yVal, int chunkZ, Biome biomeIn)
 		{
-			if (biomeIn == BiomeGenBeta.rainforest.handle)
+			if (biomeIn == EnumBetaBiome.rainforest.handle)
 			{
 				JunglePyramid junglePieces = new JunglePyramid(random, chunkX * 16, yVal, chunkZ * 16);
 				components.add(junglePieces);

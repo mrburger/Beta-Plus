@@ -4,6 +4,7 @@ import com.mrburgerUS.betaplus.beta_plus.biome.MesaBetaHelper;
 import com.mrburgerUS.betaplus.beta_plus.feature.decoration.WorldGenSnowLayerBeta;
 import com.mrburgerUS.betaplus.beta_plus.feature.structure.*;
 import com.mrburgerUS.betaplus.beta_plus.noise.NoiseGeneratorOctavesBeta;
+import com.mrburgerUS.betaplus.beta_plus.util.DeepenOceanUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.state.IBlockState;
@@ -107,11 +108,12 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		ChunkPrimer primer = new ChunkPrimer();
 		//Generate Basic Terrain
 		generateTerrain(x, z, primer);
+		// Deepen Oceans
+		DeepenOceanUtil.deepenOcean(x, z, primer, rand, seaLevel, 7, 2.95);
 		//Replace Biomes
 		replaceBiomes(primer);
 		//Add Grass or Sand or Gravel fill
-		replaceBlocksForBiomeOlder(x, z, primer, biomesForGeneration);
-		//replaceBlocksForBiome(x, z, primer, biomesForGeneration);
+		replaceBiomeBlocks(x, z, primer, biomesForGeneration);
 
 
 		//Make Caves
@@ -400,7 +402,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 	}
 
 
-	public void replaceBlocksForBiomeOlder(int chunkX, int chunkZ, ChunkPrimer chunkPrimer, Biome[] biomes)
+	public void replaceBiomeBlocks(int chunkX, int chunkZ, ChunkPrimer chunkPrimer, Biome[] biomes)
 	{
 		double thirtySecond = 0.03125;
 		this.sandNoise = this.octaves4.generateNoiseOctaves(this.sandNoise, chunkX * 16, chunkZ * 16, 0.0, 16, 16, 1, thirtySecond, thirtySecond, 1.0);
@@ -549,7 +551,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		}
 	}
 
-	private static int getSolidHeightY(int x, int z, ChunkPrimer primer)
+	public static int getSolidHeightY(int x, int z, ChunkPrimer primer)
 	{
 		for (int y = 130; y >= 0; --y)
 		{

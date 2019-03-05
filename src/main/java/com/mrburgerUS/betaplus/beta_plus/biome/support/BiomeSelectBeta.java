@@ -69,16 +69,16 @@ public class BiomeSelectBeta implements IBiomeSelect
 
 	/*
 	//Original, Ripped from Beta.
-	public static BiomeGenBeta getBiomeOld(float temperature, float humidity)
+	public static EnumBetaBiome getBiomeOld(float temperature, float humidity)
 	{
 		return temperature < 0.1f ? tundra : (humidity < 0.2f ? (temperature < 0.5f ? tundra : (temperature < 0.95f ? savanna : desert)) : (humidity > 0.5f && temperature < 0.7f ? swampland : (temperature < 0.5f ? taiga : (temperature < 0.97f ? (humidity < 0.35f ? shrubland : forest) : (humidity < 0.45f ? plains : ((humidity *= temperature) < 0.9f ? seasonalForest : rainforest))))));
 	}
 
 
 	// Old, used in 0.2
-	public static BiomeGenBeta getBiomeNew(float temperature, float humidity)
+	public static EnumBetaBiome getBiomeNew(float temperature, float humidity)
 	{
-		BiomeGenBeta betaBiome;
+		EnumBetaBiome betaBiome;
 		if (temperature < 0.1)
 		{
 			betaBiome = iceSpikes;
@@ -134,19 +134,19 @@ public class BiomeSelectBeta implements IBiomeSelect
 		return betaBiome;
 	}
 
-	public static BiomeGenBeta getBiomeBeta(Biome biome)
+	public static EnumBetaBiome getBiomeBeta(Biome biome)
 	{
-		for (BiomeGenBeta biomeBeta : BiomeGenBeta.values())
+		for (EnumBetaBiome biomeBeta : EnumBetaBiome.values())
 		{
 			if (biomeBeta.handle == biome)
 				return biomeBeta;
 		}
-		return BiomeGenBeta.plains;
+		return EnumBetaBiome.plains;
 	}
 
 
 	//0.2.1
-	public static BiomeGenBeta getBiomeBetaPlus(float temperature, float humidity)
+	public static EnumBetaBiome getBiomeBetaPlus(float temperature, float humidity)
 	{
 		humidity *= temperature;
 		if (temperature < 0.1)
@@ -213,7 +213,7 @@ public class BiomeSelectBeta implements IBiomeSelect
 	}
 
 	//0.2.1, Needs TWEAKING
-	private static BiomeGenBeta getBiome3(double temperature, double humidity)
+	private static EnumBetaBiome getBiome3(double temperature, double humidity)
 	{
 		humidity *= temperature;
 		if (temperature < 0.5)

@@ -2,7 +2,7 @@ package com.mrburgerUS.betaplus.beta_plus.biome;
 
 import net.minecraft.world.biome.Biome;
 
-public interface BetaPlusBiome
+public interface IBetaBiome
 {
 	String name();
 

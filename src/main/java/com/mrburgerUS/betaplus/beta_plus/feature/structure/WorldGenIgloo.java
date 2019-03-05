@@ -1,6 +1,6 @@
 package com.mrburgerUS.betaplus.beta_plus.feature.structure;
 
-import com.mrburgerUS.betaplus.beta_plus.biome.BiomeGenBeta;
+import com.mrburgerUS.betaplus.beta_plus.biome.EnumBetaBiome;
 import net.minecraft.init.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
@@ -75,7 +75,7 @@ public class WorldGenIgloo extends MapGenStructure
 
 		if (i == k && j == l)
 		{
-			return world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == BiomeGenBeta.tundra.handle;
+			return world.getBiome(new BlockPos(i * 16 + 8, 0, j * 16 + 8)) == EnumBetaBiome.tundra.handle;
 		}
 
 		return false;
@@ -91,7 +91,7 @@ public class WorldGenIgloo extends MapGenStructure
 	{
 		public Start(Random random, int chunkX, int chunkZ, Biome biomeIn)
 		{
-			if (biomeIn == BiomeGenBeta.tundra.handle)
+			if (biomeIn == EnumBetaBiome.tundra.handle)
 			{
 				Igloo iglooPieces = new Igloo(random, chunkX * 16, chunkZ * 16);
 				components.add(iglooPieces);

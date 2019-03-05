@@ -6,7 +6,7 @@ import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.biome.Biome;
 
-public enum BiomeGenBeta implements BetaPlusBiome
+public enum EnumBetaBiome implements IBetaBiome
 {
 	//Enums
 	rainforest(Biomes.JUNGLE),
@@ -51,12 +51,12 @@ public enum BiomeGenBeta implements BetaPlusBiome
 	private static final Biome[] biomeLookupTable;
 
 	//Constructors
-	BiomeGenBeta(Biome handle)
+	EnumBetaBiome(Biome handle)
 	{
 		this(handle, Blocks.GRASS, Blocks.DIRT);
 	}
 
-	BiomeGenBeta(Biome biomeHandle, Block top, Block filler)
+	EnumBetaBiome(Biome biomeHandle, Block top, Block filler)
 	{
 		handle = biomeHandle;
 		topBlock = top;
@@ -67,7 +67,7 @@ public enum BiomeGenBeta implements BetaPlusBiome
 	static
 	{
 		biomeLookupTable = new Biome[4096];
-		BiomeGenBeta.generateBiomeLookup();
+		EnumBetaBiome.generateBiomeLookup();
 	}
 
 	//Methods
