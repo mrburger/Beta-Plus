@@ -118,7 +118,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		// Deepen Oceans
 		DeepenOceanUtil.deepenOcean(x, z, primer, rand, seaLevel, 7, 3.2); // Was 2.95
 		//Replace Biomes
-		//replaceBiomes(primer);
+		replaceBiomes(primer);
 		//Add Grass or Sand or Gravel fill
 		replaceBiomeBlocks(x, z, primer, biomesForGeneration);
 
