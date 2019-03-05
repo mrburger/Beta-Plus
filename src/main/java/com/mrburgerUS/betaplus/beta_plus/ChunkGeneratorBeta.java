@@ -24,6 +24,8 @@ import net.minecraft.world.gen.NoiseGeneratorPerlin;
 import net.minecraft.world.gen.feature.WorldGenLakes;
 import net.minecraft.world.gen.structure.MapGenMineshaft;
 import net.minecraft.world.gen.structure.MapGenStronghold;
+import net.minecraft.world.gen.structure.StructureOceanMonument;
+import net.minecraft.world.gen.structure.WoodlandMansion;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -68,6 +70,9 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 	private WorldGenIgloo iglooGenerator;
 	private WorldGenSwampHut swampHutGenerator;
 	private WorldGenVillage villageGenerator;
+	private StructureOceanMonument monumentGenerator;
+	//UNUSABLE (REQUIRES OVERWORLD GENERATOR)
+	private WoodlandMansion mansionGenerator;
 	//Settings (REMOVED FOR BACKPORT)
 
 
@@ -94,6 +99,8 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		iglooGenerator = new WorldGenIgloo(32);
 		swampHutGenerator = new WorldGenSwampHut(32);
 		villageGenerator = new WorldGenVillage(48);
+		//TESTING
+		monumentGenerator = new StructureOceanMonument();
 	}
 
 
@@ -109,9 +116,9 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		//Generate Basic Terrain
 		generateTerrain(x, z, primer);
 		// Deepen Oceans
-		DeepenOceanUtil.deepenOcean(x, z, primer, rand, seaLevel, 7, 2.95);
+		DeepenOceanUtil.deepenOcean(x, z, primer, rand, seaLevel, 7, 3.2); // Was 2.95
 		//Replace Biomes
-		replaceBiomes(primer);
+		//replaceBiomes(primer);
 		//Add Grass or Sand or Gravel fill
 		replaceBiomeBlocks(x, z, primer, biomesForGeneration);
 
@@ -140,6 +147,8 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		iglooGenerator.generate(worldObj, x, z, primer);
 		swampHutGenerator.generate(worldObj, x, z, primer);
 		villageGenerator.generate(worldObj, x, z, primer);
+		//Testing (MAN 1.12.2 world sucks)
+		monumentGenerator.generate(worldObj, x, z, primer);
 
 		//END STRUCTURES GENERATION
 
@@ -160,17 +169,16 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		//Decorate Vanilla Plus
 		biomeAtPos.decorate(worldObj, rand, blockPos);
 		WorldGenSnowLayerBeta.generateSnow(worldObj, cPos);
-
-			WorldGenDungeons.generateDungeons(worldObj, rand, blockPos);
-			mineshaftGenerator.generateStructure(worldObj, rand, cPos);
-			strongholdGenerator.generateStructure(worldObj, rand, cPos);
-
-			desertPyramidGenerator.generateStructure(worldObj, rand, cPos);
-			junglePyramidGenerator.generateStructure(worldObj, rand, cPos);
-			iglooGenerator.generateStructure(worldObj, rand, cPos);
-			swampHutGenerator.generateStructure(worldObj, rand, cPos);
-
-			villageGenerator.generateStructure(worldObj, rand, cPos);
+		WorldGenDungeons.generateDungeons(worldObj, rand, blockPos);
+		mineshaftGenerator.generateStructure(worldObj, rand, cPos);
+		strongholdGenerator.generateStructure(worldObj, rand, cPos);
+		desertPyramidGenerator.generateStructure(worldObj, rand, cPos);
+		junglePyramidGenerator.generateStructure(worldObj, rand, cPos);
+		iglooGenerator.generateStructure(worldObj, rand, cPos);
+		swampHutGenerator.generateStructure(worldObj, rand, cPos);
+		villageGenerator.generateStructure(worldObj, rand, cPos);
+		//Testing
+		monumentGenerator.generateStructure(worldObj, rand, cPos);
 
 		//Lakes (WOOHOO! NO SETTINGS)
 		if (biomeAtPos != Biomes.DESERT && biomeAtPos != Biomes.DESERT_HILLS && this.rand.nextInt(80) == 0)
@@ -222,6 +230,8 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 			return swampHutGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
 		else if ("Village".equals(structureName) && villageGenerator != null)
 			return villageGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
+		else if ("Monument".equals(structureName) && monumentGenerator != null)
+			return monumentGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
 		return null;
 	}
 
