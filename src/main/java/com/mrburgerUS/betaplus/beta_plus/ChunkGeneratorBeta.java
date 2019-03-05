@@ -1,12 +1,10 @@
 package com.mrburgerUS.betaplus.beta_plus;
 
-import com.mrburgerUS.betaplus.beta_plus.biome.MesaBetaHelper;
 import com.mrburgerUS.betaplus.beta_plus.feature.decoration.WorldGenSnowLayerBeta;
 import com.mrburgerUS.betaplus.beta_plus.feature.structure.*;
 import com.mrburgerUS.betaplus.beta_plus.noise.NoiseGeneratorOctavesBeta;
 import com.mrburgerUS.betaplus.beta_plus.util.DeepenOceanUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockSand;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Biomes;
@@ -20,7 +18,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraft.world.gen.MapGenRavine;
-import net.minecraft.world.gen.NoiseGeneratorPerlin;
 import net.minecraft.world.gen.feature.WorldGenLakes;
 import net.minecraft.world.gen.structure.MapGenMineshaft;
 import net.minecraft.world.gen.structure.MapGenStronghold;
@@ -59,7 +56,6 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 	private double[] sandNoise = new double[256];
 	private double[] gravelNoise = new double[256];
 	private double[] stoneNoise = new double[256];
-	private double[] generatedTemperatures;
 	//World Features
 	private net.minecraft.world.gen.MapGenBase caveGenerator = new net.minecraft.world.gen.MapGenCaves();
 	private MapGenRavine ravineGenerator = new MapGenRavine();
@@ -90,7 +86,6 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		octaves5 = new NoiseGeneratorOctavesBeta(rand, 4);
 		octaves6 = new NoiseGeneratorOctavesBeta(rand, 10);
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
-		new NoiseGeneratorPerlin(this.rand, 4);
 		biomeProvider = new BiomeProviderBeta(world);
 
 		//Set Generators up
@@ -117,7 +112,7 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 		generateTerrain(x, z, primer);
 		// Deepen Oceans
 		DeepenOceanUtil.deepenOcean(x, z, primer, rand, seaLevel, 7, 3.2); // Was 2.95
-		//Replace Biomes
+		//Replace Oceans
 		replaceBiomes(primer);
 		//Add Grass or Sand or Gravel fill
 		replaceBiomeBlocks(x, z, primer, biomesForGeneration);
@@ -489,36 +484,16 @@ public class ChunkGeneratorBeta implements IChunkGenerator
 								biomesForGeneration[(x << 4 | z)] = Biomes.BEACH;
 							}
 
-
 							// Sets top & filler Blocks
 							checkVal = stoneN;
 							if (y >= seaLevel - 1)
 							{
-								//Catch Mesas
-								if (biome == Biomes.MESA)
-								{
-									if (y > seaLevel + 1)
-										topBlock = MesaBetaHelper.getBand(x, y, z, worldObj.getSeed());
-									else
-									{
-										topBlock = Blocks.SAND.getDefaultState().withProperty(BlockSand.VARIANT, BlockSand.EnumType.RED_SAND);
-										fillerBlock = Blocks.SAND.getDefaultState().withProperty(BlockSand.VARIANT, BlockSand.EnumType.RED_SAND);
-									}
-								}
-
-
 								chunkPrimer.setBlockState(x, y, z, topBlock);
 								continue;
 							}
 							chunkPrimer.setBlockState(x, y, z, fillerBlock);
 							continue;
 
-						}
-
-						//Catch Mesa Again
-						if (biome == Biomes.MESA)
-						{
-							fillerBlock = MesaBetaHelper.getBand(x, y + 1, z, worldObj.getSeed());
 						}
 
 						if (checkVal <= 0)

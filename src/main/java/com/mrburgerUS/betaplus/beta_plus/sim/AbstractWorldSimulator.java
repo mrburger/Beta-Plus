@@ -158,7 +158,7 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 		{
 			for (int val : simulated)
 			{
-				if (val >= 60) //Modified
+				if (val >= 61) //Modified
 				{
 					return true;
 				}

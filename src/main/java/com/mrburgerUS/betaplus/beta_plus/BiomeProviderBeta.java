@@ -26,7 +26,6 @@ public class BiomeProviderBeta extends BiomeProvider
 	public double[] temperatures;
 	public double[] humidities;
 	public double[] noise;
-	public Biome[] biomeBaseArray;
 	private BetaSimulator simulator;
 
 	public BiomeProviderBeta(World world)
@@ -41,14 +40,13 @@ public class BiomeProviderBeta extends BiomeProvider
 
 	public Biome[] findBiomeArray(int xPos, int zPos, int width, int depth)
 	{
-		biomeBaseArray = getBiomesForGeneration(biomeBaseArray, xPos, zPos, width, depth);
-		return biomeBaseArray;
+		//Biome Base Array was messed up.
+		return getBiomesForGeneration(new Biome[0], xPos, zPos, width, depth);
 	}
 
 	public Biome[] findBiomeArrayWithOceans(int xPos, int zPos, int width, int depth, boolean useAverage)
 	{
-		biomeBaseArray = getBiomesWithOceans(biomeBaseArray, xPos, zPos, width, depth, useAverage);
-		return biomeBaseArray;
+		return getBiomesWithOceans(xPos, zPos, width, depth, useAverage);
 	}
 
 	//BEGIN OVERRIDES
@@ -71,46 +69,16 @@ public class BiomeProviderBeta extends BiomeProvider
 	}
 
 	@Override
-	public Biome[] getBiomesForGeneration(Biome[] biomeBases, int xChunk, int zChunk, int width, int height)
+	public Biome[] getBiomesForGeneration(Biome[] unused, int xChunk, int zChunk, int width, int height)
 	{
-		if (biomeBases == null || biomeBases.length < width * height)
-		{
-			biomeBases = new Biome[width * height];
-		}
-		temperatures = octave1.generateOctaves(temperatures, xChunk, zChunk, width, width, 0.02500000037252903, 0.02500000037252903, 0.25);
-		humidities = octave2.generateOctaves(humidities, xChunk, zChunk, width, width, 0.05000000074505806, 0.05000000074505806, 0.3333333333333333);
-		noise = octave3.generateOctaves(noise, xChunk, zChunk, width, width, 0.25, 0.25, 0.5882352941176471);
-		int counter = 0;
-		for (int x = 0; x < width; ++x)
-		{
-
-			for (int z = 0; z < height; ++z)
-			{
-				double var9 = noise[counter] * 1.1 + 0.5;
-				double oneHundredth = 0.01;
-				double point99 = 1.0 - oneHundredth;
-				double temperatureVal = (temperatures[counter] * 0.15 + 0.7) * point99 + var9 * oneHundredth;
-				oneHundredth = 0.002;
-				point99 = 1.0 - oneHundredth;
-				double humidityVal = (humidities[counter] * 0.15 + 0.5) * point99 + var9 * oneHundredth;
-				temperatureVal = 1.0 - (1.0 - temperatureVal) * (1.0 - temperatureVal);
-				temperatureVal = MathHelper.clamp(temperatureVal, 0.0, 1.0);
-				humidityVal = MathHelper.clamp(humidityVal, 0.0, 1.0);
-				temperatures[counter] = temperatureVal;
-				humidities[counter] = humidityVal;
-				biomeBases[counter++] = EnumBetaBiome.getBiomeFromLookup(temperatureVal, humidityVal);
-			}
-		}
-		return biomeBases;
+		//Modified
+		return getBiomesWithOceans(xChunk, zChunk, width, height, false);
 	}
 
 	//NEW
-	public Biome[] getBiomesWithOceans(Biome[] biomeBases, int xChunk, int zChunk, int width, int height, boolean useAverage)
+	public Biome[] getBiomesWithOceans(int xChunk, int zChunk, int width, int height, boolean useAverage)
 	{
-		if (biomeBases == null || biomeBases.length < width * height)
-		{
-			biomeBases = new Biome[width * height];
-		}
+		Biome[] biomeBases = new Biome[width * height];
 		temperatures = octave1.generateOctaves(temperatures, xChunk, zChunk, width, width, 0.02500000037252903, 0.02500000037252903, 0.25);
 		humidities = octave2.generateOctaves(humidities, xChunk, zChunk, width, width, 0.05000000074505806, 0.05000000074505806, 0.3333333333333333);
 		noise = octave3.generateOctaves(noise, xChunk, zChunk, width, width, 0.25, 0.25, 0.5882352941176471);
@@ -143,7 +111,7 @@ public class BiomeProviderBeta extends BiomeProvider
 				{
 					Pair<Integer, Boolean> avg = simulator.simulateYAvg(pos);
 					// Tried 56, 58, 57
-					if (avg.getLeft() < 58) // Usually 58
+					if (avg.getLeft() < 57) // Usually 58, set to 57
 					{
 						// Inversion was the intent, so false is supposed to be "all values below sea level"
 						if (!avg.getRight())
@@ -154,14 +122,6 @@ public class BiomeProviderBeta extends BiomeProvider
 						{
 							biomeBases[counter] = Biomes.OCEAN;
 						}
-					}
-				}
-				else
-				{
-					Pair<Integer, Boolean> avg = simulator.simulateYChunk(pos);
-					if (avg.getLeft() < 62) // 62 usually
-					{
-						biomeBases[counter] = Biomes.OCEAN;
 					}
 				}
 				// Increment counter
