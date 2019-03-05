@@ -1,8 +1,7 @@
 package com.mrburgerUS.betaplus.forge;
 
-import com.mrburgerUS.betaplus.BetaPlusSettings;
-import com.mrburgerUS.betaplus.beta.BiomeProviderBeta;
-import com.mrburgerUS.betaplus.beta.ChunkGeneratorBeta;
+import com.mrburgerUS.betaplus.beta_plus.BiomeProviderBeta;
+import com.mrburgerUS.betaplus.beta_plus.ChunkGeneratorBeta;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.BiomeProvider;
@@ -37,8 +36,7 @@ public class WorldTypeBetaPlus extends WorldType
 	@Override
 	public BiomeProvider getBiomeProvider(World world)
 	{
-		int biomeType = BetaPlusSettings.Factory.jsonToSettings(world.getWorldInfo().getGeneratorOptions()).generatorType;
-		return new BiomeProviderBeta(world, biomeType);
+		return new BiomeProviderBeta(world);
 	}
 
 	@Override
@@ -48,15 +46,9 @@ public class WorldTypeBetaPlus extends WorldType
 		return true;
 	}
 
-	@SideOnly(Side.CLIENT)
-	public void onCustomizeButton(net.minecraft.client.Minecraft mc, net.minecraft.client.gui.GuiCreateWorld guiCreateWorld)
-	{
-		mc.displayGuiScreen(new GuiCustomizeBeta(guiCreateWorld));
-	}
-
 	@Override
 	public boolean isCustomizable()
 	{
-		return true;
+		return false;
 	}
 }

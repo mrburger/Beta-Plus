@@ -1,6 +1,6 @@
 package com.mrburgerUS.betaplus.proxy;
 
-import com.mrburgerUS.betaplus.beta.biome.support.SupportBiome;
+import com.mrburgerUS.betaplus.beta_plus.biome.support.SupportBiome;
 import com.mrburgerUS.betaplus.forge.WorldTypeBetaPlus;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
