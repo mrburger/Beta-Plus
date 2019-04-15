@@ -10,6 +10,7 @@ import net.minecraft.world.chunk.ChunkPos;
 
 public class BetaPlusSimulator extends AbstractWorldSimulator
 {
+
 	public BetaPlusSimulator(World world)
 	{
 		super(world);

@@ -37,7 +37,7 @@ public class BetaBiomeProvider extends VanillaLayeredBiomeSource
 	private final double mult;
 
 	private BetaPlusClimate climateSim;
-	private BetaPlusSimulator simulator;
+	public BetaPlusSimulator simulator;
 
 
 
@@ -73,6 +73,35 @@ public class BetaBiomeProvider extends VanillaLayeredBiomeSource
 			biomeSet.add(betaPlusBiomes[i].handle);
 		}
 		return biomeSet.toArray(new Biome[biomeSet.size()]);
+	}
+
+	@Override
+	public BlockPos locateBiome(int x, int z, int range, List<Biome> biomeList, Random random)
+	{
+		int i = x - range >> 2;
+		int j = z - range >> 2;
+		int k = x + range >> 2;
+		int l = z + range >> 2;
+		int xSize = k - i + 1;
+		int zSize = l - j + 1;
+		Biome[] biomeArr = this.generateBiomes(i, j, xSize, zSize);
+
+		BlockPos blockpos = null;
+		int k1 = 0;
+
+		for(int counter = 0; counter < xSize * zSize; ++counter) {
+			int i2 = i + counter % xSize << 2;
+			int j2 = j + counter / xSize << 2;
+			if (biomeList.contains(biomeArr[counter]))
+			{
+				if (blockpos == null || random.nextInt(k1 + 1) == 0) {
+					blockpos = new BlockPos(i2, 0, j2);
+				}
+
+				++k1;
+			}
+		}
+		return blockpos;
 	}
 
 	@Override
