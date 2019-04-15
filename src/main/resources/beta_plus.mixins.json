@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "com.mrburgerus.betaplus.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinOverworldDimension"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

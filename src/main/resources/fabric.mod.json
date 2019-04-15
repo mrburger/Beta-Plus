@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "beta_plus",
+  "version": "${version}",
+
+  "name": "Beta+",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "mrburgerUS"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/modid/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.mrburgerus.betaplus.BetaPlus"
+    ]
+  },
+  "mixins": [
+    "beta_plus.mixins.json"
+  ],
+
+  "requires": {
+    "fabricloader": ">=0.4.0",
+    "fabric": "*"
+  },
+  "suggests": {
+    "flamingo": "*"
+  }
+}
