@@ -507,7 +507,8 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 						{
 							--checkVal;
 							chunkprimer.setBlockState(new BlockPos(x, y, z), fillerBlock, false);
-							if (checkVal == 0 && fillerBlock == Blocks.SAND)
+							//Possibly state comparison fucked it
+							if (checkVal == 0 && fillerBlock == Blocks.SAND.getDefaultState())
 							{
 								checkVal = this.rand.nextInt(4);
 								fillerBlock = Blocks.SANDSTONE.getDefaultState();
