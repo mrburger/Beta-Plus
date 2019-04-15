@@ -35,14 +35,10 @@ public class ClientProxy extends ServerProxy
 	@Override
 	public void init()
 	{
-		//FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerAlphaLoader);
-		//FMLJavaModLoadingContext.get().getModEventBus().addListener(this::addTextures);
-
 		// Client Color
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(ColorRegister::clientSide);
 
 		// Register Number
-		//FMLJavaModLoadingContext.get().getModEventBus().addListener(GuiBetaNumber::overlayEvent);
 
 		// Register Client Features
 		MinecraftForge.EVENT_BUS.register(this);

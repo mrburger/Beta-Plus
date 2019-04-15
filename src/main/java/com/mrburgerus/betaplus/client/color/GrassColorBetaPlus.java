@@ -42,7 +42,7 @@ public class GrassColorBetaPlus implements IBlockColor
 			if (true)
 			{
 
-				// FOR TESTING ONLY
+				// DISABLED
 				BetaPlusClimate climate = new BetaPlusClimate(worldIn.getDimension().getWorld(), 0.02500000037252903, 2);
 				/* Working */
 				double[] vals = climate.getClimateValuesatPos(pos);

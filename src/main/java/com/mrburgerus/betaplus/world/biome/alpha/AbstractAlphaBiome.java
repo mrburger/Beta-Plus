@@ -15,6 +15,9 @@ import net.minecraft.world.gen.placement.*;
 
 public class AbstractAlphaBiome extends Biome
 {
+	// Water Color for Alpha Biomes
+	// Water Color: 4159204, 3750089, 0x3964ff
+	public static final int WATER_COLOR = 0x122df6;
 
 	// Pass it across.
 	AbstractAlphaBiome(BiomeBuilder builder)
@@ -22,7 +25,7 @@ public class AbstractAlphaBiome extends Biome
 		super(builder);
 	}
 
-	public void addAllOres()
+	void addAllOres()
 	{
 		// Underground Dirt
 		this.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Biome.createCompositeFeature(Feature.MINABLE, new MinableConfig(MinableConfig.IS_ROCK, Blocks.DIRT.getDefaultState(), 33), Biome.COUNT_RANGE, new CountRangeConfig(10, 0, 0, 256)));
@@ -56,7 +59,7 @@ public class AbstractAlphaBiome extends Biome
 		this.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Biome.createCompositeFeature(Feature.SPHERE_REPLACE, new SphereReplaceConfig(Blocks.GRAVEL, 6, 2, Lists.newArrayList(Blocks.DIRT, Blocks.GRASS_BLOCK)), Biome.TOP_SOLID, new FrequencyConfig(1)));
 	}
 
-	public void addAllVegetal()
+	void addAllVegetal()
 	{
 		// Reeds
 		this.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Biome.createCompositeFeature(Feature.REED, IFeatureConfig.NO_FEATURE_CONFIG, Biome.TWICE_SURFACE, new FrequencyConfig(10)));
@@ -106,7 +109,7 @@ public class AbstractAlphaBiome extends Biome
 		this.addSpawn(EnumCreatureType.MONSTER, new Biome.SpawnListEntry(EntityType.WITCH, 5, 1, 1));
 	}
 
-	public void addAlphaOceanFeatures()
+	void addAlphaOceanFeatures()
 	{
 		// Shipwreck
 		this.addStructure(Feature.SHIPWRECK, new ShipwreckConfig(false));

@@ -98,7 +98,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		// Replace Blocks (DIRT & SAND & STUFF)
 		replaceBlocksForBiome(x, z, chunkIn, EnumBetaPlusBiome.convertBiomeTable(biomesForGeneration));
 		// Replace Beaches, done afterwards.
-		//this.replaceBeaches(chunkIn);
+		this.replaceBeaches(chunkIn);
 
 		// Set Biomes
 		chunkIn.setBiomes(BiomeReplaceUtil.convertBiomeArray(biomesForGeneration));
@@ -501,7 +501,6 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 							{
 								chunkprimer.setBlockState(new BlockPos(x, y, z), fillerBlock, false);
 							}
-
 						}
 						// Add Sandstone (NOT WORKING)
 						else if (checkVal > 0)

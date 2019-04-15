@@ -46,6 +46,8 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 	protected HashMap<ChunkPos, Pair<Integer, Boolean>> yCache;
 	// 3x3 Averages Cache
 	protected HashMap<ChunkPos, Pair<Integer, Boolean>> avgYCache;
+	// Sand Block Cache
+	protected HashMap<ChunkPos, Pair<boolean[][], Boolean>> sandBlockCache;
 
 	// Constructor of Abstract Type
 	protected AbstractWorldSimulator(World world)
@@ -57,6 +59,7 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 		// Initialize Caches
 		yCache = new HashMap<>();
 		avgYCache = new HashMap<>();
+		sandBlockCache = new HashMap<>();
 	}
 
 	/* Averages a Chunk's Y Coordinates, pretty useful */
@@ -157,6 +160,22 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 			for (int val : simulated)
 			{
 				if (val >= 60) //Modified
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/* If ANY blocks in the chunk applied sand */
+	protected boolean anyBlockSand(boolean[][] sandSimulated)
+	{
+		for(boolean[] simulated : sandSimulated)
+		{
+			for (boolean b : simulated)
+			{
+				if (b)
 				{
 					return true;
 				}

@@ -115,28 +115,58 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 		return 0;
 	}
 
-	//TODO: SAMPLE EVERY 4 BLOCKS
+	//TODO: SAMPLE EVERY 4 BLOCKS (TESTING)
+	// SHOULD WORK
 	@Override
 	protected Pair<int[][], Boolean> simulateChunkYFast(ChunkPos pos)
 	{
-		int[][] output = new int[16][16];
+		int[][] output = new int[4][4];
 		heightNoise = generateOctaves(heightNoise, pos.x * 4, 0,pos.z * 4, 5, 17, 5);
-		for (int i = 0; i < 4; ++i)
+		for (int cX = 0; cX < 4; ++cX)
 		{
-			for (int j = 0; j < 4; ++j)
+			for (int cZ = 0; cZ < 4; ++cZ)
 			{
-				for (int k = 0; k < 16; ++k)
+				for (int cY = 0; cY < 16; ++cY)
 				{
 					double eigth = 0.125;
-					double var16 = heightNoise[((i) * 5 + j) * 17 + k];
-					double var18 = heightNoise[((i) * 5 + j + 1) * 17 + k];
-					double var20 = heightNoise[((i + 1) * 5 + j) * 17 + k];
-					double var22 = heightNoise[((i + 1) * 5 + j + 1) * 17 + k];
-					double var24 = (heightNoise[((i) * 5 + j) * 17 + k + 1] - var16) * eigth;
-					double var26 = (heightNoise[((i) * 5 + j + 1) * 17 + k + 1] - var18) * eigth;
-					double var28 = (heightNoise[((i + 1) * 5 + j) * 17 + k + 1] - var20) * eigth;
-					double var30 = (heightNoise[((i + 1) * 5 + j + 1) * 17 + k + 1] - var22) * eigth;
-					for (int l = 0; l < 8; ++l)
+					double noise1 = heightNoise[((cX) * 5 + cZ) * 17 + cY];
+					double eightNoise1 = (heightNoise[((cX) * 5 + cZ) * 17 + cY + 1] - noise1) * eigth;
+					for (int cY2 = 0; cY2 < 8; ++cY2)
+					{
+						double stonePosPrime = noise1;
+						int y = cY * 8 + cY2;
+						if (stonePosPrime > 0.0)
+						{
+							output[cX][cZ] = y;
+						}
+						noise1 += eightNoise1;
+					}
+				}
+			}
+		}
+		return Pair.of(output, landValExists(output));
+	}
+
+	protected Pair<int[][], Boolean> simulateChunkYFastOrig(ChunkPos pos)
+	{
+		int[][] output = new int[16][16];
+		heightNoise = generateOctaves(heightNoise, pos.x * 4, 0,pos.z * 4, 5, 17, 5);
+		for (int cX = 0; cX < 4; ++cX)
+		{
+			for (int cZ = 0; cZ < 4; ++cZ)
+			{
+				for (int cY = 0; cY < 16; ++cY)
+				{
+					double eigth = 0.125;
+					double var16 = heightNoise[((cX) * 5 + cZ) * 17 + cY];
+					double var18 = heightNoise[((cX) * 5 + cZ + 1) * 17 + cY];
+					double var20 = heightNoise[((cX + 1) * 5 + cZ) * 17 + cY];
+					double var22 = heightNoise[((cX + 1) * 5 + cZ + 1) * 17 + cY];
+					double var24 = (heightNoise[((cX) * 5 + cZ) * 17 + cY + 1] - var16) * eigth;
+					double var26 = (heightNoise[((cX) * 5 + cZ + 1) * 17 + cY + 1] - var18) * eigth;
+					double var28 = (heightNoise[((cX + 1) * 5 + cZ) * 17 + cY + 1] - var20) * eigth;
+					double var30 = (heightNoise[((cX + 1) * 5 + cZ + 1) * 17 + cY + 1] - var22) * eigth;
+					for (int cY2 = 0; cY2 < 8; ++cY2)
 					{
 						double quarter = 0.25;
 						double var35 = var16;
@@ -145,20 +175,20 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 						double var41 = (var22 - var18) * quarter;
 						for (int m = 0; m < 4; ++m)
 						{
-							int x = m + i * 4;
-							int y = k * 8 + l;
-							int z = j * 4;
+							int x = m + cX * 4;
+							int y = cY * 8 + cY2;
+							int z = cZ * 4;
 							double var46 = 0.25;
-							double var48 = var35;
+							double stoneNoise = var35;
 							double var50 = (var37 - var35) * var46;
 							for (int n = 0; n < 4; ++n)
 							{
-								if (var48 > 0.0)
+								if (stoneNoise > 0.0)
 								{
 									output[x][z] = y;
 								}
 								++z;
-								var48 += var50;
+								stoneNoise += var50;
 							}
 							var35 += var39;
 							var37 += var41;
@@ -175,66 +205,30 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 		return Pair.of(output, landValExists(output));
 	}
 
-	/*
-	@Override
-	protected Pair<int[][], Boolean> simulateChunkYFast(ChunkPos pos)
+	/* Is a block going to be sand according to the simulator? */
+	/* DOES NOT CHECK WHETHER A VALUE IS ACTUALLY ABLE TO BE A BEACH BASED ON Y */
+	/* Check if valid y externally! */
+	public boolean isBlockSandSim(BlockPos pos)
 	{
-		int[][] output = new int[4][4];
-		heightNoise = this.generateOctaves(heightNoise, pos.x * 4, 0,pos.z * 4, 5, 17, 5);
-		for (int cX = 0; cX < 4; ++cX)
+		ChunkPos chunkPos = new ChunkPos(pos);
+		int xPosChunk = pos.getX() & 15;
+		int zPosChunk = pos.getZ() & 15;
+		if (sandBlockCache.containsKey(chunkPos))
 		{
-			for (int cZ = 0; cZ < 4; ++cZ)
-			{
-				for (int cY = 0; cY < 16; ++cY)
-				{
-					double eigth = 0.125;
-					double noise1 = heightNoise[((cX) * 5 + cZ) * 17 + cY];
-					double var18 = heightNoise[((cX) * 5 + cZ + 1) * 17 + cY];
-					double var20 = heightNoise[((cX + 1) * 5 + cZ) * 17 + cY];
-					double var22 = heightNoise[((cX + 1) * 5 + cZ + 1) * 17 + cY];
-					double eightNoise1 = (heightNoise[((cX) * 5 + cZ) * 17 + cY + 1] - noise1) * eigth;
-					for (int y2 = 0; y2 < 8; ++y2)
-					{
-						double quarter = 0.25;
-						double stoneP2 = noise1;
-						double stoneP1 = var18;
-						double var39 = (var20 - noise1) * quarter;
-						double var41 = (var22 - var18) * quarter;
-						for (int m = 0; m < 4; ++m)
-						{
-							int y = cY * 8 + y2;
-							double stonePosPrime = stoneP2;
-							double stoneAdder = (stoneP1 - stoneP2) * 0.25;
-							for (int n = 0; n < 4; ++n)
-							{
-								if (stonePosPrime > 0.0)
-								{
-									output[cX][cZ] = y;
-								}
-								stonePosPrime += stoneAdder;
-							}
-							stoneP2 += var39;
-							stoneP1 += var41;
-						}
-						noise1 += eightNoise1;
-					}
-
-				}
-			}
+				return sandBlockCache.get(chunkPos).getFirst()[xPosChunk][zPosChunk]; // Get boolean array at the position in question, if yes it is sand.
 		}
-		boolean above = landValExists(output);
-		if (!above)
+		else
 		{
-			BetaPlus.LOGGER.info(Arrays.deepToString(output));
+			Pair<boolean[][], Boolean> sandPair = isSandBlockSim(chunkPos);
+			sandBlockCache.put(chunkPos, sandPair); // Enter the value
+			return sandPair.getFirst()[xPosChunk][zPosChunk];
 		}
-
-		return Pair.of(output, above);
 	}
-	*/
+
 
 	//TODO: TEST
 	/* Simulates sand blocks, for spawning on beaches, and Buried Treasure */
-	public boolean[][] isSandBlockSim(ChunkPos chunkPos)
+	protected Pair<boolean[][], Boolean> isSandBlockSim(ChunkPos chunkPos)
 	{
 		// Chunksize is 16
 		boolean[][] outputBool = new boolean[16][16];
@@ -248,29 +242,13 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 			for (int x = 0; x < 16; ++x)
 			{
 				boolean sandN = this.sandNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 0.0;
-				boolean gravelN = this.gravelNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 3.0;
-				int stoneN = (int) (this.stoneNoise[z + x * 16] / 3.0 + 3.0 + this.rand.nextDouble() * 0.25);
-				//TODO: GET THE Y VAL OF POSITION, or possibly just use the values as is?
-				outputBool[x][z] = false;
-				/*
-				if (stoneN <= 0)
-				{
-					continue;
-				}
-
-				else if (y >= settings.getSeaLevel() - 4 && y <= settings.getSeaLevel() + 1)
-				{
-					if (gravelN)
-					{
-
-					}
-					*/
-					if (sandN)
-					{
-						outputBool[x][z] = true;
-					}
-				}
+				//boolean gravelN = this.gravelNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 3.0;
+				//int stoneN = (int) (this.stoneNoise[z + x * 16] / 3.0 + 3.0 + this.rand.nextDouble() * 0.25);
+				outputBool[x][z] = sandN;
 			}
-		return outputBool;
+		}
+		Pair<boolean[][], Boolean> retPair = Pair.of(outputBool, anyBlockSand(outputBool));
+		sandBlockCache.put(chunkPos, retPair);
+		return retPair;
 	}
 }

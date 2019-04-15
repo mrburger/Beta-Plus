@@ -7,7 +7,7 @@ import net.minecraft.world.World;
 
 import java.util.Random;
 
-/* NOT FULLY WORKING */
+/* Works */
 public class BetaPlusClimate
 {
 	// Fields

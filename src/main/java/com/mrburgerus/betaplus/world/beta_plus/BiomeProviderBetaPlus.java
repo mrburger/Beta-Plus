@@ -156,38 +156,54 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				temperatures[counter] = temperatureVal;
 				humidities[counter] = humidityVal;
 				biomeArr[counter] = EnumBetaPlusBiome.getBiomeFromLookup(temperatureVal, humidityVal);
-				if (useAverage)
+				/* Add Oceans by Simulation */
+				if (useAverage) //useAverage only TRUE if we're searching in a square pattern, such as spawn, Ocean Monuments, or Mansions.
 				{
 					Pair<Integer, Boolean> avg = simulator.simulateYAvg(pos);
 					// Tried 56, 58, 57
-					if (avg.getFirst() < 59)
+					if (avg.getFirst() < settings.getSeaLevel() - 5) // Usually 58
 					{
-
-						// Inversion was the intent, so false was supposed to be "all values below sea level"
+						// Inversion was the intent, so false is supposed to be "all values below sea level"
 						if (!avg.getSecond())
 						{
-							//BetaPlus.LOGGER.info("Average Input: " + new ChunkPos(pos) + " " + avg.getFirst() + " ; " + avg.getSecond());
-							// For Testing
-							biomeArr[counter] = this.getOceanBiome(pos, true); //this.getOceanBiome(pos, true);
+							biomeArr[counter] = this.getOceanBiome(pos, true);
 						}
 						else
 						{
-							biomeArr[counter] = this.getOceanBiome(pos, false); //this.getOceanBiome(pos, false);
+							biomeArr[counter] = this.getOceanBiome(pos, false);
 						}
 					}
+					// Commented out due to overhead. this is only used for spawn, and it isn't worth it.
+					/*
+					else if (avg.getFirst() >= settings.getSeaLevel() - 2 && avg.getFirst() <= settings.getSeaLevel())
+					{
+						// Now, add Beaches
+						if (simulator.isBlockSandSim(pos))
+						{
+							biomeArr[counter] = this.getBeachBiome(pos);
+						}
+					}
+					*/
+
 				}
-				else
+				else // Called when searching for "small" structures
 				{
 					Pair<Integer, Boolean> avg = simulator.simulateYChunk(pos);
 					if (avg.getFirst() < settings.getSeaLevel() - 1) // 62 usually
 					{
-						biomeArr[counter] = this.getOceanBiome(pos, false); //this.getOceanBiome(pos, false);
+						biomeArr[counter] = this.getOceanBiome(pos, false);
 					}
-					else if (avg.getFirst() < settings.getSeaLevel() + 1) // Used for assigning Beaches
+					else if (avg.getFirst() >= settings.getSeaLevel() - 2 && avg.getFirst() <= settings.getSeaLevel() + 1)
 					{
-						biomeArr[counter] = this.getBeachBiome(pos);
+						/* Now, add Beaches */
+						if (simulator.isBlockSandSim(pos))
+						{
+							biomeArr[counter] = this.getBeachBiome(pos);
+						}
 					}
 				}
+
+				/* Finally, increment counter! */
 				counter++;
 			}
 		}
@@ -333,7 +349,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 			}
 			return Biomes.FROZEN_OCEAN;
 		}
-		else if (temperature > BetaPlusBiomeSelector.VERY_HOT_VAL && climate[1] >= 0.725)
+		else if (temperature > BetaPlusBiomeSelector.VERY_HOT_VAL && climate[1] >= 0.735) //Was 0.725
 		{
 			return Biomes.WARM_OCEAN;
 		}

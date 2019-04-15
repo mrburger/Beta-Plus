@@ -17,7 +17,7 @@ public class BiomeAlphaFrozenOcean extends AbstractAlphaBiome
 	public static final String NAME = "alpha_frozen_ocean";
 	public BiomeAlphaFrozenOcean()
 	{
-		super((new Biome.BiomeBuilder()).surfaceBuilder(new CompositeSurfaceBuilder<>(DEFAULT_SURFACE_BUILDER, GRASS_DIRT_GRAVEL_SURFACE)).precipitation(Biome.RainType.SNOW).category(Category.OCEAN).depth(0.0F).scale(0.0F).temperature(0.0F).downfall(10.0F).waterColor(3750089).waterFogColor(329011).parent((String)null));
+		super((new Biome.BiomeBuilder()).surfaceBuilder(new CompositeSurfaceBuilder<>(DEFAULT_SURFACE_BUILDER, GRASS_DIRT_GRAVEL_SURFACE)).precipitation(Biome.RainType.SNOW).category(Category.OCEAN).depth(0.0F).scale(0.0F).temperature(0.0F).downfall(10.0F).waterColor(WATER_COLOR).waterFogColor(329011).parent((String)null));
 
 		// Create Frozen Feature
 		this.addFeature(GenerationStage.Decoration.TOP_LAYER_MODIFICATION, createCompositeFeature(Feature.ICE_AND_SNOW, IFeatureConfig.NO_FEATURE_CONFIG, PASSTHROUGH, IPlacementConfig.NO_PLACEMENT_CONFIG));
