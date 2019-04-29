@@ -1,23 +1,24 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
+import com.mrburgerus.betaplus.util.ConfigBetaPlus;
 import net.minecraft.world.gen.ChunkGenSettings;
 
 public class BetaPlusGenSettings extends ChunkGenSettings
 {
 	// Sea Level, self-explanatory
-	private final int seaLevel = 64;
+	private final int seaLevel = ConfigBetaPlus.seaLevel;
 	// Deep Sea Threshold
 	private final int seaDepth = 20;
 	// Mountain Threshold, above this is Mountains
 	private final int highAltitude = 112;
 	// ODD NUMBER: Diameter of Guassian Kernel
-	private final int oceanSmoothSize = 7;
+	private final int oceanSmoothSize = ConfigBetaPlus.smoothSize;
 	// Scale Size for Biomes (smaller value = bigger biomes)
 	// BETA DEFAULT: 0.02500000037252903
-	private double scaleVal = 0.015; //Modified for Biome Scale
+	private double scaleVal = (1.0D / ConfigBetaPlus.biomeScale); //Modified for Biome Scale
 	// Multiplier for Humidity
 	// BETA DEFAULT: 2;
-	private double multBiome = 1.75;
+	private double multBiome = ConfigBetaPlus.humidityScale;
 
 	public int getSeaLevel()
 	{

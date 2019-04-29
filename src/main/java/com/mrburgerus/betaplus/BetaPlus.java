@@ -6,6 +6,7 @@ import com.mrburgerus.betaplus.client.gui.GuiBetaNumber;
 import com.mrburgerus.betaplus.client.renderer.AlphaModelLoader;
 import com.mrburgerus.betaplus.client.renderer.ModelsCache;
 import com.mrburgerus.betaplus.client.renderer.model.BakedModelWrapperAlpha;
+import com.mrburgerus.betaplus.util.ConfigBetaPlus;
 import com.mrburgerus.betaplus.util.ResourceHelper;
 import com.mrburgerus.betaplus.world.alpha_plus.WorldTypeAlphaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.WorldTypeBetaPlus;
@@ -28,11 +29,16 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.common.ForgeConfig;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -62,11 +68,24 @@ public class BetaPlus
         // Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
 
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::config);
+
 		// Register ourselves for server, registry and other game events we are interested in
 		MinecraftForge.EVENT_BUS.register(this);
 
+		// Register the configuration file
+		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigBetaPlus.SPEC);
+
 		proxy.init();
     }
+
+    public void config(ModConfig.ModConfigEvent event)
+	{
+		if (event.getConfig().getSpec() == ConfigBetaPlus.SPEC)
+		{
+			ConfigBetaPlus.bake();
+		}
+	}
 
     private void setup(final FMLCommonSetupEvent event)
     {

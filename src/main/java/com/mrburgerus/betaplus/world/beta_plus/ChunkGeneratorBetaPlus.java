@@ -1,6 +1,7 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
 import com.mrburgerus.betaplus.util.BiomeReplaceUtil;
+import com.mrburgerus.betaplus.util.ConfigBetaPlus;
 import com.mrburgerus.betaplus.util.DeepenOceanUtil;
 import com.mrburgerus.betaplus.world.biome.EnumBetaPlusBiome;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
@@ -90,7 +91,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		// Written similarly to "generateTerrain" from earlier versions.
 		setBlocksInChunk(chunkIn);
 		// Scale factor formerly 2.85
-		DeepenOceanUtil.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize(), 3.25);
+		DeepenOceanUtil.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize(), ConfigBetaPlus.oceanYScale);
 		// Replace Biomes (Oceans)
 		// This is because detection of Oceans is an average operation.
 		this.replaceBiomes(chunkIn);
@@ -339,7 +340,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		{
 			values = new double[var5 * var6 * var7];
 		}
-		double noiseFactor = 684.412;
+		double noiseFactor = ConfigBetaPlus.noiseScale;
 		double[] temps = biomeProviderS.temperatures;
 		double[] humidities = biomeProviderS.humidities;
 		octaveArr4 = scaleNoise.generateNoiseOctaves(octaveArr4, xPos, zPos, var5, var7, 1.121, 1.121, 0.5);
