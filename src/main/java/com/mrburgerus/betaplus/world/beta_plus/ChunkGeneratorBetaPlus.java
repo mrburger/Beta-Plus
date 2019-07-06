@@ -1,42 +1,38 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
 import com.mrburgerus.betaplus.BetaPlus;
-import com.mrburgerus.betaplus.util.BetaPlusDeepenOcean;
-import com.mrburgerus.betaplus.world.biome.BiomeGenBetaPlus;
-import com.mrburgerus.betaplus.world.biome.BiomeProviderBetaPlusOld;
+import com.mrburgerus.betaplus.util.BiomeReplaceUtil;
+import com.mrburgerus.betaplus.util.ConfigBetaPlus;
+import com.mrburgerus.betaplus.util.DeepenOceanUtil;
+import com.mrburgerus.betaplus.world.biome.EnumBetaPlusBiome;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockFalling;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.PhantomSpawner;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldEntitySpawner;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.provider.BiomeProvider;
-import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.AbstractChunkGenerator;
-import net.minecraft.world.gen.GenerationStage;
+import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.gen.NoiseChunkGenerator;
 import net.minecraft.world.gen.WorldGenRegion;
 import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.IFeatureConfig;
 import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.gen.feature.structure.SwampHutStructure;
+import net.minecraft.world.spawner.PhantomSpawner;
+import net.minecraft.world.spawner.WorldEntitySpawner;
 
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
 
 /* SEE CHUNKGENERATOROVERWORLD.CLASS FOR BASE */
 
-public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSettings>
+public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSettings>
 {
 	// Fields
 	private Random rand;
@@ -45,8 +41,8 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 	private NoiseGeneratorOctavesBeta octaves1;
 	private NoiseGeneratorOctavesBeta octaves2;
 	private NoiseGeneratorOctavesBeta octaves3;
-	private NoiseGeneratorOctavesBeta beachBlockNoise; // Formerly octaves4, used for Gravel and Sand, so probably beaches.
-	private NoiseGeneratorOctavesBeta surfaceNoise; // Formerly octaves5
+	private NoiseGeneratorOctavesBeta beachBlockNoise; // Formerly scaleNoise, used for Gravel and Sand, so probably beaches.
+	private NoiseGeneratorOctavesBeta surfaceNoise; // Formerly octaves7
 	private NoiseGeneratorOctavesBeta scaleNoise; // Formerly octaves6, renamed using ChunkGeneratorOverworld
 	private NoiseGeneratorOctavesBeta octaves7;
 	//Noise Arrays
@@ -60,20 +56,15 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 	private double[] gravelNoise = new double[256];
 	private double[] stoneNoise = new double[256];
 	// New Fields
-	private BiomeProviderBetaPlusOld biomeProviderS;
+	private BiomeProviderBetaPlus biomeProviderS;
 	private final PhantomSpawner phantomSpawner = new PhantomSpawner();
 	private final BetaPlusGenSettings settings;
-	private static final int chunkSize = 16;
-	private static double[] hNoiseSim;
-	private static double octaveArr42[];
-	private static double octaveArr52[];
-	private static double octaveArr12[];
-	private static double octaveArr22[];
-	private static double octaveArr32[];
+	private static final int CHUNK_SIZE = 16;
 
-	public ChunkGeneratorBetaPlus(IWorld world, BiomeProviderBetaPlusOld biomeProvider, BetaPlusGenSettings settingsIn)
+	public ChunkGeneratorBetaPlus(IWorld world, BiomeProviderBetaPlus biomeProvider, BetaPlusGenSettings settingsIn)
 	{
-		super(world, biomeProvider);
+		// Modified from Overworld & End Chunk Generator
+		super(world, biomeProvider, 4,8, 256, settingsIn, true);
 		this.settings = settingsIn;
 
 		rand = new Random(seed);
@@ -85,42 +76,6 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		scaleNoise = new NoiseGeneratorOctavesBeta(rand, 10);
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
 		biomeProviderS = biomeProvider;
-		BetaPlus.LOGGER.info("Created Chunk Generator");
-	}
-
-	/* This Method is an Analog to generateChunk, albeit HEAVILY modified! */
-	@Override
-	public void makeBase(IChunk chunkIn)
-	{
-		// Get Position
-		int x = chunkIn.getPos().x;
-		int z = chunkIn.getPos().z;
-		// Functions As setBaseChunkSeed(), but broken down.
-		rand.setSeed((long) x * 341873128712L + (long) z * 132897987541L);
-		// Similar to ChunkGeneratorOverworld
-		biomesForGeneration = biomeProviderS.getBiomes(x * 16, z * 16, 16, 16);
-		// Written similarly to "generateTerrain" from earlier versions.
-		setBlocksInChunk(chunkIn);
-		BetaPlusDeepenOcean.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize());
-		// Replace Biomes
-		this.replaceBiomes(chunkIn);
-
-		// Replace Blocks (DIRT & SAND & STUFF)
-		replaceBlocksForBiome(x, z, chunkIn, BiomeGenBetaPlus.convertBiomeTable(biomesForGeneration));
-		// Replace Beaches, done afterwards.
-		this.replaceBeaches(chunkIn);
-
-		// Set Biomes
-		chunkIn.setBiomes(convertBiomeArray(biomesForGeneration));
-
-		chunkIn.setStatus(ChunkStatus.BASE);
-	}
-
-	/* Carves terrain (caves) */
-	@Override
-	public void carve(WorldGenRegion region, GenerationStage.Carving carvingStage)
-	{
-		super.carve(region, carvingStage);
 	}
 
 	/* Modified From Abstract to support the fact BiomeProvider cannot detect oceans */
@@ -128,60 +83,42 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 	@Override
 	public void decorate(WorldGenRegion region)
 	{
+		super.decorate(region);
+		/*
 		BlockFalling.fallInstantly = true;
-		int i = region.getMainChunkX();
-		int j = region.getMainChunkZ();
-		int k = i * chunkSize;
-		int l = j * chunkSize;
-		BlockPos blockpos = new BlockPos(k, 0, l);
-		// Could be CULPRIT AND FIX ISSUES
-		// Fix this up, it gives the biome
-		Biome biome = //region.getBiome(new BlockPos(k + 8, 0, l + 8));
-				region.getChunk(i, j).getBiomes()[0];
+		int chunkX = region.getMainChunkX();
+		int chunkZ = region.getMainChunkZ();
+		int minX = chunkX * 16;
+		int minZ = chunkZ * 16;
+		BlockPos blockpos = new BlockPos(minX, 0, minZ);
+		Biome biome = region.getChunk(chunkX + 1, chunkZ + 1).getBiomes()[0];
+		//Biome biome = region.getBiome(new BlockPos(k + 8, 0, l + 8));
+				//region.getChunk(i, j).getBiomes()[0];
 		SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
-		long seedRegion = sharedseedrandom.setDecorationSeed(region.getSeed(), k, l);
+		long seedRegion = sharedseedrandom.setDecorationSeed(region.getSeed(), minX, minZ);
 
 		for(GenerationStage.Decoration decoration : GenerationStage.Decoration.values())
 		{
-			if (decoration == GenerationStage.Decoration.SURFACE_STRUCTURES && biome.getCategory() == Biome.Category.OCEAN)
-			{
-				//BetaPlus.LOGGER.info("Placing Oceans?");
-			}
-			biome.decorate(decoration, this, this.world, seedRegion, sharedseedrandom, blockpos);
+			// I PUT WORLD INSTEAD OF REGION
+			biome.decorate(decoration, this, region, seedRegion, sharedseedrandom, blockpos);
 		}
 
 		BlockFalling.fallInstantly = false;
-	}
+		*/
 
-	@Override
-	protected void makeBedrock(IChunk chunkIn, Random random)
-	{
-		// Disable This Bedrock maker.
 	}
 
 	/* Spawns Passive Mobs */
 	@Override
 	public void spawnMobs(WorldGenRegion region)
 	{
-		int i = region.getMainChunkX();
-		int j = region.getMainChunkZ();
-		Biome biome = world.getBiome(new BlockPos(i * chunkSize + 8, 0, j * chunkSize + 8));
-
-		/* MODIFIED!*/
-		WorldEntitySpawner.performWorldGenSpawning(region, biome, i, j, this.rand);
-	}
-
-	@Override
-	public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos)
-	{
-		// Modified
-		Biome biome = world.getBiome(pos);
-		//Copied from Overworld
-		if (creatureType == EnumCreatureType.MONSTER && ((SwampHutStructure) Feature.SWAMP_HUT).func_202383_b(this.world, pos)) {
-			return Feature.SWAMP_HUT.getSpawnList();
-		} else {
-			return creatureType == EnumCreatureType.MONSTER && Feature.OCEAN_MONUMENT.isPositionInStructure(this.world, pos) ? Feature.OCEAN_MONUMENT.getSpawnList() : biome.getSpawns(creatureType);
-		}
+		//sBetaPlus.LOGGER.info("Called Spawn");
+		int lvt_2_1_ = region.getMainChunkX();
+		int lvt_3_1_ = region.getMainChunkZ();
+		Biome lvt_4_1_ = region.getChunk(lvt_2_1_, lvt_3_1_).getBiomes()[0];
+		SharedSeedRandom lvt_5_1_ = new SharedSeedRandom();
+		lvt_5_1_.setDecorationSeed(region.getSeed(), lvt_2_1_ << 4, lvt_3_1_ << 4);
+		WorldEntitySpawner.performWorldGenSpawning(region, lvt_4_1_, lvt_2_1_, lvt_3_1_, lvt_5_1_);
 	}
 
 	@Override
@@ -191,45 +128,81 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 	}
 
 	@Override
-	public int spawnMobs(World world, boolean spawnHostile, boolean spawnPeaceful)
-	{
-		int i = 0;
-		i = i + this.phantomSpawner.spawnMobs(world, spawnHostile, spawnPeaceful);
-		return i;
-	}
-
-	@Override
 	public int getGroundHeight()
 	{
 		return this.world.getSeaLevel();
 	}
 
+	/* Make Base Updated */
 	@Override
-	public double[] generateNoiseRegion(int i, int i1)
+	public void func_222537_b(IWorld iWorld, IChunk chunkIn)
+	{
+		//BetaPlus.LOGGER.info("GEN: " + chunkIn.getPos().toString());
+		// Get Position
+		int x = chunkIn.getPos().x;
+		int z = chunkIn.getPos().z;
+		// Functions As setBaseChunkSeed(), but broken down.
+		rand.setSeed((long) x * 341873128712L + (long) z * 132897987541L);
+		// Similar to ChunkGeneratorOverworld
+		biomesForGeneration = biomeProviderS.getBiomes(x * 16, z * 16, 16, 16, false);
+		// Written similarly to "generateTerrain" from earlier versions.
+		setBlocksInChunk(chunkIn);
+		// Scale factor formerly 2.85
+		DeepenOceanUtil.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize(), ConfigBetaPlus.oceanYScale);
+		// Replace Biomes (Oceans)
+		// This is because detection of Oceans is an average operation.
+		this.replaceBiomes(chunkIn);
+
+		// Replace Blocks (DIRT & SAND & STUFF)
+		replaceBlocksForBiome(x, z, chunkIn, EnumBetaPlusBiome.convertBiomeTable(biomesForGeneration));
+		// Replace Beaches, done afterwards.
+		this.replaceBeaches(chunkIn);
+
+		// Set Biomes
+		chunkIn.setBiomes(BiomeReplaceUtil.convertBiomeArray(biomesForGeneration));
+		//BetaPlus.LOGGER.info("DONE: " + chunkIn.getPos().toString());
+	}
+
+	@Override
+	protected double[] func_222549_a(int i, int i1)
 	{
 		return new double[0];
 	}
 
 	@Override
-	public BiomeProvider getBiomeProvider()
+	protected double func_222545_a(double v, double v1, int i)
 	{
-		return this.biomeProviderS;
+		return 0;
 	}
 
-	/* Called on World Generation, builds structure map */
+	// Used for Villages AND Pillager Outposts
 	@Override
-	public boolean hasStructure(Biome biomeIn, Structure<? extends IFeatureConfig> structureIn)
+	public int func_222529_a(int x, int z, Heightmap.Type p_222529_3_)
 	{
-		return biomeIn.hasStructure(structureIn);
+		int[][] valuesInChunk = biomeProviderS.simulator.simulateChunkYFull(new ChunkPos(new BlockPos(x, 0, z))).getFirst();
+		//BetaPlus.LOGGER.info("Called height: " + x  + ", " +  z);
+		//BetaPlus.LOGGER.info("HERE: " + Math.floorMod(x, CHUNK_SIZE) + ", " + x % CHUNK_SIZE + "; " + Math.floorMod(z, CHUNK_SIZE) + ", " + z % CHUNK_SIZE );
+		//return valuesInChunk[Math.floorMod(x, CHUNK_SIZE)][Math.floorMod(z, CHUNK_SIZE)];
+
+		// Is it Z, X? Yes
+		// Added +1 to increase height slightly
+		return valuesInChunk[Math.floorMod(z, CHUNK_SIZE)][Math.floorMod(x, CHUNK_SIZE)] + 1;
+
 	}
 
-	/* GENERATION METHODS */
+	@Override
+	protected void func_222548_a(double[] doubles, int i, int i1)
+	{
+
+	}
+
+	/* -- GENERATION METHODS -- */
 
 	/* GENERATES THE BLOCKS */
 	// PREVIOUSLY other methods, updated for 1.13!
 	private void setBlocksInChunk(IChunk chunk)
 	{
-		heightNoise = octaveGenerator(heightNoise, chunk.getPos().x * 4, chunk.getPos().z * 4, 5, 17, 5);
+		heightNoise = octaveGenerator(heightNoise, chunk.getPos().x * 4, chunk.getPos().z * 4);
 		for (int i = 0; i < 4; ++i)
 		{
 			for (int j = 0; j < 4; ++j)
@@ -292,156 +265,19 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		}
 	}
 
-	/* Hacky way of getting Y-Values for BiomeProvider */
-	/* SLOW */
-	/* It may be impossible to inject into the BiomeProvider */
-	/* It may be faster to return only one value (NO) */
-	public static int getSimulatedYPos(int chunkX, int chunkZ, IWorld world, BlockPos pos)
-	{
-		int xPos = pos.getX() & 15; // Gets pos in Chunk
-		int zPos = pos.getZ() & 15; // Gets z pos in Chunk
-		int yVal = -1;
-		hNoiseSim = octaveSim(hNoiseSim, chunkX * 4, chunkZ * 4, 5, 17, 5, world.getSeed(), new Random(world.getSeed()));
-		for (int i = 0; i < 4; ++i)
-		{
-			for (int j = 0; j < 4; ++j)
-			{
-				for (int k = 0; k < 16; ++k)
-				{
-					double var16 = hNoiseSim[(i * 5 + j) * 17 + k];
-					double var18 = hNoiseSim[(i * 5 + j + 1) * 17 + k];
-					double var20 = hNoiseSim[((i + 1) * 5 + j) * 17 + k];
-					double var22 = hNoiseSim[((i + 1) * 5 + j + 1) * 17 + k];
-					double var24 = (hNoiseSim[(i * 5 + j) * 17 + k + 1] - var16) * 0.125;
-					double var26 = (hNoiseSim[(i * 5 + j + 1) * 17 + k + 1] - var18) * 0.125;
-					double var28 = (hNoiseSim[((i + 1) * 5 + j) * 17 + k + 1] - var20) * 0.125;
-					double var30 = (hNoiseSim[((i + 1) * 5 + j + 1) * 17 + k + 1] - var22) * 0.125;
-					for (int l = 0; l < 8; ++l)
-					{
-						double quarter = 0.25;
-						double var35 = var16;
-						double var37 = var18;
-						double var39 = (var20 - var16) * quarter;
-						double var41 = (var22 - var18) * quarter;
-						for (int m = 0; m < 4; ++m)
-						{
-							int x = m + i * 4;
-							int z = j * 4;
-							double var46 = 0.25;
-							double var48 = var35;
-							double var50 = (var37 - var35) * var46;
-							for (int n = 0; n < 4; ++n)
-							{
-								if (var48 > 0.0 )
-								{
-									// Found a Stone Block, re-assign until we find Air.
-									yVal = k * 8 + l;
-									//BetaPlus.LOGGER.info("H: " + y);
-								}
-								++z;
-								var48 += var50;
-							}
-							var35 += var39;
-							var37 += var41;
-						}
-						var16 += var24;
-						var18 += var26;
-						var20 += var28;
-						var22 += var30;
-					}
-
-				}
-			}
-
-		}
-		return yVal;
-	}
-
-	/* Gets a whole block of Simulated Y Positions */
-	public static int[] getSimYBlock(int chunkX, int chunkZ, int xSize, int zSize, IWorld world)
-	{
-		// First calculate number of chunks we need to generate
-		int xChunkSize = (xSize / chunkSize) + 1;
-		int zChunkSize = (zSize / chunkSize) + 1; // Rounded down, just like we need. Add one because we always generate at least one chunk.
-		int arrSize = xChunkSize * zChunkSize * chunkSize * chunkSize; // X dimension by Y Dimension block.
-		int[] output = new int[arrSize];
-		int counter = 0;
-		for (int s = 0; s < xChunkSize; s++) // Generate chunk Block
-		{
-			for (int t = 0; t < zChunkSize; t++)
-			{
-				hNoiseSim = octaveSim(hNoiseSim, (chunkX + s) * 4, (chunkZ + t) * 4, 5, 17, 5, world.getSeed(), new Random(world.getSeed()));
-				for (int i = 0; i < 4; ++i)
-				{
-					for (int j = 0; j < 4; ++j)
-					{
-						for (int k = 0; k < 16; ++k)
-						{
-							double var16 = hNoiseSim[(i * 5 + j) * 17 + k];
-							double var18 = hNoiseSim[(i * 5 + j + 1) * 17 + k];
-							double var20 = hNoiseSim[((i + 1) * 5 + j) * 17 + k];
-							double var22 = hNoiseSim[((i + 1) * 5 + j + 1) * 17 + k];
-							double var24 = (hNoiseSim[(i * 5 + j) * 17 + k + 1] - var16) * 0.125;
-							double var26 = (hNoiseSim[(i * 5 + j + 1) * 17 + k + 1] - var18) * 0.125;
-							double var28 = (hNoiseSim[((i + 1) * 5 + j) * 17 + k + 1] - var20) * 0.125;
-							double var30 = (hNoiseSim[((i + 1) * 5 + j + 1) * 17 + k + 1] - var22) * 0.125;
-							for (int l = 0; l < 8; ++l)
-							{
-								double quarter = 0.25;
-								double var35 = var16;
-								double var37 = var18;
-								double var39 = (var20 - var16) * quarter;
-								double var41 = (var22 - var18) * quarter;
-								for (int m = 0; m < 4; ++m)
-								{
-									int x = m + i * 4;
-									int z = j * 4;
-									double var46 = 0.25;
-									double var48 = var35;
-									double var50 = (var37 - var35) * var46;
-									for (int n = 0; n < 4; ++n)
-									{
-										if (var48 > 0.0 )
-										{
-											// Found a Stone Block, re-assign until we find Air.
-											output[counter] = k * 8 + l;
-											//BetaPlus.LOGGER.info("H: " + y);
-										}
-										++z;
-										var48 += var50;
-									}
-									var35 += var39;
-									var37 += var41;
-								}
-								var16 += var24;
-								var18 += var26;
-								var20 += var28;
-								var22 += var30;
-							}
-							counter++;
-						}
-					}
-
-				}
-			}
-		}
-		BetaPlus.LOGGER.info("Finished: " + chunkX + ", " + chunkZ);
-		return output;
-	}
-
 	//Replace Biomes where necessary
 	private void replaceBiomes(IChunk iChunk)
 	{
-		for (int z = 0; z < chunkSize; ++z)
+		for (int z = 0; z < CHUNK_SIZE; ++z)
 		{
-			for (int x = 0; x < chunkSize; ++x)
+			for (int x = 0; x < CHUNK_SIZE; ++x)
 			{
 				int xPos = iChunk.getPos().getXStart() + x;
 				int zPos = iChunk.getPos().getZStart() + z;
-				int yVal = getSolidHeightY(xPos, zPos, iChunk);
+				int yVal = BiomeReplaceUtil.getSolidHeightY(new BlockPos(xPos, 0, zPos), iChunk);
 				if (yVal > settings.getHighAltitude())
 				{
-					biomesForGeneration[(x << 4 | z)] = BiomeGenBetaPlus.mountain.handle;
+					biomesForGeneration[(x << 4 | z)] = EnumBetaPlusBiome.mountain.handle;
 				}
 				else if (yVal < settings.getSeaLevel() - 1)
 				{
@@ -461,18 +297,18 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 
 	private void replaceBeaches(IChunk chunk)
 	{
-		for (int z = 0; z < chunkSize; ++z)
+		for (int z = 0; z < CHUNK_SIZE; ++z)
 		{
 
-			for (int x = 0; x < chunkSize; ++x)
+			for (int x = 0; x < CHUNK_SIZE; ++x)
 			{
 				int xPos = chunk.getPos().getXStart() + x;
 				int zPos = chunk.getPos().getZStart() + z;
-				int yVal = getSolidHeightY(xPos, zPos, chunk);
+				int yVal = BiomeReplaceUtil.getSolidHeightY(new BlockPos(xPos, 0, zPos), chunk);
 				// New Line
 				Biome biome = biomesForGeneration[(x << 4 | z)];
 				//Inject Beaches (MODIFIED)
-				if ((yVal <= (settings.getSeaLevel() + 1) && yVal >= settings.getSeaLevel() - 1) && (biome != BiomeGenBetaPlus.desert.handle) && chunk.getBlockState(new BlockPos(xPos, yVal, zPos)) == Blocks.SAND.getDefaultState())
+				if ((yVal <= (settings.getSeaLevel() + 1) && yVal >= settings.getSeaLevel() - 1) && (biome != EnumBetaPlusBiome.desert.handle) && chunk.getBlockState(new BlockPos(xPos, yVal, zPos)) == Blocks.SAND.getDefaultState())
 				{
 						this.biomesForGeneration[(x << 4 | z)] = biomeProviderS.getBeachBiome(new BlockPos(xPos, yVal, zPos));
 				}
@@ -483,122 +319,28 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 	/* Modified from AbstractChunkGenerator, provides /locate command values */
 	@Override
 	@Nullable
-	public BlockPos findNearestStructure(World worldIn, String name, BlockPos pos, int radius, boolean p_211403_5_) {
+	public BlockPos findNearestStructure(World worldIn, String name, BlockPos pos, int radius, boolean p_211403_5_)
+	{
+		BetaPlus.LOGGER.info("Called Nearest");
 		Structure<?> structure = Feature.STRUCTURES.get(name.toLowerCase(Locale.ROOT));
 		if (structure != null)
 		{
-			BetaPlus.LOGGER.info("Locate: " + structure.toString());
 			return structure.findNearest(worldIn, this, pos, radius, p_211403_5_);
 		}
 		return null;
 	}
 
-	private static double[] octaveSim(double[] values, int xPos, int zPos, int var5, int var6, int var7, long seed, Random rand1)
-	{
-		NoiseGeneratorOctavesBeta octaves12 = new NoiseGeneratorOctavesBeta(rand1, 16);
-		NoiseGeneratorOctavesBeta octaves22 = new NoiseGeneratorOctavesBeta(rand1, 16);
-		NoiseGeneratorOctavesBeta octaves32 = new NoiseGeneratorOctavesBeta(rand1, 8);
-		NoiseGeneratorOctavesBeta octaves62 = new NoiseGeneratorOctavesBeta(rand1, 10);
-		NoiseGeneratorOctavesBeta octaves72 = new NoiseGeneratorOctavesBeta(rand1, 16);
-
-		if (values == null)
-		{
-			values = new double[var5 * var6 * var7];
-		}
-		double noiseFactor = 684.412;
-		octaveArr42 = octaves62.generateNoiseOctaves(octaveArr42, xPos, zPos, var5, var7, 1.121, 1.121, 0.5);
-		octaveArr52 = octaves72.generateNoiseOctaves(octaveArr52, xPos, zPos, var5, var7, 200.0, 200.0, 0.5);
-		octaveArr12 = octaves32.generateNoiseOctaves(octaveArr12, xPos, 0, zPos, var5, var6, var7, noiseFactor / 80.0, noiseFactor / 160.0, noiseFactor / 80.0);
-		octaveArr22 = octaves12.generateNoiseOctaves(octaveArr22, xPos, 0, zPos, var5, var6, var7, noiseFactor, noiseFactor, noiseFactor);
-		octaveArr32 = octaves22.generateNoiseOctaves(octaveArr32, xPos, 0, zPos, var5, var6, var7, noiseFactor, noiseFactor, noiseFactor);
-
-		int incrementer1 = 0;
-		int incrementer2 = 0;
-		int someThing = 16 / var5;
-		for (int i = 0; i < var5; ++i)
-		{
-			//int var18 = i * someThing + someThing / 2;
-			for (int j = 0; j < var7; ++j)
-			{
-				double var29;
-				//int var20 = j * someThing + someThing / 2;
-				double var21 = 1; //temps[var18 * 16 + var20];
-				double var23 = 1; //humidities[var18 * 16 + var20] * var21;
-				double var25 = 1.0 - var23;
-				var25 *= var25;
-				var25 *= var25;
-				var25 = 1.0 - var25;
-				double var27 = (octaveArr42[incrementer2] + 256.0) / 512.0;
-				/*
-				if ((var27 *= var25) > 1.0)
-				{
-					var27 = 1.0;
-				}
-				*/
-				if ((var29 = octaveArr52[incrementer2] / 8000.0) < 0.0)
-				{
-					var29 = (-var29) * 0.3;
-				}
-				if ((var29 = var29 * 3.0 - 2.0) < 0.0)
-				{
-					if ((var29 /= 2.0) < -1.0)
-					{
-						var29 = -1.0;
-					}
-					var29 /= 1.4;
-					var29 /= 2.0;
-					var27 = 0.0;
-				}
-				else
-				{
-					if (var29 > 1.0)
-					{
-						var29 = 1.0;
-					}
-					var29 /= 8.0;
-				}
-				if (var27 < 0.0)
-				{
-					var27 = 0.0;
-				}
-				var27 += 0.5;
-				var29 = var29 * (double) var6 / 16.0;
-				double var31 = (double) var6 / 2.0 + var29 * 4.0;
-				++incrementer2;
-				for (int k = 0; k < var6; ++k)
-				{
-					double var34;
-					double var36 = ((double) k - var31) * 12.0 / var27;
-					if (var36 < 0.0)
-					{
-						var36 *= 4.0;
-					}
-					double var38 = octaveArr22[incrementer1] / 512.0;
-					double var40 = octaveArr32[incrementer1] / 512.0;
-					double var42 = (octaveArr12[incrementer1] / 10.0 + 1.0) / 2.0;
-					var34 = var42 < 0.0 ? var38 : (var42 > 1.0 ? var40 : var38 + (var40 - var38) * var42);
-					var34 -= var36;
-					if (k > var6 - 4)
-					{
-						double var44 = (float) (k - (var6 - 4)) / 3.0f;
-						var34 = var34 * (1.0 - var44) + -10.0 * var44;
-					}
-					values[incrementer1] = var34;
-					++incrementer1;
-				}
-			}
-		}
-		return values;
-	}
-
 	/* 1.13, COPY BOOGALOO */
-	private double[] octaveGenerator(double[] values, int xPos, int zPos, int var5, int var6, int var7)
+	private double[] octaveGenerator(double[] values, int xPos, int zPos)
 	{
+		int var5 = 5;
+		int var6 = 17;
+		int var7 = 5;
 		if (values == null)
 		{
 			values = new double[var5 * var6 * var7];
 		}
-		double noiseFactor = 684.412;
+		double noiseFactor = ConfigBetaPlus.noiseScale;
 		double[] temps = biomeProviderS.temperatures;
 		double[] humidities = biomeProviderS.humidities;
 		octaveArr4 = scaleNoise.generateNoiseOctaves(octaveArr4, xPos, zPos, var5, var7, 1.121, 1.121, 0.5);
@@ -683,8 +425,8 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		return values;
 	}
 
-	// YES, IT IS COPIED AND MODIFIED FROM 1.12
-	private void replaceBlocksForBiome(int chunkX, int chunkZ, IChunk chunkprimer, BiomeGenBetaPlus[] biomes)
+	/* YES, IT IS COPIED AND MODIFIED FROM 1.12 */
+	private void replaceBlocksForBiome(int chunkX, int chunkZ, IChunk chunkprimer, EnumBetaPlusBiome[] biomes)
 	{
 		double thirtySecond = 0.03125;
 		this.sandNoise = this.beachBlockNoise.generateNoiseOctaves(this.sandNoise, chunkX * 16, chunkZ * 16, 0.0, 16, 16, 1, thirtySecond, thirtySecond, 1.0);
@@ -694,13 +436,13 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 		{
 			for (int x = 0; x < 16; ++x)
 			{
-				BiomeGenBetaPlus biome = biomes[z + x * 16];
+				EnumBetaPlusBiome biome = biomes[z + x * 16];
 				boolean sandN = this.sandNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 0.0;
 				boolean gravelN = this.gravelNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 3.0;
 				int stoneN = (int) (this.stoneNoise[z + x * 16] / 3.0 + 3.0 + this.rand.nextDouble() * 0.25);
 				int checkVal = -1;
-				IBlockState topBlock = biome.topBlock.getDefaultState();
-				IBlockState fillerBlock = biome.fillerBlock.getDefaultState();
+				BlockState topBlock = biome.topBlock.getDefaultState();
+				BlockState fillerBlock = biome.fillerBlock.getDefaultState();
 
 				// GO from Top to bottom of world
 				for (int y = 127; y >= 0; --y)
@@ -719,7 +461,7 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 							continue;
 						}
 
-						//Checks if block already changed
+						//Checks if model already changed
 						if (block != Blocks.STONE) continue;
 
 						if (checkVal == -1)
@@ -760,14 +502,14 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 							{
 								chunkprimer.setBlockState(new BlockPos(x, y, z), fillerBlock, false);
 							}
-
 						}
 						// Add Sandstone (NOT WORKING)
 						else if (checkVal > 0)
 						{
 							--checkVal;
 							chunkprimer.setBlockState(new BlockPos(x, y, z), fillerBlock, false);
-							if (checkVal == 0 && fillerBlock == Blocks.SAND)
+							//Possibly state comparison fucked it
+							if (checkVal == 0 && fillerBlock == Blocks.SAND.getDefaultState())
 							{
 								checkVal = this.rand.nextInt(4);
 								fillerBlock = Blocks.SANDSTONE.getDefaultState();
@@ -777,33 +519,5 @@ public class ChunkGeneratorBetaPlus extends AbstractChunkGenerator<BetaPlusGenSe
 				}
 			}
 		}
-	}
-
-	public static int getSolidHeightY (int x, int z, IChunk chunk)
-	{
-		for (int y = 130; y >= 0; --y)
-		{
-			Block block = chunk.getBlockState(new BlockPos(x, y, z)).getBlock();
-			if (block != Blocks.AIR && block != Blocks.WATER)
-			{
-				return y;
-			}
-		}
-		return 0;
-	}
-
-	/* Converts Biome Array As Generated to a usable Biome Array */
-	private static Biome[] convertBiomeArray(Biome[] biomesIn)
-	{
-		Biome[] biomesOut = new Biome[biomesIn.length];
-		for (int i = 0; i < biomesOut.length; i++)
-		{
-			//int z = i / 16;
-			//int x = i % 16;
-			int place = (i & 15) << 4 | i >> 4 & 15;
-			//System.out.println(place + " " + x + " " + z + " " + (x << 4 | z));
-			biomesOut[i] = biomesIn[place];
-		}
-		return biomesOut;
 	}
 }

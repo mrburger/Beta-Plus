@@ -1,123 +1,24 @@
 package com.mrburgerus.betaplus.world.noise;
 
-import net.minecraft.world.gen.NoiseGenerator;
-
 import java.util.Random;
 
-public class NoiseGeneratorPerlinBeta extends NoiseGenerator
+public class NoiseGeneratorPerlinBeta extends AbstractPerlinGenerator
 {
-	public double xCoord;
-	public double yCoord;
-	public double zCoord;
-	//Fields
-	private int permutations[];
-
-
-	public NoiseGeneratorPerlinBeta()
+	NoiseGeneratorPerlinBeta(Random random)
 	{
-		this(new Random());
+		super(random);
 	}
 
-	public NoiseGeneratorPerlinBeta(Random random)
-	{
-		permutations = new int[512];
-		xCoord = random.nextDouble() * 256D;
-		yCoord = random.nextDouble() * 256D;
-		zCoord = random.nextDouble() * 256D;
-		for (int i = 0; i < 256; i++)
-		{
-			permutations[i] = i;
-		}
-
-		for (int j = 0; j < 256; j++)
-		{
-			int k = random.nextInt(256 - j) + j;
-			int l = permutations[j];
-			permutations[j] = permutations[k];
-			permutations[k] = l;
-			permutations[j + 256] = permutations[j];
-		}
-	}
-
-	public double generateNoise(double d, double d1, double d2)
-	{
-		double d3 = d + xCoord;
-		double d4 = d1 + yCoord;
-		double d5 = d2 + zCoord;
-		int i = (int) d3;
-		int j = (int) d4;
-		int k = (int) d5;
-		if (d3 < (double) i)
-		{
-			i--;
-		}
-		if (d4 < (double) j)
-		{
-			j--;
-		}
-		if (d5 < (double) k)
-		{
-			k--;
-		}
-		int l = i & 0xff;
-		int i1 = j & 0xff;
-		int j1 = k & 0xff;
-		d3 -= i;
-		d4 -= j;
-		d5 -= k;
-		double d6 = d3 * d3 * d3 * (d3 * (d3 * 6D - 15D) + 10D);
-		double d7 = d4 * d4 * d4 * (d4 * (d4 * 6D - 15D) + 10D);
-		double d8 = d5 * d5 * d5 * (d5 * (d5 * 6D - 15D) + 10D);
-		int k1 = permutations[l] + i1;
-		int l1 = permutations[k1] + j1;
-		int i2 = permutations[k1 + 1] + j1;
-		int j2 = permutations[l + 1] + i1;
-		int k2 = permutations[j2] + j1;
-		int l2 = permutations[j2 + 1] + j1;
-		return lerp(d8, lerp(d7, lerp(d6, grad(permutations[l1], d3, d4, d5), grad(permutations[k2], d3 - 1.0D, d4, d5)), lerp(d6, grad(permutations[i2], d3, d4 - 1.0D, d5), grad(permutations[l2], d3 - 1.0D, d4 - 1.0D, d5))), lerp(d7, lerp(d6, grad(permutations[l1 + 1], d3, d4, d5 - 1.0D), grad(permutations[k2 + 1], d3 - 1.0D, d4, d5 - 1.0D)), lerp(d6, grad(permutations[i2 + 1], d3, d4 - 1.0D, d5 - 1.0D), grad(permutations[l2 + 1], d3 - 1.0D, d4 - 1.0D, d5 - 1.0D))));
-	}
-
-	public final double lerp(double d, double d1, double d2)
-	{
-		return d1 + d * (d2 - d1);
-	}
-
-	public final double func_4110_a(int i, double d, double d1)
-	{
-		int j = i & 0xf;
-		double d2 = (double) (1 - ((j & 8) >> 3)) * d;
-		double d3 = j >= 4 ? j != 12 && j != 14 ? d1 : d : 0.0D;
-		return ((j & 1) != 0 ? -d2 : d2) + ((j & 2) != 0 ? -d3 : d3);
-	}
-
-	public final double grad(int i, double d, double d1, double d2)
-	{
-		int j = i & 0xf;
-		double d3 = j >= 8 ? d1 : d;
-		double d4 = j >= 4 ? j != 12 && j != 14 ? d2 : d : d1;
-		return ((j & 1) != 0 ? -d3 : d3) + ((j & 2) != 0 ? -d4 : d4);
-	}
-
-	public double generateNoiseZero(double d, double d1)
-	{
-		return generateNoise(d, d1, 0.0D);
-	}
-
-	public void generate(double doubles[], double x, double z, double d2, int i, int j, int k, double d3, double d4, double d5, double d6)
+	@Override
+	public void generate(double[] values, double x, double y, double z, int i, int j, int k, double xNoise, double yNoise, double zNoise, double multiplier)
 	{
 		if (j == 1)
 		{
-			boolean flag = false;
-			boolean flag1 = false;
-			boolean flag2 = false;
-			boolean flag3 = false;
-			double d8 = 0.0D;
-			double d10 = 0.0D;
 			int j3 = 0;
-			double d12 = 1.0D / d6;
+			double d12 = 1.0D / multiplier;
 			for (int i4 = 0; i4 < i; i4++)
 			{
-				double d14 = (x + (double) i4) * d3 + xCoord;
+				double d14 = (x + (double) i4) * xNoise + xCoord;
 				int j4 = (int) d14;
 				if (d14 < (double) j4)
 				{
@@ -128,7 +29,7 @@ public class NoiseGeneratorPerlinBeta extends NoiseGenerator
 				double d17 = d14 * d14 * d14 * (d14 * (d14 * 6D - 15D) + 10D);
 				for (int l4 = 0; l4 < k; l4++)
 				{
-					double d19 = (d2 + (double) l4) * d5 + zCoord;
+					double d19 = (z + (double) l4) * zNoise + zCoord;
 					int j5 = (int) d19;
 					if (d19 < (double) j5)
 					{
@@ -144,7 +45,7 @@ public class NoiseGeneratorPerlinBeta extends NoiseGenerator
 					double d9 = lerp(d17, func_4110_a(permutations[j1], d14, d19), grad(permutations[l1], d14 - 1.0D, 0.0D, d19));
 					double d11 = lerp(d17, grad(permutations[j1 + 1], d14, 0.0D, d19 - 1.0D), grad(permutations[l1 + 1], d14 - 1.0D, 0.0D, d19 - 1.0D));
 					double d23 = lerp(d21, d9, d11);
-					doubles[j3++] += d23 * d12;
+					values[j3++] += d23 * d12;
 				}
 
 			}
@@ -152,7 +53,7 @@ public class NoiseGeneratorPerlinBeta extends NoiseGenerator
 			return;
 		}
 		int i1 = 0;
-		double d7 = 1.0D / d6;
+		double d7 = 1.0D / multiplier;
 		int i2 = -1;
 		double d13 = 0.0D;
 		double d15 = 0.0D;
@@ -160,7 +61,7 @@ public class NoiseGeneratorPerlinBeta extends NoiseGenerator
 		double d18 = 0.0D;
 		for (int i5 = 0; i5 < i; i5++)
 		{
-			double d20 = (x + (double) i5) * d3 + xCoord;
+			double d20 = (x + (double) i5) * xNoise + xCoord;
 			int k5 = (int) d20;
 			if (d20 < (double) k5)
 			{
@@ -171,7 +72,7 @@ public class NoiseGeneratorPerlinBeta extends NoiseGenerator
 			double d22 = d20 * d20 * d20 * (d20 * (d20 * 6D - 15D) + 10D);
 			for (int j6 = 0; j6 < k; j6++)
 			{
-				double d24 = (d2 + (double) j6) * d5 + zCoord;
+				double d24 = (z + (double) j6) * zNoise + zCoord;
 				int k6 = (int) d24;
 				if (d24 < (double) k6)
 				{
@@ -182,7 +83,7 @@ public class NoiseGeneratorPerlinBeta extends NoiseGenerator
 				double d25 = d24 * d24 * d24 * (d24 * (d24 * 6D - 15D) + 10D);
 				for (int i7 = 0; i7 < j; i7++)
 				{
-					double d26 = (z + (double) i7) * d4 + yCoord;
+					double d26 = (y + (double) i7) * yNoise + yCoord;
 					int j7 = (int) d26;
 					if (d26 < (double) j7)
 					{
@@ -208,9 +109,18 @@ public class NoiseGeneratorPerlinBeta extends NoiseGenerator
 					double d28 = lerp(d27, d13, d15);
 					double d29 = lerp(d27, d16, d18);
 					double d30 = lerp(d25, d28, d29);
-					doubles[i1++] += d30 * d7;
+					values[i1++] += d30 * d7;
 				}
 			}
 		}
+	}
+
+	/* Unknown Function, But I included it */
+	public final double func_4110_a(int i, double d, double d1)
+	{
+		int j = i & 0xf;
+		double d2 = (double) (1 - ((j & 8) >> 3)) * d;
+		double d3 = j >= 4 ? j != 12 && j != 14 ? d1 : d : 0.0D;
+		return ((j & 1) != 0 ? -d2 : d2) + ((j & 2) != 0 ? -d3 : d3);
 	}
 }
