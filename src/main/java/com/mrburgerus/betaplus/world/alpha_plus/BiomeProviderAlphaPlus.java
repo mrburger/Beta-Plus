@@ -12,7 +12,6 @@ import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.gen.feature.structure.Structure;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -125,7 +124,6 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 		return set;
 	}
 
-	@Nullable
 	@Override
 	public BlockPos findBiomePosition(int x, int z, int range, List<Biome> biomeList, Random random)
 	{

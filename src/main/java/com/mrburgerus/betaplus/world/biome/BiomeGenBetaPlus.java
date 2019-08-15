@@ -1,9 +1,9 @@
 package com.mrburgerus.betaplus.world.biome;
 
 import net.minecraft.block.Block;
-import net.minecraft.init.Biomes;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.Blocks;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biomes;
 
 public enum BiomeGenBetaPlus implements BetaPlusBiome
 {

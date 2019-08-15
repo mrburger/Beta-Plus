@@ -1,6 +1,5 @@
 package com.mrburgerus.betaplus.world.biome;
 
-import net.minecraft.init.Biomes;
 import net.minecraft.world.biome.Biome;
 
 public class BetaPlusSelectBiome

@@ -25,7 +25,7 @@ public class WorldTypeBetaPlus extends WorldType
 	{
 		BetaPlusGenSettings settings = new BetaPlusGenSettings();
 		// Overworld
-		if (world.dimension.getType() != DimensionType.field_223227_a_)
+		if (world.dimension.getType() != DimensionType.OVERWORLD)
 		{
 			return world.dimension.createChunkGenerator();
 		}

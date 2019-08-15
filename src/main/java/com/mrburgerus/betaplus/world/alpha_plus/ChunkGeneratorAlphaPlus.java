@@ -1,6 +1,5 @@
 package com.mrburgerus.betaplus.world.alpha_plus;
 
-import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.BiomeReplaceUtil;
 import com.mrburgerus.betaplus.util.DeepenOceanUtil;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlpha;
@@ -13,19 +12,18 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.gen.NoiseChunkGenerator;
 import net.minecraft.world.gen.WorldGenRegion;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.spawner.WorldEntitySpawner;
 
-import javax.annotation.Nullable;
 import java.util.Locale;
 import java.util.Random;
 
-public class ChunkGeneratorAlphaPlus extends ChunkGenerator<AlphaPlusGenSettings>
+public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSettings>
 {
 	// Fields
 	private Random rand;
@@ -53,7 +51,7 @@ public class ChunkGeneratorAlphaPlus extends ChunkGenerator<AlphaPlusGenSettings
 
 	public ChunkGeneratorAlphaPlus(IWorld world, BiomeProviderAlphaPlus biomeProvider, AlphaPlusGenSettings settingsIn)
 	{
-		super(world, biomeProvider, settingsIn);
+		super(world, biomeProvider, 4,8, 256, settingsIn, true);
 		this.rand = new Random(seed);
 		/* Declaration Order Matters */
 		this.octaves1 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
@@ -100,13 +98,11 @@ public class ChunkGeneratorAlphaPlus extends ChunkGenerator<AlphaPlusGenSettings
 		this.replaceBlocks(iChunk);
 	}
 
-	@Nullable
 	public BlockPos findNearestStructure(World worldIn, String name, BlockPos pos, int radius, boolean p_211403_5_)
 	{
 		Structure<?> structure = Feature.STRUCTURES.get(name.toLowerCase(Locale.ROOT));
 		if (structure != null)
 		{
-			BetaPlus.LOGGER.info("Locate: " + structure.toString());
 			return structure.findNearest(worldIn, this, pos, radius, p_211403_5_);
 		}
 		return null;
@@ -137,15 +133,27 @@ public class ChunkGeneratorAlphaPlus extends ChunkGenerator<AlphaPlusGenSettings
 	}
 
 	@Override
-	public void func_222537_b(IWorld iWorld, IChunk iChunk)
+	protected double[] func_222549_a(int i, int i1)
 	{
+		return new double[0];
+	}
 
+	@Override
+	protected double func_222545_a(double v, double v1, int i)
+	{
+		return 0;
 	}
 
 	@Override
 	public int func_222529_a(int p_222529_1_, int p_222529_2_, Heightmap.Type p_222529_3_)
 	{
 		return 0;
+	}
+
+	@Override
+	protected void func_222548_a(double[] doubles, int i, int i1)
+	{
+
 	}
 
 

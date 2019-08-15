@@ -33,7 +33,7 @@ public class WorldTypeAlphaPlus extends WorldType
 	public ChunkGenerator<?> createChunkGenerator(World world)
 	{
 		AlphaPlusGenSettings settings = new AlphaPlusGenSettings(); //AlphaPlusGenSettings.(world.getWorldInfo().getGeneratorOptions());
-		if (world.dimension.getType() != DimensionType.field_223227_a_)
+		if (world.dimension.getType() != DimensionType.OVERWORLD)
 		{
 			return world.dimension.createChunkGenerator();
 		}

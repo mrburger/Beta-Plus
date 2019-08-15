@@ -25,7 +25,6 @@ import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.spawner.PhantomSpawner;
 import net.minecraft.world.spawner.WorldEntitySpawner;
 
-import javax.annotation.Nullable;
 import java.util.Locale;
 import java.util.Random;
 
@@ -135,7 +134,7 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 
 	/* Make Base Updated */
 	@Override
-	public void func_222537_b(IWorld iWorld, IChunk chunkIn)
+	public void makeBase(IWorld iWorld, IChunk chunkIn)
 	{
 		//BetaPlus.LOGGER.info("GEN: " + chunkIn.getPos().toString());
 		// Get Position
@@ -176,6 +175,9 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 	}
 
 	// Used for Villages AND Pillager Outposts
+
+	// INCOMPLETE
+	// TODO: ADD MAX-MIN TO DETERMINE HEIGHT OF BIOME
 	@Override
 	public int func_222529_a(int x, int z, Heightmap.Type p_222529_3_)
 	{
@@ -184,9 +186,9 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 		//BetaPlus.LOGGER.info("HERE: " + Math.floorMod(x, CHUNK_SIZE) + ", " + x % CHUNK_SIZE + "; " + Math.floorMod(z, CHUNK_SIZE) + ", " + z % CHUNK_SIZE );
 		//return valuesInChunk[Math.floorMod(x, CHUNK_SIZE)][Math.floorMod(z, CHUNK_SIZE)];
 
-		// Is it Z, X? Yes
+		// Is it Z, X? Yes? Maybe?
 		// Added +1 to increase height slightly
-		return valuesInChunk[Math.floorMod(z, CHUNK_SIZE)][Math.floorMod(x, CHUNK_SIZE)] + 1;
+		return valuesInChunk[Math.floorMod(x, CHUNK_SIZE)][Math.floorMod(z, CHUNK_SIZE)] + 1 > getSeaLevel() ? valuesInChunk[Math.floorMod(z, CHUNK_SIZE)][Math.floorMod(x, CHUNK_SIZE)] + 1 : getSeaLevel() + 1;
 
 	}
 
@@ -318,10 +320,8 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 
 	/* Modified from AbstractChunkGenerator, provides /locate command values */
 	@Override
-	@Nullable
 	public BlockPos findNearestStructure(World worldIn, String name, BlockPos pos, int radius, boolean p_211403_5_)
 	{
-		BetaPlus.LOGGER.info("Called Nearest");
 		Structure<?> structure = Feature.STRUCTURES.get(name.toLowerCase(Locale.ROOT));
 		if (structure != null)
 		{
@@ -330,7 +330,7 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 		return null;
 	}
 
-	/* 1.13, COPY BOOGALOO */
+	/* 1.14, COPY TRIGALOO */
 	private double[] octaveGenerator(double[] values, int xPos, int zPos)
 	{
 		int var5 = 5;

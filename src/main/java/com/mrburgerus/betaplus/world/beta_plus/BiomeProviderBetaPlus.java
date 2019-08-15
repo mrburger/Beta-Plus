@@ -119,6 +119,11 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				temperatures[counter] = temperatureVal;
 				humidities[counter] = humidityVal;
 				biomeArr[counter] = EnumBetaPlusBiome.getBiomeFromLookup(temperatureVal, humidityVal);
+				// Now, if the value of the height difference for two concurrent samples is above threshold, set to a "hilly" biome
+				// This prevents Villages n' stuff
+				// TODO
+
+
 				counter++;
 			}
 		}
