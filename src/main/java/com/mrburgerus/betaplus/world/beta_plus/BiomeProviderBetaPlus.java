@@ -1,8 +1,10 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
+import biomesoplenty.api.biome.BOPBiomes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusClimate;
 import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulator;
 import com.mrburgerus.betaplus.world.biome.BetaPlusBiomeSelector;
@@ -17,6 +19,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraftforge.fml.ModList;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -85,6 +88,12 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	/* Builds Possible Biome List */
 	private static Biome[] buildBiomesList()
 	{
+		if (ModList.get().isLoaded("biomesoplenty"))
+		{
+			BetaPlus.LOGGER.debug("SINGLE BIOME");
+			return new Biome[] {BOPBiomes.bayou.get()};
+		}
+
 		EnumBetaPlusBiome[] betaPlusBiomes = EnumBetaPlusBiome.defaultB.getDeclaringClass().getEnumConstants();
 		Set<Biome> biomeSet = Sets.newHashSet();
 		for (int i = 0; i < betaPlusBiomes.length; i++)
@@ -346,28 +355,28 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 			{
 				return Biomes.DEEP_FROZEN_OCEAN;
 			}
-			return Biomes.FROZEN_OCEAN;
+			return EnumBetaPlusBiome.frozenOcean.handle;
 		}
 		else if (temperature > BetaPlusBiomeSelector.VERY_HOT_VAL && climate[1] >= 0.735) //Was 0.725
 		{
-			return Biomes.WARM_OCEAN;
+			return EnumBetaPlusBiome.warmOcean.handle;
 		}
 		else if (temperature > BetaPlusBiomeSelector.WARM_VAL)
 		{
 			if(isDeep)
 			{
-				return Biomes.DEEP_LUKEWARM_OCEAN;
+				return EnumBetaPlusBiome.deepLukewarmOcean.handle;
 			}
-			return Biomes.LUKEWARM_OCEAN;
+			return EnumBetaPlusBiome.lukewarmOcean.handle;
 
 		}
 		else
 		{
 			if(isDeep)
 			{
-				return Biomes.DEEP_COLD_OCEAN;
+				return EnumBetaPlusBiome.deepColdOcean.handle;
 			}
-			return Biomes.COLD_OCEAN;
+			return EnumBetaPlusBiome.coldOcean.handle;
 		}
 	}
 
@@ -378,7 +387,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		{
 			return Biomes.SNOWY_BEACH;
 		}
-		return Biomes.BEACH;
+		return EnumBetaPlusBiome.beach.handle;
 	}
 
 

@@ -16,26 +16,29 @@ public enum EnumBetaPlusBiome implements IBetaPlusBiome
 	savanna(ConfigBetaPlus.savanna),
 	shrubland(ConfigBetaPlus.shrubland),
 	taiga(ConfigBetaPlus.taiga),
-	desert(Biomes.DESERT, Blocks.SAND, Blocks.SAND),
-	plains(Biomes.PLAINS),
-	tundra(Biomes.SNOWY_TUNDRA),
+	desert(ConfigBetaPlus.desert, Blocks.SAND, Blocks.SAND),
+	plains(ConfigBetaPlus.plains),
+	tundra(ConfigBetaPlus.tundra),
 	//New Enums
 	warmOcean(Biomes.WARM_OCEAN),
 	lukewarmOcean(Biomes.LUKEWARM_OCEAN),
 	deepLukewarmOcean(Biomes.DEEP_LUKEWARM_OCEAN),
 	coldOcean(Biomes.COLD_OCEAN),
 	deepColdOcean(Biomes.DEEP_COLD_OCEAN),
+	frozenOcean(ConfigBetaPlus.frozenOcean),
 	beach(Biomes.BEACH),
-	roofForest(Biomes.DARK_FOREST),
+	//roofForest(Biomes.DARK_FOREST),
 	mountain(Biomes.WOODED_MOUNTAINS),
 	iceSpikes(Biomes.ICE_SPIKES),
 	megaTaiga(Biomes.GIANT_SPRUCE_TAIGA),
-	// MESA UNUSED
-	mesa(Biomes.BADLANDS, Blocks.TERRACOTTA, Blocks.TERRACOTTA),
 	birchForest(Biomes.BIRCH_FOREST),
 	flowerPlains(Biomes.SUNFLOWER_PLAINS),
 	newForest(Biomes.FLOWER_FOREST),
-	defaultB(Biomes.PLAINS);
+	defaultB(Biomes.PLAINS),
+
+	// MESA UNUSED
+	mesa(Biomes.BADLANDS, Blocks.TERRACOTTA, Blocks.TERRACOTTA);
+
 
 	//Overrides
 	@Override

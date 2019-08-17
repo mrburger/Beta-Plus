@@ -40,6 +40,11 @@ public class ConfigBetaPlus
 	public static Biome savanna;
 	public static Biome shrubland;
 	public static Biome taiga;
+	public static Biome desert;
+	public static Biome plains;
+	public static Biome tundra;
+
+	public static Biome frozenOcean;
 
 	// Finalizes (bakes) config options
 	public static void bake()
@@ -68,6 +73,12 @@ public class ConfigBetaPlus
 		savanna = getBiomeFromString(BIOME_CONFIG.savanna.get());
 		shrubland = getBiomeFromString(BIOME_CONFIG.shrubland.get());
 		taiga = getBiomeFromString(BIOME_CONFIG.taiga.get());
+		desert = getBiomeFromString(BIOME_CONFIG.desert.get());
+		plains = getBiomeFromString(BIOME_CONFIG.plains.get());
+		tundra = getBiomeFromString(BIOME_CONFIG.tundra.get());
+
+		// Ocean Mappings
+		frozenOcean = getBiomeFromString(BIOME_CONFIG.frozenOcean.get());
 	}
 
 	private static Biome getBiomeFromString(String name)
@@ -152,6 +163,23 @@ public class ConfigBetaPlus
 		public final ForgeConfigSpec.ConfigValue<String> savanna;
 		public final ForgeConfigSpec.ConfigValue<String> shrubland;
 		public final ForgeConfigSpec.ConfigValue<String> taiga;
+		public final ForgeConfigSpec.ConfigValue<String> desert;
+		public final ForgeConfigSpec.ConfigValue<String> plains;
+		public final ForgeConfigSpec.ConfigValue<String> tundra;
+		public final ForgeConfigSpec.ConfigValue<String> warmOcean;
+		public final ForgeConfigSpec.ConfigValue<String> lukewarmOcean;
+		public final ForgeConfigSpec.ConfigValue<String> deepLukewarmOcean;
+		public final ForgeConfigSpec.ConfigValue<String> coldOcean;
+		public final ForgeConfigSpec.ConfigValue<String> deepColdOcean;
+		public final ForgeConfigSpec.ConfigValue<String> frozenOcean;
+		public final ForgeConfigSpec.ConfigValue<String> beach;
+		public final ForgeConfigSpec.ConfigValue<String> mountains;
+		public final ForgeConfigSpec.ConfigValue<String> iceSpikes;
+		public final ForgeConfigSpec.ConfigValue<String> megaTaiga;
+		public final ForgeConfigSpec.ConfigValue<String> birchForest;
+		public final ForgeConfigSpec.ConfigValue<String> sunFlowerPlains;
+		public final ForgeConfigSpec.ConfigValue<String> flowerForest;
+		public final ForgeConfigSpec.ConfigValue<String> defaultBiome;
 
 		public BiomeConfig(ForgeConfigSpec.Builder builder)
 		{
@@ -178,6 +206,58 @@ public class ConfigBetaPlus
 			taiga = builder.comment("Beta Taiga (Snowy)")
 					.translation("taiga" + transSuffix)
 					.defineInList("taiga", Biomes.SNOWY_TAIGA.getDisplayName().getString(), biomes);
+			desert = builder.comment("Beta desert")
+					.translation("desert" + transSuffix)
+					.defineInList("desert", Biomes.DESERT.getDisplayName().getString(), biomes);
+			plains = builder.comment("Beta Plains")
+					.translation("plains" + transSuffix)
+					.defineInList("plains", Biomes.PLAINS.getDisplayName().getString(), biomes);
+			tundra = builder.comment("Beta Tundra")
+					.translation("tundra" + transSuffix)
+					.defineInList("tundra", Biomes.SNOWY_TUNDRA.getDisplayName().getString(), biomes);
+			warmOcean = builder.comment("Warm Ocean")
+					.translation("warmOcean" + transSuffix)
+					.defineInList("warmOcean", Biomes.WARM_OCEAN.getDisplayName().getString(), biomes);
+			lukewarmOcean = builder.comment("Lukewarm Ocean")
+					.translation("lukewarmOcean" + transSuffix)
+					.defineInList("lukewarmOcean", Biomes.LUKEWARM_OCEAN.getDisplayName().getString(), biomes);
+			deepLukewarmOcean = builder.comment("Deep Lukewarm Ocean")
+					.translation("deepLukewarmOcean" + transSuffix)
+					.defineInList("deepLukewarmOcean", Biomes.DEEP_LUKEWARM_OCEAN.getDisplayName().getString(), biomes);
+			coldOcean = builder.comment("Cold Ocean")
+					.translation("coldOcean" + transSuffix)
+					.defineInList("coldOcean", Biomes.COLD_OCEAN.getDisplayName().getString(), biomes);
+			deepColdOcean = builder.comment("Deep Cold Ocean")
+					.translation("deepColdOcean" + transSuffix)
+					.defineInList("deepColdOcean", Biomes.DEEP_COLD_OCEAN.getDisplayName().getString(), biomes);
+			frozenOcean = builder.comment("Cold Ocean")
+					.translation("frozenOcean" + transSuffix)
+					.defineInList("frozenOcean", Biomes.FROZEN_OCEAN.getDisplayName().getString(), biomes);
+			beach = builder.comment("Beach")
+					.translation("beach" + transSuffix)
+					.defineInList("beach", Biomes.BEACH.getDisplayName().getString(), biomes);
+			mountains = builder.comment("Beta Mountains")
+					.translation("mountains" + transSuffix)
+					.defineInList("mountains", Biomes.WOODED_MOUNTAINS.getDisplayName().getString(), biomes);
+			iceSpikes = builder.comment("Ice Spikes")
+					.translation("iceSpikes" + transSuffix)
+					.defineInList("iceSpikes", Biomes.ICE_SPIKES.getDisplayName().getString(), biomes);
+			megaTaiga = builder.comment("Redwood Forest")
+					.translation("megaTaiga" + transSuffix)
+					.defineInList("megaTaiga", Biomes.GIANT_SPRUCE_TAIGA.getDisplayName().getString(), biomes);
+			birchForest = builder.comment("Birch Forest")
+					.translation("birchForest" + transSuffix)
+					.defineInList("birchForest", Biomes.BIRCH_FOREST.getDisplayName().getString(), biomes);
+			sunFlowerPlains = builder.comment("Sunflower Plains")
+					.translation("sunFlowerPlains" + transSuffix)
+					.defineInList("sunFlowerPlains", Biomes.SUNFLOWER_PLAINS.getDisplayName().getString(), biomes);
+			flowerForest = builder.comment("Flower Forest")
+					.translation("flowerForest" + transSuffix)
+					.defineInList("flowerForest", Biomes.FLOWER_FOREST.getDisplayName().getString(), biomes);
+			defaultBiome = builder.comment("Default Biome")
+					.translation("defaultBiome" + transSuffix)
+					.defineInList("defaultBiome", Biomes.DEFAULT.getDisplayName().getString(), biomes);
+
 
 			builder.pop();
 		}

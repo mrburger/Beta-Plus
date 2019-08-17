@@ -8,6 +8,7 @@ import net.minecraft.world.WorldType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -45,6 +46,18 @@ public class BetaPlus
 		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigBetaPlus.SPEC);
 
 		proxy.init();
+
+		// TESTING BIOMES O PLENTY (WORKS)
+		/*
+		if (ModList.get().isLoaded("biomesoplenty"))
+		{
+			LOGGER.debug("BOP LOADED");
+		}
+		else
+		{
+			LOGGER.debug("BOP MISSING");
+		}
+		*/
     }
 
     public void config(ModConfig.ModConfigEvent event)
