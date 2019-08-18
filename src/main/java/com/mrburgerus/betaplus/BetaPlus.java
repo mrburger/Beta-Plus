@@ -23,6 +23,7 @@ public class BetaPlus
 {
 	//Fields
 	public static final String MOD_NAME = "betaplus";
+	public final boolean loadedBOP;
 
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
@@ -47,17 +48,15 @@ public class BetaPlus
 
 		proxy.init();
 
-		// TESTING BIOMES O PLENTY (WORKS)
-		/*
 		if (ModList.get().isLoaded("biomesoplenty"))
 		{
-			LOGGER.debug("BOP LOADED");
+			BetaPlus.LOGGER.info("Beta+ Detected Biomes o' Plenty");
+			loadedBOP = true;
 		}
 		else
 		{
-			LOGGER.debug("BOP MISSING");
+			loadedBOP = false;
 		}
-		*/
     }
 
     public void config(ModConfig.ModConfigEvent event)

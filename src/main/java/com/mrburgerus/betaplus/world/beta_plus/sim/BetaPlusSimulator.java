@@ -1,6 +1,7 @@
 package com.mrburgerus.betaplus.world.beta_plus.sim;
 
 import com.mojang.datafixers.util.Pair;
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.AbstractWorldSimulator;
 import com.mrburgerus.betaplus.util.ConfigBetaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
@@ -144,6 +145,13 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 
 	public Pair<int[][], Boolean> simulateChunkYFull(ChunkPos pos)
 	{
+		// Check if already simulated
+		if (chunkYCache.containsKey(pos))
+		{
+			BetaPlus.LOGGER.info("WHAT! IT EXISTS");
+			return Pair.of(chunkYCache.get(pos), landValExists(chunkYCache.get(pos)));
+		}
+
 		int[][] output = new int[16][16];
 		heightNoise = generateOctaves(heightNoise, pos.x * 4, 0,pos.z * 4, 5, 17, 5);
 		for (int cX = 0; cX < 4; ++cX)
@@ -197,6 +205,10 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 				}
 			}
 		}
+		// Enter into cache
+		enterIntoCache(pos, output);
+
+		// Return
 		return Pair.of(output, landValExists(output));
 	}
 
@@ -246,4 +258,5 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 		sandBlockCache.put(chunkPos, retPair);
 		return retPair;
 	}
+
 }

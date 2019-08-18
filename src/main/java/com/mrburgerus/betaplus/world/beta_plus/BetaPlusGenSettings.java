@@ -2,8 +2,9 @@ package com.mrburgerus.betaplus.world.beta_plus;
 
 import com.mrburgerus.betaplus.util.ConfigBetaPlus;
 import net.minecraft.world.gen.GenerationSettings;
+import net.minecraft.world.gen.OverworldGenSettings;
 
-public class BetaPlusGenSettings extends GenerationSettings
+public class BetaPlusGenSettings extends OverworldGenSettings
 {
 	// Sea Level, self-explanatory
 	private final int seaLevel = ConfigBetaPlus.seaLevel;

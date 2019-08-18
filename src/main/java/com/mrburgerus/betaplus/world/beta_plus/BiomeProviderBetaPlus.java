@@ -88,12 +88,6 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	/* Builds Possible Biome List */
 	private static Biome[] buildBiomesList()
 	{
-		if (ModList.get().isLoaded("biomesoplenty"))
-		{
-			BetaPlus.LOGGER.debug("SINGLE BIOME");
-			return new Biome[] {BOPBiomes.bayou.get()};
-		}
-
 		EnumBetaPlusBiome[] betaPlusBiomes = EnumBetaPlusBiome.defaultB.getDeclaringClass().getEnumConstants();
 		Set<Biome> biomeSet = Sets.newHashSet();
 		for (int i = 0; i < betaPlusBiomes.length; i++)

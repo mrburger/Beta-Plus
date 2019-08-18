@@ -1,11 +1,16 @@
 package com.mrburgerus.betaplus.world.biome;
 
+import biomesoplenty.api.biome.BOPBiomes;
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.ConfigBetaPlus;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
+import net.minecraftforge.fml.ModList;
 
+
+//TODO: REMOVE IN FAVOR OF NEW IMPLEMENTATION
 public enum EnumBetaPlusBiome implements IBetaPlusBiome
 {
 	//Enums
@@ -97,6 +102,7 @@ public enum EnumBetaPlusBiome implements IBetaPlusBiome
 	{
 		int i = (int) (temperature * 63.0);
 		int j = (int) (humidity * 63.0);
+
 		return BIOME_LOOKUP_TABLE[i + j * 64];
 	}
 

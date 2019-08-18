@@ -58,7 +58,7 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 	private BiomeProviderBetaPlus biomeProviderS;
 	private final PhantomSpawner phantomSpawner = new PhantomSpawner();
 	private final BetaPlusGenSettings settings;
-	private static final int CHUNK_SIZE = 16;
+	public static final int CHUNK_SIZE = 16;
 
 	public ChunkGeneratorBetaPlus(IWorld world, BiomeProviderBetaPlus biomeProvider, BetaPlusGenSettings settingsIn)
 	{
