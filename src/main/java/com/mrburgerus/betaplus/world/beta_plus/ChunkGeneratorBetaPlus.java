@@ -15,6 +15,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.Heightmap;
@@ -150,7 +151,7 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 		DeepenOceanUtil.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize(), ConfigBetaPlus.oceanYScale);
 		// Replace Biomes (Oceans)
 		// This is because detection of Oceans is an average operation.
-		this.replaceBiomes(chunkIn);
+		//this.replaceBiomes(chunkIn);
 
 		// Replace Blocks (DIRT & SAND & STUFF)
 		replaceBlocksForBiome(x, z, chunkIn, EnumBetaPlusBiome.convertBiomeTable(biomesForGeneration));
@@ -186,9 +187,17 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 		//BetaPlus.LOGGER.info("HERE: " + Math.floorMod(x, CHUNK_SIZE) + ", " + x % CHUNK_SIZE + "; " + Math.floorMod(z, CHUNK_SIZE) + ", " + z % CHUNK_SIZE );
 		//return valuesInChunk[Math.floorMod(x, CHUNK_SIZE)][Math.floorMod(z, CHUNK_SIZE)];
 
+		int yRet = valuesInChunk[x % CHUNK_SIZE][z % CHUNK_SIZE];
+		if (yRet < getSeaLevel())
+		{
+			yRet = getSeaLevel() + 1;
+		}
+
 		// Is it Z, X? Yes? Maybe?
 		// Added +1 to increase height slightly
-		return valuesInChunk[Math.floorMod(x, CHUNK_SIZE)][Math.floorMod(z, CHUNK_SIZE)] + 1 > getSeaLevel() ? valuesInChunk[Math.floorMod(z, CHUNK_SIZE)][Math.floorMod(x, CHUNK_SIZE)] + 1 : getSeaLevel() + 1;
+		return yRet;
+		// Seems to have issues
+		//return valuesInChunk[Math.floorMod(x, CHUNK_SIZE)][Math.floorMod(z, CHUNK_SIZE)] + 1 > getSeaLevel() ? valuesInChunk[Math.floorMod(z, CHUNK_SIZE)][Math.floorMod(x, CHUNK_SIZE)] + 1 : getSeaLevel() + 1;
 
 	}
 
@@ -268,6 +277,7 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 	}
 
 	//Replace Biomes where necessary
+	/*
 	private void replaceBiomes(IChunk iChunk)
 	{
 		for (int z = 0; z < CHUNK_SIZE; ++z)
@@ -296,6 +306,7 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 			}
 		}
 	}
+	*/
 
 	private void replaceBeaches(IChunk chunk)
 	{
@@ -312,7 +323,7 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 				//Inject Beaches (MODIFIED)
 				if ((yVal <= (settings.getSeaLevel() + 1) && yVal >= settings.getSeaLevel() - 1) && (biome != EnumBetaPlusBiome.desert.handle) && chunk.getBlockState(new BlockPos(xPos, yVal, zPos)) == Blocks.SAND.getDefaultState())
 				{
-						this.biomesForGeneration[(x << 4 | z)] = biomeProviderS.getBeachBiome(new BlockPos(xPos, yVal, zPos));
+						this.biomesForGeneration[(x << 4 | z)] = Biomes.BEACH; //biomeProviderS.getBeachBiome(new BlockPos(xPos, yVal, zPos));
 				}
 			}
 		}

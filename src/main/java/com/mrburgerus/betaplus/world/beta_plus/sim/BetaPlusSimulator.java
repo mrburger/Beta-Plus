@@ -148,7 +148,7 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 		// Check if already simulated
 		if (chunkYCache.containsKey(pos))
 		{
-			BetaPlus.LOGGER.info("WHAT! IT EXISTS");
+			//BetaPlus.LOGGER.info("WHAT! IT EXISTS");
 			return Pair.of(chunkYCache.get(pos), landValExists(chunkYCache.get(pos)));
 		}
 
