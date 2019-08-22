@@ -3,10 +3,10 @@ package com.mrburgerus.betaplus.world.beta_plus;
 //import biomesoplenty.api.biome.BOPBiomes;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
-import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulator;
+import com.mrburgerus.betaplus.world.biome.BetaPlusBiomeSelectorNew;
+import com.mrburgerus.betaplus.world.biome.TerrainType;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBiome;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -25,8 +25,6 @@ import java.util.Set;
 
 // Get the Chunk Size
 import static com.mrburgerus.betaplus.world.beta_plus.ChunkGeneratorBetaPlus.CHUNK_SIZE;
-import static com.mrburgerus.betaplus.world.beta_plus.TerrainType.hillyLand;
-import static com.mrburgerus.betaplus.world.beta_plus.TerrainType.land;
 
 /* This is a WIP class that will provide a NEW biome system. */
 /* Based off BiomeProviderBetaPlus */
@@ -82,7 +80,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		// Initialize all enabled biomes.
 		// Check for Biomes o' Plenty, and if so, get the enabled biome list.
 		// Determines which structures are allowed
-		return new Biome[]{Biomes.PLAINS, Biomes.MUSHROOM_FIELDS};
+		return new Biome[]{Biomes.PLAINS, Biomes.DESERT, Biomes.DARK_FOREST, Biomes.DEEP_COLD_OCEAN};
 	}
 
 
@@ -198,7 +196,6 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	// USER DEFINED //
 
 	// Since Layers will most likely not work in any capacity, I will fall back on the land simulator I developed.
-	//TerrainType[][] terrain = new TerrainType[xSize][zSize];
 	public Pair<BlockPos, TerrainType>[][] getInitialTerrain(int startX, int startZ, int xSize, int zSize)
 	{
 		// There will be issues detecting large islands. I may run into chunk runaway issues if I don't recheck my running block tally.
@@ -210,8 +207,6 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		int xChunkSize = MathHelper.ceil(xSize / (CHUNK_SIZE * 1.0D));
 		int zChunkSize = MathHelper.ceil(zSize / (CHUNK_SIZE * 1.0D));
 		Pair<BlockPos, TerrainType>[][] terrainPairs = new Pair[xChunkSize * CHUNK_SIZE][zChunkSize * CHUNK_SIZE];
-		// Debug
-		//BetaPlus.LOGGER.info("SZC: " + xChunkSize + ", " + zChunkSize);
 
 		for (int xChunk = 0; xChunk < xChunkSize; xChunk++)
 		{
@@ -237,6 +232,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				}
 			}
 		}
+		// Now, find isolated "Land" or "Hilly" spots and declare as islands
 		return terrainPairs;
 	}
 
@@ -252,7 +248,6 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		Biome selected;
 		// First, get initial terrain
 		Pair<BlockPos, TerrainType>[][] pairArr = this.getInitialTerrain(startX, startZ, xSize, zSize);
-		// Now, get the biome and other overlay
 
 		// Process
 		for (int x = 0; x < xSize; x++)
@@ -280,16 +275,19 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				// Debug
 				if (!pos.equals(pPos.getFirst()))
 				{
-					BetaPlus.LOGGER.error("M: " + pos + " : " + pPos.getFirst());
+					//BetaPlus.LOGGER.error("M: " + pos + " : " + pPos.getFirst());
 				}
-				// FOR DEBUG ONLY
+				// TODO: ADD SELECTOR FOR BIOME FROM LIST
+				// TODO: REMOVE MATH.RANDOM()
+				selected = BetaPlusBiomeSelectorNew.getBiome((float) temperatureVal, (float) humidityVal, Math.random(), (TerrainType) pPos.getSecond());
+				/*
 				switch ((TerrainType) pPos.getSecond())
 				{
 					case land:
 						selected = Biomes.PLAINS;
 						break;
 					case hillyLand:
-						selected = Biomes.BIRCH_FOREST_HILLS;
+						selected = BetaPlusBiomeSelectorNew.
 						break;
 					case sea:
 						selected = Biomes.WARM_OCEAN;
@@ -307,6 +305,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 						selected = Biomes.DEFAULT;
 						break;
 				}
+				*/
 
 				biomeArr[counter] = selected;
 				counter++;
@@ -314,4 +313,6 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		}
 		return biomeArr;
 	}
+
+
 }

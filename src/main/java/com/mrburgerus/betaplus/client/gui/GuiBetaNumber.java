@@ -18,7 +18,7 @@ public class GuiBetaNumber extends AbstractGui
 
 	}
 
-	private static String betaVersion = "Minecraft Beta+ 1.14.4";
+	private static String betaVersion = "Minecraft Beta+ 1.14.4 (ALPHA VERSION)";
 
 	/* Overlays Version if we use a Beta World Type */
 	@SubscribeEvent

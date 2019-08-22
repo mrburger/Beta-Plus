@@ -1,8 +1,6 @@
 package com.mrburgerus.betaplus.util;
 
-
-// HAS ISSUES, NOT MATHEMATICALLY CORRECT.
-public class BetaConvolve
+public class MathConvolve
 {
 	/* Convolves a Square 2D Matrix. */
 	/* KernelSize MUST BE ODD */

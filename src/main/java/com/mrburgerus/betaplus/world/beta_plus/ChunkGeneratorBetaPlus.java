@@ -1,8 +1,7 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
-import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.BiomeReplaceUtil;
-import com.mrburgerus.betaplus.util.ConfigBetaPlus;
+import com.mrburgerus.betaplus.util.ConfigRetroPlus;
 import com.mrburgerus.betaplus.util.DeepenOceanUtil;
 import com.mrburgerus.betaplus.world.biome.EnumBetaPlusBiome;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
@@ -17,7 +16,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.gen.NoiseChunkGenerator;
 import net.minecraft.world.gen.WorldGenRegion;
@@ -137,7 +135,6 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 	@Override
 	public void makeBase(IWorld iWorld, IChunk chunkIn)
 	{
-		//BetaPlus.LOGGER.info("GEN: " + chunkIn.getPos().toString());
 		// Get Position
 		int x = chunkIn.getPos().x;
 		int z = chunkIn.getPos().z;
@@ -148,19 +145,20 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 		// Written similarly to "generateTerrain" from earlier versions.
 		setBlocksInChunk(chunkIn);
 		// Scale factor formerly 2.85
-		DeepenOceanUtil.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize(), ConfigBetaPlus.oceanYScale);
+		DeepenOceanUtil.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize(), ConfigRetroPlus.oceanYScale);
 		// Replace Biomes (Oceans)
 		// This is because detection of Oceans is an average operation.
 		//this.replaceBiomes(chunkIn);
 
 		// Replace Blocks (DIRT & SAND & STUFF)
-		replaceBlocksForBiome(x, z, chunkIn, EnumBetaPlusBiome.convertBiomeTable(biomesForGeneration));
+		// NOT WORKING RIGHT NOW?
+		replaceBlocksForBiome(x, z, chunkIn, biomesForGeneration);
+
 		// Replace Beaches, done afterwards.
 		this.replaceBeaches(chunkIn);
 
 		// Set Biomes
 		chunkIn.setBiomes(BiomeReplaceUtil.convertBiomeArray(biomesForGeneration));
-		//BetaPlus.LOGGER.info("DONE: " + chunkIn.getPos().toString());
 	}
 
 	@Override
@@ -176,29 +174,18 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 	}
 
 	// Used for Villages AND Pillager Outposts
-
-	// INCOMPLETE
-	// TODO: ADD MAX-MIN TO DETERMINE HEIGHT OF BIOME
+	// TESTED: AUG 21, 2019
 	@Override
 	public int func_222529_a(int x, int z, Heightmap.Type p_222529_3_)
 	{
 		int[][] valuesInChunk = biomeProviderS.simulator.simulateChunkYFull(new ChunkPos(new BlockPos(x, 0, z))).getFirst();
-		//BetaPlus.LOGGER.info("Called height: " + x  + ", " +  z);
-		//BetaPlus.LOGGER.info("HERE: " + Math.floorMod(x, CHUNK_SIZE) + ", " + x % CHUNK_SIZE + "; " + Math.floorMod(z, CHUNK_SIZE) + ", " + z % CHUNK_SIZE );
-		//return valuesInChunk[Math.floorMod(x, CHUNK_SIZE)][Math.floorMod(z, CHUNK_SIZE)];
-
-		int yRet = valuesInChunk[x % CHUNK_SIZE][z % CHUNK_SIZE];
+		// Working!
+		int yRet = valuesInChunk[x & 0x000F][z & 0x000F];
 		if (yRet < getSeaLevel())
 		{
 			yRet = getSeaLevel() + 1;
 		}
-
-		// Is it Z, X? Yes? Maybe?
-		// Added +1 to increase height slightly
 		return yRet;
-		// Seems to have issues
-		//return valuesInChunk[Math.floorMod(x, CHUNK_SIZE)][Math.floorMod(z, CHUNK_SIZE)] + 1 > getSeaLevel() ? valuesInChunk[Math.floorMod(z, CHUNK_SIZE)][Math.floorMod(x, CHUNK_SIZE)] + 1 : getSeaLevel() + 1;
-
 	}
 
 	@Override
@@ -351,7 +338,7 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 		{
 			values = new double[var5 * var6 * var7];
 		}
-		double noiseFactor = ConfigBetaPlus.noiseScale;
+		double noiseFactor = ConfigRetroPlus.noiseScale;
 		double[] temps = biomeProviderS.temperatures;
 		double[] humidities = biomeProviderS.humidities;
 		octaveArr4 = scaleNoise.generateNoiseOctaves(octaveArr4, xPos, zPos, var5, var7, 1.121, 1.121, 0.5);
@@ -437,7 +424,7 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 	}
 
 	/* YES, IT IS COPIED AND MODIFIED FROM 1.12 */
-	private void replaceBlocksForBiome(int chunkX, int chunkZ, IChunk chunkprimer, EnumBetaPlusBiome[] biomes)
+	private void replaceBlocksForBiome(int chunkX, int chunkZ, IChunk chunkprimer, Biome[] biomes)
 	{
 		double thirtySecond = 0.03125;
 		this.sandNoise = this.beachBlockNoise.generateNoiseOctaves(this.sandNoise, chunkX * 16, chunkZ * 16, 0.0, 16, 16, 1, thirtySecond, thirtySecond, 1.0);
@@ -447,13 +434,14 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 		{
 			for (int x = 0; x < 16; ++x)
 			{
-				EnumBetaPlusBiome biome = biomes[z + x * 16];
+				Biome biome = biomes[z + x * 16];
 				boolean sandN = this.sandNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 0.0;
 				boolean gravelN = this.gravelNoise[z + x * 16] + this.rand.nextDouble() * 0.2 > 3.0;
 				int stoneN = (int) (this.stoneNoise[z + x * 16] / 3.0 + 3.0 + this.rand.nextDouble() * 0.25);
 				int checkVal = -1;
-				BlockState topBlock = biome.topBlock.getDefaultState();
-				BlockState fillerBlock = biome.fillerBlock.getDefaultState();
+				// Changed to use the actual Biome Config.
+				BlockState topBlock = biome.getSurfaceBuilderConfig().getTop();
+				BlockState fillerBlock = biome.getSurfaceBuilderConfig().getUnder();
 
 				// GO from Top to bottom of world
 				for (int y = 127; y >= 0; --y)
@@ -484,8 +472,8 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 							}
 							else if (y >= settings.getSeaLevel() - 4 && y <= settings.getSeaLevel() + 1)
 							{
-								topBlock = biome.topBlock.getDefaultState();
-								fillerBlock = biome.fillerBlock.getDefaultState();
+								topBlock = biome.getSurfaceBuilderConfig().getTop();
+								fillerBlock = biome.getSurfaceBuilderConfig().getUnder();
 								if (gravelN)
 								{
 									topBlock = Blocks.AIR.getDefaultState();

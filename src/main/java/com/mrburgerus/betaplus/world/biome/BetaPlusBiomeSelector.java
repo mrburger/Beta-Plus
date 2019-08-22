@@ -1,12 +1,12 @@
 package com.mrburgerus.betaplus.world.biome;
 
-import com.mrburgerus.betaplus.util.ConfigBetaPlus;
+import com.mrburgerus.betaplus.util.ConfigRetroPlus;
 import net.minecraft.world.biome.Biome;
 
 public class BetaPlusBiomeSelector
 {
 	// Fields
-	public static final double COLD_VALUE = ConfigBetaPlus.coldTh;
+	public static final double COLD_VALUE = ConfigRetroPlus.coldTh;
 	public static final double FROZEN_VALUE = 0.15;
 	public static final double HOT_VALUE = 0.9375;
 	public static final double VERY_HOT_VAL = 0.985;

@@ -1,9 +1,8 @@
 package com.mrburgerus.betaplus.world.beta_plus.sim;
 
 import com.mojang.datafixers.util.Pair;
-import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.AbstractWorldSimulator;
-import com.mrburgerus.betaplus.util.ConfigBetaPlus;
+import com.mrburgerus.betaplus.util.ConfigRetroPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -32,7 +31,7 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 			values = new double[size1 * size2 * size3];
 		}
 		// Modified to accomodate noise Scale
-		double noiseFactor = ConfigBetaPlus.noiseScale;
+		double noiseFactor = ConfigRetroPlus.noiseScale;
 		// These map to a simple function thankfully
 		octaveArr4 = scaleNoise.generateNoiseOctaves(octaveArr4, xChunkMult, zChunkMult, size1, size3, 1.121, 1.121, 0.5);
 		octaveArr5 = octaves7.generateNoiseOctaves(octaveArr5, xChunkMult, zChunkMult, size1, size3, 200.0, 200.0, 0.5);

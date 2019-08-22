@@ -10,8 +10,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-public class ConfigBetaPlus
+public class ConfigBetaPlusOLD
 {
 	private static final String transSuffix = "." + BetaPlus.MOD_NAME + ".config";
 
@@ -46,6 +47,8 @@ public class ConfigBetaPlus
 
 	public static Biome frozenOcean;
 
+	public static List<Biome> islandBiomeList;
+
 	// Finalizes (bakes) config options
 	public static void bake()
 	{
@@ -79,6 +82,7 @@ public class ConfigBetaPlus
 
 		// Ocean Mappings
 		frozenOcean = getBiomeFromString(BIOME_CONFIG.frozenOcean.get());
+
 	}
 
 	private static Biome getBiomeFromString(String name)

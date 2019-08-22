@@ -3,6 +3,9 @@ package com.mrburgerus.betaplus.world.alpha_plus.sim;
 import com.mojang.datafixers.util.Pair;
 import com.mrburgerus.betaplus.util.AbstractWorldSimulator;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesAlpha;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 
@@ -182,6 +185,78 @@ public class AlphaPlusSimulator extends AbstractWorldSimulator
 			}
 		}
 
+		return Pair.of(output, landValExists(output));
+	}
+
+	// TODO: CHECK IF THIS ALIGNS WITH BETAPLUSSIMULATOR IMPLEMENTATION, THAT WOULD BE GREAT IF SO.
+	public Pair<int[][], Boolean> simulateChunkYFull(ChunkPos pos)
+	{
+		// Check if already simulated
+		if (chunkYCache.containsKey(pos))
+		{
+			//BetaPlus.LOGGER.info("WHAT! IT EXISTS");
+			return Pair.of(chunkYCache.get(pos), landValExists(chunkYCache.get(pos)));
+		}
+		int[][] output = new int[16][16];
+		this.heightNoise = this.generateOctaves(this.heightNoise, pos.x * 4, 0, pos.z * 4, 5, 17, 5);
+
+		for (int cX = 0; cX < 4; ++cX)
+		{
+			for (int cZ = 0; cZ < 4; ++cZ)
+			{
+				for (int cY = 0; cY < 16; ++cY)
+				{
+					double var12 = 0.125D;
+					double var14 = this.heightNoise[((((cX) * 5) + cZ) * 17) + cY];
+					double var16 = this.heightNoise[((cX) * 5 + cZ + 1) * 17 + cY];
+					double var18 = this.heightNoise[((cX + 1) * 5 + cZ) * 17 + cY];
+					double var20 = this.heightNoise[((cX + 1) * 5 + cZ + 1) * 17 + cY];
+					double var22 = (this.heightNoise[((cX) * 5 + cZ) * 17 + cY + 1] - var14) * var12;
+					double var24 = (this.heightNoise[((cX) * 5 + cZ + 1) * 17 + cY + 1] - var16) * var12;
+					double var26 = (this.heightNoise[((cX + 1) * 5 + cZ) * 17 + cY + 1] - var18) * var12;
+					double var28 = (this.heightNoise[((cX + 1) * 5 + cZ + 1) * 17 + cY + 1] - var20) * var12;
+
+					for (int var30 = 0; var30 < 8; ++var30)
+					{
+						double var31 = 0.25D;
+						double var33 = var14;
+						double var35 = var16;
+						double var37 = (var18 - var14) * var31;
+						double var39 = (var20 - var16) * var31;
+
+						for (int var41 = 0; var41 < 4; ++var41)
+						{
+							int x = var41 + cX * 4;
+							int y = cY * 8 + var30;
+							int z = cZ * 4;
+
+							double var44 = 0.25D;
+							double stoneN = var33;
+							double var48 = (var35 - var33) * var44;
+
+							for (int var50 = 0; var50 < 4; ++var50)
+							{
+
+								if (stoneN > 0.0D)
+								{
+									output[x][z] = y;
+								}
+								++z;
+								stoneN += var48;
+							}
+
+							var33 += var37;
+							var35 += var39;
+						}
+
+						var14 += var22;
+						var16 += var24;
+						var18 += var26;
+						var20 += var28;
+					}
+				}
+			}
+		}
 		return Pair.of(output, landValExists(output));
 	}
 }

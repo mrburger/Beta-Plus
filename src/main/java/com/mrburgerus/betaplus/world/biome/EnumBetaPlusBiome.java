@@ -1,36 +1,34 @@
 package com.mrburgerus.betaplus.world.biome;
 
-import biomesoplenty.api.biome.BOPBiomes;
-import com.mrburgerus.betaplus.BetaPlus;
-import com.mrburgerus.betaplus.util.ConfigBetaPlus;
+import com.mrburgerus.betaplus.util.ConfigBetaPlusOLD;
+import com.mrburgerus.betaplus.util.ConfigBetaPlusOLD;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
-import net.minecraftforge.fml.ModList;
 
 
 //TODO: REMOVE IN FAVOR OF NEW IMPLEMENTATION
 public enum EnumBetaPlusBiome implements IBetaPlusBiome
 {
 	//Enums
-	rainforest(ConfigBetaPlus.rainforest),
-	swampland(ConfigBetaPlus.swampland),
-	seasonalForest(ConfigBetaPlus.seasonalForest),
-	forest(ConfigBetaPlus.forest),
-	savanna(ConfigBetaPlus.savanna),
-	shrubland(ConfigBetaPlus.shrubland),
-	taiga(ConfigBetaPlus.taiga),
-	desert(ConfigBetaPlus.desert, Blocks.SAND, Blocks.SAND),
-	plains(ConfigBetaPlus.plains),
-	tundra(ConfigBetaPlus.tundra),
+	rainforest(ConfigBetaPlusOLD.rainforest),
+	swampland(ConfigBetaPlusOLD.swampland),
+	seasonalForest(ConfigBetaPlusOLD.seasonalForest),
+	forest(ConfigBetaPlusOLD.forest),
+	savanna(ConfigBetaPlusOLD.savanna),
+	shrubland(ConfigBetaPlusOLD.shrubland),
+	taiga(ConfigBetaPlusOLD.taiga),
+	desert(ConfigBetaPlusOLD.desert, Blocks.SAND, Blocks.SAND),
+	plains(ConfigBetaPlusOLD.plains),
+	tundra(ConfigBetaPlusOLD.tundra),
 	//New Enums
 	warmOcean(Biomes.WARM_OCEAN),
 	lukewarmOcean(Biomes.LUKEWARM_OCEAN),
 	deepLukewarmOcean(Biomes.DEEP_LUKEWARM_OCEAN),
 	coldOcean(Biomes.COLD_OCEAN),
 	deepColdOcean(Biomes.DEEP_COLD_OCEAN),
-	frozenOcean(ConfigBetaPlus.frozenOcean),
+	frozenOcean(ConfigBetaPlusOLD.frozenOcean),
 	beach(Biomes.BEACH),
 	//roofForest(Biomes.DARK_FOREST),
 	mountain(Biomes.WOODED_MOUNTAINS),

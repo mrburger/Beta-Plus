@@ -7,6 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -145,9 +146,16 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 	}
 
 	@Override
-	public int func_222529_a(int p_222529_1_, int p_222529_2_, Heightmap.Type p_222529_3_)
+	public int func_222529_a(int x, int z, Heightmap.Type p_222529_3_)
 	{
-		return 0;
+		int[][] valuesInChunk = biomeProviderS.simulator.simulateChunkYFull(new ChunkPos(new BlockPos(x, 0, z))).getFirst();
+		// Working!
+		int yRet = valuesInChunk[x & 0x000F][z & 0x000F];
+		if (yRet < getSeaLevel())
+		{
+			yRet = getSeaLevel() + 1;
+		}
+		return yRet;
 	}
 
 	@Override
@@ -162,25 +170,21 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 	{
 		int chunkX = chunk.getPos().x;
 		int chunkZ = chunk.getPos().z;
-		byte var4 = 4;
 		byte seaLevel = 63; //Was 64, Ocean Monuments messed with this.
-		int var6 = var4 + 1;
-		byte var7 = 17;
-		int var8 = var4 + 1;
-		this.heightNoise = this.generateOctaves(this.heightNoise, chunkX * var4, 0, chunkZ * var4, var6, var7, var8);
+		this.heightNoise = this.generateOctaves(this.heightNoise, chunkX * 4, 0, chunkZ * 4, 5, 17, 5);
 
-		for (int var9 = 0; var9 < var4; ++var9) {
-			for (int var10 = 0; var10 < var4; ++var10) {
+		for (int var9 = 0; var9 < 4; ++var9) {
+			for (int var10 = 0; var10 < 4; ++var10) {
 				for (int var11 = 0; var11 < 16; ++var11) {
 					double var12 = 0.125D;
-					double var14 = this.heightNoise[((((var9) * var8) + var10) * var7) + var11];
-					double var16 = this.heightNoise[((var9) * var8 + var10 + 1) * var7 + var11];
-					double var18 = this.heightNoise[((var9 + 1) * var8 + var10) * var7 + var11];
-					double var20 = this.heightNoise[((var9 + 1) * var8 + var10 + 1) * var7 + var11];
-					double var22 = (this.heightNoise[((var9) * var8 + var10) * var7 + var11 + 1] - var14) * var12;
-					double var24 = (this.heightNoise[((var9) * var8 + var10 + 1) * var7 + var11 + 1] - var16) * var12;
-					double var26 = (this.heightNoise[((var9 + 1) * var8 + var10) * var7 + var11 + 1] - var18) * var12;
-					double var28 = (this.heightNoise[((var9 + 1) * var8 + var10 + 1) * var7 + var11 + 1] - var20) * var12;
+					double var14 = this.heightNoise[((((var9) * 5) + var10) * 17) + var11];
+					double var16 = this.heightNoise[((var9) * 5 + var10 + 1) * 17 + var11];
+					double var18 = this.heightNoise[((var9 + 1) * 5 + var10) * 17 + var11];
+					double var20 = this.heightNoise[((var9 + 1) * 5 + var10 + 1) * 17 + var11];
+					double var22 = (this.heightNoise[((var9) * 5 + var10) * 17 + var11 + 1] - var14) * var12;
+					double var24 = (this.heightNoise[((var9) * 5 + var10 + 1) * 17 + var11 + 1] - var16) * var12;
+					double var26 = (this.heightNoise[((var9 + 1) * 5 + var10) * 17 + var11 + 1] - var18) * var12;
+					double var28 = (this.heightNoise[((var9 + 1) * 5 + var10 + 1) * 17 + var11 + 1] - var20) * var12;
 
 					for (int var30 = 0; var30 < 8; ++var30) {
 						double var31 = 0.25D;
@@ -499,19 +503,5 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 			}
 		}
 	}
-
-
-	/*
-	// DEBUG ONLY
-	@Override
-	public boolean hasStructure(Biome biomeIn, Structure structureIn)
-	{
-		if (biomeIn == null)
-		{
-			BetaPlus.LOGGER.info("NULL BIOME INPUT: " + structureIn);
-			return false;
-		}
-		return biomeIn.hasStructure(structureIn);
-	}
-	*/
+	
 }

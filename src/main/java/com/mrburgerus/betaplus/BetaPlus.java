@@ -1,7 +1,7 @@
 package com.mrburgerus.betaplus;
 
 import com.mrburgerus.betaplus.client.ClientProxy;
-import com.mrburgerus.betaplus.util.ConfigBetaPlus;
+import com.mrburgerus.betaplus.util.ConfigRetroPlus;
 import com.mrburgerus.betaplus.world.alpha_plus.WorldTypeAlphaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.WorldTypeBetaPlus;
 import net.minecraft.world.WorldType;
@@ -23,7 +23,7 @@ public class BetaPlus
 {
 	//Fields
 	public static final String MOD_NAME = "betaplus";
-	public final boolean loadedBOP;
+	public static boolean loadedBOP = false;
 
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
@@ -32,9 +32,6 @@ public class BetaPlus
 
     public BetaPlus()
 	{
-		// Register Biomes
-		//FMLJavaModLoadingContext.get().getModEventBus().addListener(RegisterAlphaBiomes::register);
-
         // Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
 
@@ -43,27 +40,24 @@ public class BetaPlus
 		// Register ourselves for server, registry and other game events we are interested in
 		MinecraftForge.EVENT_BUS.register(this);
 
+		// Check if BOP Loaded
+		if (ModList.get().isLoaded("biomesoplenty"))
+		{
+			loadedBOP = true;
+		}
+
 		// Register the configuration file
-		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigBetaPlus.SPEC);
+		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigRetroPlus.SPEC);
 
 		proxy.init();
 
-		if (ModList.get().isLoaded("biomesoplenty"))
-		{
-			BetaPlus.LOGGER.info("Beta+ Detected Biomes o' Plenty");
-			loadedBOP = true;
-		}
-		else
-		{
-			loadedBOP = false;
-		}
     }
 
     public void config(ModConfig.ModConfigEvent event)
 	{
-		if (event.getConfig().getSpec() == ConfigBetaPlus.SPEC)
+		if (event.getConfig().getSpec() == ConfigRetroPlus.SPEC)
 		{
-			ConfigBetaPlus.bake();
+			ConfigRetroPlus.bake();
 		}
 	}
 

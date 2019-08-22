@@ -4,8 +4,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import com.mrburgerus.betaplus.world.alpha_plus.sim.AlphaPlusSimulator;
+import com.mrburgerus.betaplus.world.biome.BetaPlusBiomeSelectorNew;
+import com.mrburgerus.betaplus.world.biome.TerrainType;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
@@ -17,6 +21,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import static com.mrburgerus.betaplus.world.beta_plus.ChunkGeneratorBetaPlus.CHUNK_SIZE;
+
+
+// TODO: UPDATE WITH TERRAINTYPE DECLARATIONS
 public class BiomeProviderAlphaPlus extends BiomeProvider
 {
 	private Biome landBiome;
@@ -29,7 +37,7 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	public static final Biome ALPHA_OCEAN = Biomes.DEEP_OCEAN;
 	private static final Biome[] BIOMES_LIST = new Biome[]{ALPHA_FROZEN_BIOME, ALPHA_FROZEN_OCEAN, ALPHA_BIOME, ALPHA_OCEAN};
 	// Simulator for Y-heights
-	private AlphaPlusSimulator simulator;
+	public final AlphaPlusSimulator simulator;
 
 	public BiomeProviderAlphaPlus(World world)
 	{
@@ -50,47 +58,44 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	private Biome[] generateBiomes(int startX, int startZ, int xSize, int zSize)
 	{
 		Biome[] biomeArr = new Biome[xSize * zSize];
-		for (int i = 0; i < biomeArr.length; i++)
-		{
-			biomeArr[i] = this.landBiome;
-		}
-		return biomeArr;
-	}
-
-	/* Adds OCEANS to the mix to the Biome Provider. */
-	/* ONLY CALL WHEN NECESSARY, has to simulate the Y-heights of the world */
-	/* useAverage should be TRUE if searching for Monuments, false Otherwise */
-	private Biome[] generateBiomesWithOceans(int startX, int startZ, int xSize, int zSize, boolean useAverage)
-	{
-		Biome[] biomeArr = new Biome[xSize * zSize];
 		int counter = 0;
-		// Swapped X and Z, to match beta (HAD NO EFFECT!)
-		for (int x = startX; x < xSize + startX; ++x)
+		Biome selected;
+		// First, get initial terrain
+		Pair<BlockPos, TerrainType>[][] pairArr = this.getInitialTerrain(startX, startZ, xSize, zSize);
+		for (int x = 0; x < xSize; x++)
 		{
-			for (int z = startZ; z < zSize + startZ; ++z)
+			for (int z = 0; z < zSize; z++)
 			{
-				BlockPos blockPos = new BlockPos(x, 0, z);
-				//Assign this first
-				biomeArr[counter] = this.landBiome;
-				// If using the 3x3 Average (Monuments and Mansions)
-				if (useAverage)
+				// Begin New
+				BlockPos pos = new BlockPos(x + startX, 0 ,z + startZ);
+
+				Pair pPos = pairArr[x][z];
+				selected = this.landBiome;
+				switch ((TerrainType) pPos.getSecond())
 				{
-					// Changed from avg to chunk
-					Pair<Integer, Boolean> avg = simulator.simulateYAvg(blockPos);
-					// Tried 56, 58, 57
-					if (avg.getFirst() < 57 && !avg.getSecond())
-					{
-						biomeArr[counter] = this.oceanBiome;
-					}
+					case land:
+						selected = this.landBiome;
+						break;
+					case hillyLand:
+						selected = Biomes.FLOWER_FOREST; // PLACEHOLDER
+						break;
+					case sea:
+						selected = this.oceanBiome;
+						break;
+					case deepSea:
+						selected = this.oceanBiome;
+						break;
+					case island:
+						selected = Biomes.MUSHROOM_FIELDS;
+						break;
+					case generic:
+						selected = this.landBiome;
+						break;
+					default:
+						selected = Biomes.DEFAULT;
+						break;
 				}
-				else
-				{
-					Pair<Integer, Boolean> avg = simulator.simulateYChunk(blockPos);
-					if (avg.getFirst() < 56) //&& !avg.getSecond())  //Typically for Shipwrecks, Ruins, and Chests
-					{
-						biomeArr[counter] = this.oceanBiome;
-					}
-				}
+				biomeArr[counter] = selected;
 				counter++;
 			}
 		}
@@ -106,7 +111,7 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	@Override
 	public Biome getBiome(int i, int i1)
 	{
-		return this.generateBiomesWithOceans(i, i1, 1, 1, false)[0];
+		return this.generateBiomes(i, i1, 1, 1)[0];
 	}
 
 	@Override
@@ -120,7 +125,7 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	public Set<Biome> getBiomesInSquare(int centerX, int centerZ, int sideLength)
 	{
 		Set<Biome> set = Sets.newHashSet();
-		Collections.addAll(set, this.generateBiomesWithOceans(centerX, centerZ, sideLength, sideLength, true));
+		Collections.addAll(set, this.generateBiomes(centerX, centerZ, sideLength, sideLength));
 		return set;
 	}
 
@@ -174,5 +179,46 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	{
 		this.topBlocksCache.add(landBiome.getSurfaceBuilderConfig().getTop());
 		return this.topBlocksCache;
+	}
+
+	// USER DEFINED NEW //
+	public Pair<BlockPos, TerrainType>[][] getInitialTerrain(int startX, int startZ, int xSize, int zSize)
+	{
+		// There will be issues detecting large islands. I may run into chunk runaway issues if I don't recheck my running block tally.
+		// Also, I may have to expand search area on the fly to accomodate. Probably not, hopefully.
+		// Possibly a BlockPos, TerrainType Pair would be good?
+
+
+		// Get chunk positions necessary, Added Ceiling to round up. Must also be a double.
+		int xChunkSize = MathHelper.ceil(xSize / (CHUNK_SIZE * 1.0D));
+		int zChunkSize = MathHelper.ceil(zSize / (CHUNK_SIZE * 1.0D));
+		Pair<BlockPos, TerrainType>[][] terrainPairs = new Pair[xChunkSize * CHUNK_SIZE][zChunkSize * CHUNK_SIZE];
+
+		for (int xChunk = 0; xChunk < xChunkSize; xChunk++)
+		{
+			for (int zChunk = 0; zChunk < zChunkSize; zChunk++)
+			{
+				// Looks to be incorrect.
+				//ChunkPos chunkPos = new ChunkPos(startX + (xChunk * CHUNK_SIZE), startZ + (zChunk * CHUNK_SIZE));
+				ChunkPos chunkPos = new ChunkPos(new BlockPos(startX + (xChunk * CHUNK_SIZE), 0, startZ + (zChunk * CHUNK_SIZE)));
+
+				// Get simulated chunk
+				int[][] yVals = simulator.simulateChunkYFull(chunkPos).getFirst();
+
+				// Enter into initial Terrain list
+				for (int x = 0; x < CHUNK_SIZE; x++)
+				{
+					for (int z = 0; z < CHUNK_SIZE; z++)
+					{
+						// Block Position in world
+						BlockPos pos = new BlockPos(x + chunkPos.getXStart(), 0 ,z + chunkPos.getZStart());
+						// TODO: GET TYPE OF TERRAIN MORE EFFECTIVELY
+						terrainPairs[x + xChunk * CHUNK_SIZE][z + zChunk * CHUNK_SIZE] = Pair.of(pos, TerrainType.getTerrainNoIsland(yVals, x, z));
+					}
+				}
+			}
+		}
+		// Now, find isolated "Land" or "Hilly" spots and declare as islands
+		return terrainPairs;
 	}
 }
