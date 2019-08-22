@@ -56,6 +56,6 @@ description='''
 [[dependencies.examplemod]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.14.2]"
+    versionRange="[1.14.4]"
     ordering="NONE"
     side="BOTH"

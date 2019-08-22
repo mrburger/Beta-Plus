@@ -3,10 +3,13 @@ package com.mrburgerus.betaplus.world.beta_plus;
 //import biomesoplenty.api.biome.BOPBiomes;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
+import com.mrburgerus.betaplus.BetaPlus;
+import com.mrburgerus.betaplus.util.ConfigRetroPlus;
 import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulator;
 import com.mrburgerus.betaplus.world.biome.BetaPlusBiomeSelectorNew;
 import com.mrburgerus.betaplus.world.biome.TerrainType;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBiome;
+import com.mrburgerus.betaplus.world.noise.VoronoiNoiseGenerator;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -40,6 +43,8 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	// The simulator for Y-heights.
 	public final BetaPlusSimulator simulator;
 	private final BetaPlusGenSettings settings;
+	// Voronoi Cell Generator.
+	private VoronoiNoiseGenerator voronoi;
 
 	// Required for legacy operations
 	private NoiseGeneratorOctavesBiome temperatureOctave;
@@ -65,8 +70,9 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		noiseOctave = new NoiseGeneratorOctavesBiome(new Random(world.getSeed() * 543321), 2);
 		// Declare immediately after other stuff
 		simulator = new BetaPlusSimulator(world);
-		//biomeLayer = BetaPlusLayerUtil.buildOverworldBiomeLayer(world, simulator, settingsIn);
 
+		// 0 uses a fancy distance type.
+		voronoi = new VoronoiNoiseGenerator(world.getSeed(), (short) 0);
 	}
 
 
@@ -84,9 +90,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	}
 
 
-
 	// OVERRIDES //
-
 
 	@Override
 	public List<Biome> getBiomesToSpawnIn()
@@ -232,10 +236,12 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				}
 			}
 		}
-		// Now, find isolated "Land" or "Hilly" spots and declare as islands
+		// Now, find isolated "Land" spots and declare as islands
+		// Also find "Land" Spots surrounded with "Hilly" and fill with hills.
 		return terrainPairs;
 	}
 
+	// TODO: USE AVERAGE IMPLEMENTATION
 	private Biome[] generateBiomes(int startX, int startZ, int xSize, int zSize, final boolean useAverage)
 	{
 		// Required for legacy operations
@@ -243,18 +249,23 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		humidities = humidityOctave.generateOctaves(humidities, (double) startX, (double) startZ, xSize, xSize, scaleVal * mult, scaleVal * mult, 0.3333333333333333);
 		noise = noiseOctave.generateOctaves(noise, (double) startX, (double) startZ, xSize, xSize, 0.25, 0.25, 0.5882352941176471);
 
+		double vNoise;
 		Biome[] biomeArr = new Biome[xSize * zSize];
 		int counter = 0;
 		Biome selected;
 		// First, get initial terrain
 		Pair<BlockPos, TerrainType>[][] pairArr = this.getInitialTerrain(startX, startZ, xSize, zSize);
+		// Moved up here.
+
+		// THIS WILL NOT WORK WITHOUT ADAPTATION. IT NEEDS MORE SAMPLES OF SURROUNDING AREAS
+		TerrainType[][] terrainTypes = TerrainType.processTerrain(pairArr);
 
 		// Process
 		for (int x = 0; x < xSize; x++)
 		{
 			for (int z = 0; z < zSize; z++)
 			{
-				// Testing, this could be required.
+				// REQUIRED
 				double var9 = noise[counter] * 1.1 + 0.5;
 				double oneHundredth = 0.01;
 				double point99 = 1.0 - oneHundredth;
@@ -268,44 +279,34 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				temperatures[counter] = temperatureVal;
 				humidities[counter] = humidityVal;
 
-				// Begin New
-				BlockPos pos = new BlockPos(x + startX, 0 ,z + startZ);
+				// Begin New Declarations
+				BlockPos pos = new BlockPos(x + startX, 0, z + startZ);
+				// Frequency is 1, Amplitude is halved and then offset for absolute.
+				vNoise = (voronoi.noise((x + startX + 1000D) / 1000D, (z + startZ + 1000D) / 1000D, 1) * 0.5) + 0.5;
+				double noiseVal = MathHelper.clamp(vNoise, 0.0, 0.99999999999999);
 
-				Pair pPos = pairArr[x][z];
-				// Debug
-				if (!pos.equals(pPos.getFirst()))
+				selected = BetaPlusBiomeSelectorNew.selectBiome(noiseVal, humidityVal, temperatureVal, terrainTypes[x][z]);
+
+				// If Average used, we only cared about a very top-level view, and will operate as such.
+				// Typically used for Ocean Monuments
+				if (useAverage)
 				{
-					//BetaPlus.LOGGER.error("M: " + pos + " : " + pPos.getFirst());
+					Pair<Integer, Boolean> avg = simulator.simulateYAvg(pos);
+
+					// OCEAN MONUMENT CATCHER
+					if (avg.getFirst() < settings.getSeaLevel())
+					{
+						if (avg.getFirst() < MathHelper.floor(ConfigRetroPlus.seaLevel - (ConfigRetroPlus.seaDepth / ConfigRetroPlus.oceanYScale)))
+						{
+							// Overwrite.
+							biomeArr[counter] = BetaPlusBiomeSelectorNew.selectBiome(temperatureVal, humidityVal, noiseVal, TerrainType.deepSea);
+						}
+						else
+						{
+							biomeArr[counter] = BetaPlusBiomeSelectorNew.selectBiome(temperatureVal, humidityVal, noiseVal, TerrainType.sea);
+						}
+					}
 				}
-				// TODO: ADD SELECTOR FOR BIOME FROM LIST
-				// TODO: REMOVE MATH.RANDOM()
-				selected = BetaPlusBiomeSelectorNew.getBiome((float) temperatureVal, (float) humidityVal, Math.random(), (TerrainType) pPos.getSecond());
-				/*
-				switch ((TerrainType) pPos.getSecond())
-				{
-					case land:
-						selected = Biomes.PLAINS;
-						break;
-					case hillyLand:
-						selected = BetaPlusBiomeSelectorNew.
-						break;
-					case sea:
-						selected = Biomes.WARM_OCEAN;
-						break;
-					case deepSea:
-						selected = Biomes.DEEP_COLD_OCEAN;
-						break;
-					case island:
-						selected = Biomes.MUSHROOM_FIELDS;
-						break;
-					case generic:
-						selected = Biomes.DESERT;
-						break;
-					default:
-						selected = Biomes.DEFAULT;
-						break;
-				}
-				*/
 
 				biomeArr[counter] = selected;
 				counter++;

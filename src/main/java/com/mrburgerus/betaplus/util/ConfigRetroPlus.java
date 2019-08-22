@@ -162,9 +162,13 @@ public class ConfigRetroPlus
 		private static List<String> biomes = new ArrayList<>();
 
 		// Lists
+		// TODO:
+		// Possibly, a list of Biomes with the temperature and humidity values provided could be used?
+		// And then, find the closest match(es) and select one?
 		final ForgeConfigSpec.ConfigValue<List<String>> islandBiomeList;
 		final ForgeConfigSpec.ConfigValue<List<String>> frozenBiomeList;
 		final ForgeConfigSpec.ConfigValue<List<String>> frozenHillBiomeList;
+		//final ForgeConfigSpec.ConfigValue<List<String>> coldBiomeList;
 
 		public BiomeConfig(ForgeConfigSpec.Builder builder)
 		{
