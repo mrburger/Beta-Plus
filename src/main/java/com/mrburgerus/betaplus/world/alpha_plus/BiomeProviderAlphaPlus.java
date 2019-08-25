@@ -3,6 +3,7 @@ package com.mrburgerus.betaplus.world.alpha_plus;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.world.alpha_plus.sim.AlphaPlusSimulator;
 import com.mrburgerus.betaplus.world.biome.BetaPlusBiomeSelectorNew;
 import com.mrburgerus.betaplus.world.biome.TerrainType;
@@ -41,8 +42,9 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 
 	public BiomeProviderAlphaPlus(World world)
 	{
-		if (world.getWorldInfo().getGeneratorOptions().getString(WorldTypeAlphaPlus.SNOW_WORLD_TAG).equals("true"))
+		if (world.getWorldInfo().getGeneratorOptions().getBoolean(WorldTypeAlphaPlus.SNOW_WORLD_TAG))
 		{
+			BetaPlus.LOGGER.info("Using Frozen");
 			this.landBiome = ALPHA_FROZEN_BIOME;
 			this.oceanBiome = ALPHA_FROZEN_OCEAN;
 		}

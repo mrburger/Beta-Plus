@@ -1,5 +1,6 @@
 package com.mrburgerus.betaplus.world.alpha_plus;
 
+import com.mrburgerus.betaplus.client.gui.CreateAlphaWorldScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
 import net.minecraft.world.World;
@@ -32,7 +33,7 @@ public class WorldTypeAlphaPlus extends WorldType
 	@Override
 	public ChunkGenerator<?> createChunkGenerator(World world)
 	{
-		AlphaPlusGenSettings settings = new AlphaPlusGenSettings(); //AlphaPlusGenSettings.(world.getWorldInfo().getGeneratorOptions());
+		AlphaPlusGenSettings settings = AlphaPlusGenSettings.createSettings(world.getWorldInfo().getGeneratorOptions());
 		if (world.dimension.getType() != DimensionType.OVERWORLD)
 		{
 			return world.dimension.createChunkGenerator();
@@ -58,6 +59,6 @@ public class WorldTypeAlphaPlus extends WorldType
 	@OnlyIn(Dist.CLIENT)
 	public void onCustomizeButton(Minecraft mc, CreateWorldScreen gui)
 	{
-		//mc.displayGuiScreen(new GuiCreateAlphaWorld(gui, gui.chunkProviderSettingsJson));
+		mc.displayGuiScreen(new CreateAlphaWorldScreen(gui, gui.chunkProviderSettingsJson));
 	}
 }

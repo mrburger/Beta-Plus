@@ -457,7 +457,8 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 				int xPos = iChunk.getPos().getXStart() + x;
 				int zPos = iChunk.getPos().getZStart() + z;
 				int yVal = BiomeReplaceUtil.getSolidHeightY(new BlockPos(xPos, 0, zPos), iChunk);
-				if (yVal < settings.getSeaLevel() - 1)
+				// Trying -2 to avoid beach to ocean conversion
+				if (yVal < settings.getSeaLevel() - 2)
 				{
 					if(settings.getSnowy())
 					{

@@ -11,9 +11,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
-public class GuiBetaNumber extends AbstractGui
+public class OverlayBetaVersion extends AbstractGui
 {
-	GuiBetaNumber()
+	OverlayBetaVersion()
 	{
 
 	}

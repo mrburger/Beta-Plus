@@ -1,5 +1,7 @@
 package com.mrburgerus.betaplus.world.alpha_plus;
 
+import com.mrburgerus.betaplus.BetaPlus;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.gen.GenerationSettings;
 
 public class AlphaPlusGenSettings extends GenerationSettings
@@ -22,17 +24,14 @@ public class AlphaPlusGenSettings extends GenerationSettings
 		return seaLevel;
 	}
 
-	// DISABLED
-//	public static AlphaPlusGenSettings createSettings(NBTTagCompound inputSettings)
-//	{
-//		AlphaPlusGenSettings settingsOut = new AlphaPlusGenSettings();
-//		if (inputSettings.hasKey(WorldTypeAlphaPlus.SNOW_WORLD_TAG))
-//		{
-//			if (inputSettings.getTag(WorldTypeAlphaPlus.SNOW_WORLD_TAG).getString().equals("true"))
-//			{
-//				settingsOut.setSnowy(true);
-//			}
-//		}
-//		return settingsOut;
-//	}
+	// Re-enabled for 0.5
+	public static AlphaPlusGenSettings createSettings(CompoundNBT inputSettings)
+	{
+		AlphaPlusGenSettings settingsOut = new AlphaPlusGenSettings();
+		if (inputSettings.contains(WorldTypeAlphaPlus.SNOW_WORLD_TAG))
+		{
+			settingsOut.isSnowy = inputSettings.getBoolean(WorldTypeAlphaPlus.SNOW_WORLD_TAG);
+		}
+		return settingsOut;
+	}
 }

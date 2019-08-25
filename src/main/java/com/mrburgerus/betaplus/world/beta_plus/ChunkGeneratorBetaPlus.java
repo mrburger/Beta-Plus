@@ -3,7 +3,6 @@ package com.mrburgerus.betaplus.world.beta_plus;
 import com.mrburgerus.betaplus.util.BiomeReplaceUtil;
 import com.mrburgerus.betaplus.util.ConfigRetroPlus;
 import com.mrburgerus.betaplus.util.DeepenOceanUtil;
-import com.mrburgerus.betaplus.world.biome.EnumBetaPlusBiome;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -308,7 +307,9 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 				// New Line
 				Biome biome = biomesForGeneration[(x << 4 | z)];
 				//Inject Beaches (MODIFIED)
-				if ((yVal <= (settings.getSeaLevel() + 1) && yVal >= settings.getSeaLevel() - 1) && (biome != EnumBetaPlusBiome.desert.handle) && chunk.getBlockState(new BlockPos(xPos, yVal, zPos)) == Blocks.SAND.getDefaultState())
+				if ((yVal <= (settings.getSeaLevel() + 1) && yVal >= settings.getSeaLevel() - 1) &&
+						(biome != Biomes.DESERT && biome != Biomes.DESERT_HILLS) &&
+						chunk.getBlockState(new BlockPos(xPos, yVal, zPos)) == Blocks.SAND.getDefaultState())
 				{
 						this.biomesForGeneration[(x << 4 | z)] = Biomes.BEACH; //biomeProviderS.getBeachBiome(new BlockPos(xPos, yVal, zPos));
 				}
