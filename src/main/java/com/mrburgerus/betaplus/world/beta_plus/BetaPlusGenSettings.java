@@ -23,6 +23,8 @@ public class BetaPlusGenSettings extends OverworldGenSettings
 	private double multBiome = ConfigRetroPlus.humidityScale;
 	// Biome Selector to use, in the future this will be selectable.
 	private AbstractBiomeSelector biomeSelector = new BiomeSelectorBeta();
+	// Cave carver to use
+	private boolean useOldCaves = true;
 
 	public int getSeaLevel()
 	{
@@ -57,6 +59,11 @@ public class BetaPlusGenSettings extends OverworldGenSettings
 	public AbstractBiomeSelector getBiomeSelector()
 	{
 		return biomeSelector;
+	}
+
+	public boolean isUseOldCaves()
+	{
+		return useOldCaves;
 	}
 
 	@Override

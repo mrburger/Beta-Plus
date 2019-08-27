@@ -1,9 +1,9 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
-import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.BiomeReplaceUtil;
 import com.mrburgerus.betaplus.util.ConfigRetroPlus;
 import com.mrburgerus.betaplus.util.DeepenOceanUtil;
+import com.mrburgerus.betaplus.world.beta_plus.caves.BetaGenCaves;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -16,12 +16,12 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.ChunkGenerator;
-import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.gen.NoiseChunkGenerator;
-import net.minecraft.world.gen.WorldGenRegion;
+import net.minecraft.world.gen.*;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.spawner.CatSpawner;
+import net.minecraft.world.spawner.PatrolSpawner;
 import net.minecraft.world.spawner.PhantomSpawner;
 import net.minecraft.world.spawner.WorldEntitySpawner;
 
@@ -58,6 +58,12 @@ public class ChunkGeneratorBetaPlus extends ChunkGenerator<BetaPlusGenSettings>
 	private BiomeProviderBetaPlus biomeProviderS;
 	private final BetaPlusGenSettings settings;
 	public static final int CHUNK_SIZE = 16;
+	// Spawners
+	private final PhantomSpawner phantomSpawner = new PhantomSpawner();
+	private final PatrolSpawner patrolSpawner = new PatrolSpawner();
+	private final CatSpawner catSpawner = new CatSpawner();
+	// Carver crap, still figuring out.
+	BetaGenCaves caveGenerator = new BetaGenCaves();
 
 	public ChunkGeneratorBetaPlus(IWorld world, BiomeProviderBetaPlus biomeProvider, BetaPlusGenSettings settingsIn)
 	{
@@ -80,6 +86,21 @@ public class ChunkGeneratorBetaPlus extends ChunkGenerator<BetaPlusGenSettings>
 	public void generateSurface(IChunk chunk)
 	{
 		// Empty for now
+	}
+
+	// TESTING 0.5D
+	@Override
+	public void carve(IChunk chunkIn, GenerationStage.Carving carvingSettings)
+	{
+		if (!settings.isUseOldCaves())
+		{
+			super.carve(chunkIn, carvingSettings);
+		}
+		else
+		{
+			ChunkPos chunkPos = chunkIn.getPos();
+			caveGenerator.generate(seed, chunkPos.x, chunkPos.z, chunkIn);
+		}
 	}
 
 	/* Spawns Passive Mobs */
@@ -242,6 +263,15 @@ public class ChunkGeneratorBetaPlus extends ChunkGenerator<BetaPlusGenSettings>
 				}
 			}
 		}
+	}
+
+	// Copied from Overworld
+	@Override
+	public void spawnMobs(ServerWorld worldIn, boolean spawnHostileMobs, boolean spawnPeacefulMobs)
+	{
+		this.phantomSpawner.tick(worldIn, spawnHostileMobs, spawnPeacefulMobs);
+		this.patrolSpawner.tick(worldIn, spawnHostileMobs, spawnPeacefulMobs);
+		this.catSpawner.tick(worldIn, spawnHostileMobs, spawnPeacefulMobs);
 	}
 
 	/* Modified from AbstractChunkGenerator, provides /locate command values */

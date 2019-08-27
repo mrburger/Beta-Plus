@@ -4,19 +4,18 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.IChunk;
 
 import java.util.Random;
 
-public class MapGenCaves extends MapGenBaseBeta
+public class BetaGenCaves extends AbstractBetaGen
 {
-	protected void func_870_a(int chunkX, int chunkZ, IChunk chunk, double var4, double var6, double var8) {
-		this.func_869_a(chunkX, chunkZ, chunk, var4, var6, var8, 1.0F + this.rand.nextFloat() * 6.0F, 0.0F, 0.0F, -1, -1, 0.5D);
+	protected void generate(int chunkX, int chunkZ, IChunk chunk, double var4, double var6, double var8) {
+		this.generate(chunkX, chunkZ, chunk, var4, var6, var8, 1.0F + this.rand.nextFloat() * 6.0F, 0.0F, 0.0F, -1, -1, 0.5D);
 	}
 
-	protected void func_869_a(int chunkX, int chunkZ, IChunk chunk, double var4, double var6, double var8, float var10, float var11, float var12,
-							  int var13, int var14, double var15) {
+	protected void generate(int chunkX, int chunkZ, IChunk chunk, double var4, double var6, double var8, float var10, float var11, float var12,
+							int var13, int var14, double var15) {
 		double var17 = (double) (chunkX * 16 + 8);
 		double var19 = (double) (chunkZ * 16 + 8);
 		float var21 = 0.0F;
@@ -56,9 +55,9 @@ public class MapGenCaves extends MapGenBaseBeta
 			var22 = var22 + (random.nextFloat() - random.nextFloat()) * random.nextFloat() * 2.0F;
 			var21 = var21 + (random.nextFloat() - random.nextFloat()) * random.nextFloat() * 4.0F;
 			if (!var55 && var13 == var25 && var10 > 1.0F) {
-				this.func_869_a(chunkX, chunkZ, chunk, var4, var6, var8, random.nextFloat() * 0.5F + 0.5F, var11 - 1.5707964F, var12 / 3.0F, var13,
+				this.generate(chunkX, chunkZ, chunk, var4, var6, var8, random.nextFloat() * 0.5F + 0.5F, var11 - 1.5707964F, var12 / 3.0F, var13,
 						var14, 1.0D);
-				this.func_869_a(chunkX, chunkZ, chunk, var4, var6, var8, random.nextFloat() * 0.5F + 0.5F, var11 + 1.5707964F, var12 / 3.0F, var13,
+				this.generate(chunkX, chunkZ, chunk, var4, var6, var8, random.nextFloat() * 0.5F + 0.5F, var11 + 1.5707964F, var12 / 3.0F, var13,
 						var14, 1.0D);
 				return;
 			}
@@ -172,7 +171,9 @@ public class MapGenCaves extends MapGenBaseBeta
 
 	}
 
-	protected void func_868_a(IWorld world, int x, int z, int chunkX, int chunkZ, IChunk chunk) {
+	@Override
+	void func_868_a(int x, int z, int chunkX, int chunkZ, IChunk chunk)
+	{
 		int var7 = this.rand.nextInt(this.rand.nextInt(this.rand.nextInt(40) + 1) + 1);
 		if (this.rand.nextInt(15) != 0) {
 			var7 = 0;
@@ -184,7 +185,7 @@ public class MapGenCaves extends MapGenBaseBeta
 			double var13 = (double) (z * 16 + this.rand.nextInt(16));
 			int var15 = 1;
 			if (this.rand.nextInt(4) == 0) {
-				this.func_870_a(chunkX, chunkZ, chunk, var9, var11, var13);
+				this.generate(chunkX, chunkZ, chunk, var9, var11, var13);
 				var15 += this.rand.nextInt(4);
 			}
 
@@ -192,7 +193,7 @@ public class MapGenCaves extends MapGenBaseBeta
 				float var17 = this.rand.nextFloat() * 3.1415927F * 2.0F;
 				float var18 = (this.rand.nextFloat() - 0.5F) * 2.0F / 8.0F;
 				float var19 = this.rand.nextFloat() * 2.0F + this.rand.nextFloat();
-				this.func_869_a(chunkX, chunkZ, chunk, var9, var11, var13, var19, var17, var18, 0, 0, 1.0D);
+				this.generate(chunkX, chunkZ, chunk, var9, var11, var13, var19, var17, var18, 0, 0, 1.0D);
 			}
 		}
 
