@@ -17,17 +17,20 @@ public class CreateAlphaWorldScreen extends Screen
 	private final CreateWorldScreen parent;
 	// False By Default
 	private boolean isSnowWorld;
+	private CompoundNBT compound;
 	// Required Buttons
 	private Button doneButton;
 	private Button cancelButton;
 	private Button snowButton;
-	private CompoundNBT compound;
+
 
 	public CreateAlphaWorldScreen(CreateWorldScreen parentIn, CompoundNBT compoundIn)
 	{
 		super(new TranslationTextComponent("createworld.customize.alpha.title"));
 		parent = parentIn;
 		compound = compoundIn;
+		// Added so that it can use previous values
+		// COULD CAUSE ISSUES IF SNOW WORLD TAG DOES NOT EXIST
 		isSnowWorld = this.compound.getBoolean(WorldTypeAlphaPlus.SNOW_WORLD_TAG);
 	}
 
@@ -71,34 +74,6 @@ public class CreateAlphaWorldScreen extends Screen
 	{
 		snowButton.setMessage(this.getFormattedToggle(I18n.format("betaplus.isSnowWorld"), isSnowWorld));
 	}
-
-	/* Taken from GuiCreateBuffetWorld.class, Modified */
-	/* is it actually needed? */
-	/*
-	private void deserialize(NBTTagCompound compound) {
-		int lvt_3_2_;
-		if (compound.contains("chunk_generator", 10) && compound.getCompound("chunk_generator").contains("type", 8)) {
-			ResourceLocation lvt_2_1_ = new ResourceLocation(compound.getCompound("chunk_generator").getString("type"));
-
-			for(lvt_3_2_ = 0; lvt_3_2_ < BUFFET_GENERATORS.size(); ++lvt_3_2_) {
-				if (((ResourceLocation)BUFFET_GENERATORS.get(lvt_3_2_)).equals(lvt_2_1_)) {
-					this.field_205312_t = lvt_3_2_;
-					break;
-				}
-			}
-		}
-
-		if (compound.contains("biome_source", 10) && compound.getCompound("biome_source").contains("biomes", 9)) {
-			NBTTagList lvt_2_2_ = compound.getCompound("biome_source").getList("biomes", 8);
-
-			for(lvt_3_2_ = 0; lvt_3_2_ < lvt_2_2_.size(); ++lvt_3_2_) {
-				this.biomes.add(new ResourceLocation(lvt_2_2_.getString(lvt_3_2_)));
-			}
-		}
-
-	}
-	*/
-
 
 	private CompoundNBT serialize() {
 		CompoundNBT generatorNBT = new CompoundNBT();

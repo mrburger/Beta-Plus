@@ -3,7 +3,7 @@ package com.mrburgerus.betaplus.world.beta_plus;
 import com.mrburgerus.betaplus.util.BiomeReplaceUtil;
 import com.mrburgerus.betaplus.util.ConfigRetroPlus;
 import com.mrburgerus.betaplus.util.DeepenOceanUtil;
-import com.mrburgerus.betaplus.world.beta_plus.caves.BetaGenCaves;
+import com.mrburgerus.betaplus.world.beta_plus.gen.BetaGenCaves;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

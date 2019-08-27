@@ -42,7 +42,6 @@ public class WorldTypeAlphaPlus extends WorldType
 	}
 
 	/* Since we have snow as an option, It has custom Options */
-	/* Disabled until I figure out how to save the snowy variable into the world */
 	@Override
 	public boolean hasCustomOptions()
 	{

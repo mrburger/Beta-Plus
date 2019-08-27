@@ -1,8 +1,12 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
 import com.mrburgerus.betaplus.util.ConfigRetroPlus;
+import com.mrburgerus.betaplus.world.alpha_plus.AlphaPlusGenSettings;
 import com.mrburgerus.betaplus.world.biome.AbstractBiomeSelector;
+import com.mrburgerus.betaplus.world.biome.BetaPlusBiomeSelectorNew;
 import com.mrburgerus.betaplus.world.biome.BiomeSelectorBeta;
+import com.mrburgerus.betaplus.world.biome.BiomeSelectorBetaPlus;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.gen.OverworldGenSettings;
 
 public class BetaPlusGenSettings extends OverworldGenSettings
@@ -70,5 +74,35 @@ public class BetaPlusGenSettings extends OverworldGenSettings
 	public int getVillageDistance()
 	{
 		return super.getVillageDistance();
+	}
+
+	// Create settings
+	public static BetaPlusGenSettings createSettings(CompoundNBT nbtSettings)
+	{
+		BetaPlusGenSettings settingsOut = new BetaPlusGenSettings();
+		// For each value we care about, check if exists
+		if (nbtSettings.contains(WorldTypeBetaPlus.OLD_CAVES_TAG))
+		{
+			settingsOut.useOldCaves = nbtSettings.getBoolean(WorldTypeBetaPlus.OLD_CAVES_TAG);
+		}
+		if (nbtSettings.contains(WorldTypeBetaPlus.BIOME_PROVIDER_TAG))
+		{
+			AbstractBiomeSelector selector;
+			switch (nbtSettings.getInt(WorldTypeBetaPlus.BIOME_PROVIDER_TAG))
+			{
+				// Use True Beta
+				case 0:
+					selector = new BiomeSelectorBeta();
+					break;
+				case 1:
+					selector = new BetaPlusBiomeSelectorNew();
+					break;
+				default:
+					selector = new BiomeSelectorBeta();
+			}
+			settingsOut.biomeSelector = selector;
+		}
+
+		return settingsOut;
 	}
 }

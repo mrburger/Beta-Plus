@@ -1,18 +1,16 @@
-package com.mrburgerus.betaplus.world.beta_plus.caves;
+package com.mrburgerus.betaplus.world.beta_plus.gen;
 
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunk;
 
 import java.util.Random;
 
 public abstract class AbstractBetaGen
 {
-	protected int field_1306_a = 8;
+	protected int num8 = 8;
 	protected Random rand = new Random();
 
 	public void generate(long seed, int chunkX, int chunkZ, IChunk chunk) {
-		int var6 = this.field_1306_a;
+		int var6 = this.num8;
 		this.rand.setSeed(seed);
 		long var7 = this.rand.nextLong() / 2L * 2L + 1L;
 		long var9 = this.rand.nextLong() / 2L * 2L + 1L;

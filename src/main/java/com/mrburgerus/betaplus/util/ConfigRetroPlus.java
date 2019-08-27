@@ -124,11 +124,11 @@ public class ConfigRetroPlus
 		{
 			builder.push("World Options");
 			//All options
-			biomeScale = builder.comment("Defines biome size in Beta+, larger values increase biome size (default: 75)" +
+			biomeScale = builder.comment("Defines biome size in Beta+, larger values increase biome size" +
 					"\n(For faithful Beta 1.7.3 biome size: 39.999999404)")
 					.translation("biomescale" + PREFIX)
 					.defineInRange("biomeScale", 39.999999404, 1.0, 256.0);
-			humidityScale = builder.comment("Defines the scale of humidity noise in relation to other factors (default: 1.75)" +
+			humidityScale = builder.comment("Defines the scale of humidity noise in relation to other factors" +
 					"\n(For faithful Beta 1.7.3 biome size: 2)")
 					.translation("humidityscale" + PREFIX)
 					.define("humidityScale", 2.0);

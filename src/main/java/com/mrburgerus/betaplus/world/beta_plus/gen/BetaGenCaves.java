@@ -1,4 +1,4 @@
-package com.mrburgerus.betaplus.world.beta_plus.caves;
+package com.mrburgerus.betaplus.world.beta_plus.gen;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -22,7 +22,7 @@ public class BetaGenCaves extends AbstractBetaGen
 		float var22 = 0.0F;
 		Random random = new Random(this.rand.nextLong());
 		if (var14 <= 0) {
-			int var24 = this.field_1306_a * 16 - 16;
+			int var24 = this.num8 * 16 - 16;
 			var14 = var24 - random.nextInt(var24 / 4);
 		}
 
@@ -138,17 +138,22 @@ public class BetaGenCaves extends AbstractBetaGen
 										double var49 = ((double) var48 + 0.5D - var6) / var29;
 										if (var49 > -0.7D && var61 * var61 + var49 * var49 + var44 * var44 < 1.0D) {
 											Block block = chunk.getBlockState(new BlockPos(x, y2, z)).getBlock();
-											if (block == Blocks.GRASS) {
+											if (block == Blocks.GRASS_BLOCK) {
 												var47 = true;
 											}
 
-											if (block == Blocks.STONE || block == Blocks.DIRT || block == Blocks.GRASS) {
-												if (var48 < 10) {
+											if (block == Blocks.STONE || block == Blocks.DIRT || block == Blocks.GRASS_BLOCK)
+											{
+												if (var48 < 10)
+												{
 													chunk.setBlockState(new BlockPos(x, y2, z), Blocks.LAVA.getDefaultState(), false);
-												} else {
-													chunk.setBlockState(new BlockPos(x, y2, z), Blocks.AIR.getDefaultState(), false);
-													if (var47 && chunk.getBlockState(new BlockPos(x, y2 - 1, z)).getBlock() == Blocks.DIRT) {
-														chunk.setBlockState(new BlockPos(x, y2 - 1, z), Blocks.GRASS.getDefaultState(), false);
+												}
+												else
+												{
+													chunk.setBlockState(new BlockPos(x, y2, z), Blocks.CAVE_AIR.getDefaultState(), false);
+													if (var47 && chunk.getBlockState(new BlockPos(x, y2 - 1, z)).getBlock() == Blocks.DIRT)
+													{
+														chunk.setBlockState(new BlockPos(x, y2 - 1, z), Blocks.GRASS_BLOCK.getDefaultState(), false);
 													}
 												}
 											}

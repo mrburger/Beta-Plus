@@ -316,7 +316,7 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 						// Block Position in world
 						BlockPos pos = new BlockPos(x + chunkPos.getXStart(), 0 ,z + chunkPos.getZStart());
 						// Let's try +2, +1 now
-						if (simulator.isBlockSandSim(pos) && yVals[x][z] < settings.getSeaLevel() + 1)
+						if (simulator.isBlockSandSim(pos) && yVals[x][z] <= settings.getSeaLevel() + 1 && yVals[x][z] >= settings.getSeaLevel() - 1)
 						{
 							terrainPairs[x + xChunk * CHUNK_SIZE][z + zChunk * CHUNK_SIZE] = Pair.of(pos, TerrainType.coastal);
 						}
