@@ -15,6 +15,7 @@ import java.util.List;
 import static com.mrburgerus.betaplus.world.beta_plus.ChunkGeneratorBetaPlus.CHUNK_SIZE;
 
 // Contains the Enumerated Type of Terrain. For Islands, Hills, and such.
+// TODO: Add "COASTAL" Type for values close to sea level. This will prevent placement of stuff on water. Also, I have to figure out how to make sure biomes are preserved.
 public enum TerrainType
 {
 	generic(),
@@ -22,6 +23,7 @@ public enum TerrainType
 	hillyLand(),
 	sea(),
 	deepSea(),
+	coastal(),
 	island();
 
 	// FIELDS //
@@ -37,7 +39,9 @@ public enum TerrainType
 	}
 
 	// PLACEHOLDER
-	static final int heightThreshold = 4;
+	// Changing between 3 and 4....
+	static final int heightThreshold = 3;
+	static final int altThreshold = 82;
 
 	// Check North, south, east, west. for hills
 	public static TerrainType getTerrainNoIsland(int[][] yVals, int xValChunk, int zValChunk)
@@ -57,10 +61,11 @@ public enum TerrainType
 				return sea;
 			}
 		}
-		else if (y >= ConfigRetroPlus.seaLevel - 1)
+		// Trying -2 to fix.
+		else if (y >= ConfigRetroPlus.seaLevel - 2)
 		{
 			// If above a predetermined threshold, it must be "Hills"
-			if (y >= 96)
+			if (y >= altThreshold)
 			{
 				return hillyLand;
 			}

@@ -2,6 +2,7 @@ package com.mrburgerus.betaplus.util;
 
 import com.mojang.datafixers.util.Pair;
 import com.mrburgerus.betaplus.world.noise.AbstractOctavesGenerator;
+import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
@@ -130,7 +131,7 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 
 	/* Generate the Noise Octaves for the Generator to Use */
 	/* yValueZero is ALWAYS ZERO */
-	protected abstract double[] generateOctaves(double[] values, int xChunkMult, int yValueZero, int zChunkMult, int size1, int size2, int size3);
+	protected abstract double[] generateOctaves(double[] values, int xPos, int yValueZero, int zPos, int size1, int size2, int size3);
 
 	/* Simulates Y at (0, 0) in Chunk. */
 	protected abstract int simulateYZeroZeroChunk(ChunkPos pos);
@@ -191,4 +192,6 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 	{
 		chunkYCache.put(cPos, yValues);
 	}
+
+	public abstract Pair<int[][], Boolean> simulateChunkYFull(ChunkPos pos);
 }

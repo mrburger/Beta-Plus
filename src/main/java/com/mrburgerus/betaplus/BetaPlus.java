@@ -25,20 +25,22 @@ public class BetaPlus
 	public static final String MOD_NAME = "betaplus";
 	public static boolean loadedBOP = false;
 
-    // Directly reference a log4j logger.
-    public static final Logger LOGGER = LogManager.getLogger();
+	// Directly reference a log4j logger.
+	public static final Logger LOGGER = LogManager.getLogger();
 
-    public static ServerProxy proxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> ServerProxy::new);
+	public static ServerProxy proxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> ServerProxy::new);
 
-    public BetaPlus()
+	public BetaPlus()
 	{
-        // Register the setup method for modloading
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+		proxy.init();
+		// Register the setup method for modloading
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
 
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::config);
 
 		// Register ourselves for server, registry and other game events we are interested in
 		MinecraftForge.EVENT_BUS.register(this);
+
 
 		// Check if BOP Loaded
 		if (ModList.get().isLoaded("biomesoplenty"))
@@ -48,12 +50,9 @@ public class BetaPlus
 
 		// Register the configuration file
 		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigRetroPlus.SPEC);
+	}
 
-		proxy.init();
-
-    }
-
-    public void config(ModConfig.ModConfigEvent event)
+	public void config(ModConfig.ModConfigEvent event)
 	{
 		if (event.getConfig().getSpec() == ConfigRetroPlus.SPEC)
 		{
@@ -61,32 +60,9 @@ public class BetaPlus
 		}
 	}
 
-    private void setup(final FMLCommonSetupEvent event)
-    {
+	private void setup(final FMLCommonSetupEvent event)
+	{
 		WorldTypeBetaPlus.register();
 		WorldTypeAlphaPlus.register();
-    }
-
-    /* Turns on Perpetual Snow for Snowy Alpha Worlds */
-    public void setAlphaSnow(final WorldEvent.Load event)
-    {
-        /* If World is Snowy */
-		WorldType worldType = event.getWorld().getWorldInfo().getGenerator();
-        if (worldType instanceof WorldTypeAlphaPlus)
-        {
-        	/*
-        	BetaPlus.LOGGER.info("In Alpha");
-        	if (event.getWorld().getWorld().getChunkProvider().getChunkGenerator() instanceof ChunkGeneratorAlphaPlus)
-			{
-				BetaPlus.LOGGER.info("Passed step 1");
-				/* Turn off Weather, so it snows forever */
-				//event.getWorld().getWorld().getWorldInfo().getGameRulesInstance().setOrCreateGameRule("doWeatherCycle", "false", null);
-				/* Turn on Snow! */
-				//event.getWorld().getWorldInfo().setRaining(true);
-        }
-        else
-		{
-			//BetaPlus.LOGGER.info("Not an alpha world.");
-		}
-    }
+	}
 }

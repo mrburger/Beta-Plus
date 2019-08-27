@@ -1,5 +1,6 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.BiomeReplaceUtil;
 import com.mrburgerus.betaplus.util.ConfigRetroPlus;
 import com.mrburgerus.betaplus.util.DeepenOceanUtil;
@@ -15,6 +16,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.gen.NoiseChunkGenerator;
 import net.minecraft.world.gen.WorldGenRegion;
@@ -29,7 +31,7 @@ import java.util.Random;
 
 /* SEE CHUNKGENERATOROVERWORLD.CLASS FOR BASE */
 
-public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSettings>
+public class ChunkGeneratorBetaPlus extends ChunkGenerator<BetaPlusGenSettings>
 {
 	// Fields
 	private Random rand;
@@ -54,15 +56,13 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 	private double[] stoneNoise = new double[256];
 	// New Fields
 	private BiomeProviderBetaPlus biomeProviderS;
-	private final PhantomSpawner phantomSpawner = new PhantomSpawner();
 	private final BetaPlusGenSettings settings;
 	public static final int CHUNK_SIZE = 16;
 
 	public ChunkGeneratorBetaPlus(IWorld world, BiomeProviderBetaPlus biomeProvider, BetaPlusGenSettings settingsIn)
 	{
-		// Modified from Overworld & End Chunk Generator
-		super(world, biomeProvider, 4,8, 256, settingsIn, true);
-		this.settings = settingsIn;
+		// Simplified 0.5c
+		super(world, biomeProvider, settingsIn);
 
 		rand = new Random(seed);
 		octaves1 = new NoiseGeneratorOctavesBeta(rand, 16);
@@ -73,36 +73,13 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 		scaleNoise = new NoiseGeneratorOctavesBeta(rand, 10);
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
 		biomeProviderS = biomeProvider;
+		this.settings = settingsIn;
 	}
 
-	/* Modified From Abstract to support the fact BiomeProvider cannot detect oceans */
-	/* Ocean injection is partially my fault. */
 	@Override
-	public void decorate(WorldGenRegion region)
+	public void generateSurface(IChunk chunk)
 	{
-		super.decorate(region);
-		/*
-		BlockFalling.fallInstantly = true;
-		int chunkX = region.getMainChunkX();
-		int chunkZ = region.getMainChunkZ();
-		int minX = chunkX * 16;
-		int minZ = chunkZ * 16;
-		BlockPos blockpos = new BlockPos(minX, 0, minZ);
-		Biome biome = region.getChunk(chunkX + 1, chunkZ + 1).getBiomes()[0];
-		//Biome biome = region.getBiome(new BlockPos(k + 8, 0, l + 8));
-				//region.getChunk(i, j).getBiomes()[0];
-		SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
-		long seedRegion = sharedseedrandom.setDecorationSeed(region.getSeed(), minX, minZ);
-
-		for(GenerationStage.Decoration decoration : GenerationStage.Decoration.values())
-		{
-			// I PUT WORLD INSTEAD OF REGION
-			biome.decorate(decoration, this, region, seedRegion, sharedseedrandom, blockpos);
-		}
-
-		BlockFalling.fallInstantly = false;
-		*/
-
+		// Empty for now
 	}
 
 	/* Spawns Passive Mobs */
@@ -160,22 +137,10 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 		chunkIn.setBiomes(BiomeReplaceUtil.convertBiomeArray(biomesForGeneration));
 	}
 
-	@Override
-	protected double[] func_222549_a(int i, int i1)
-	{
-		return new double[0];
-	}
-
-	@Override
-	protected double func_222545_a(double v, double v1, int i)
-	{
-		return 0;
-	}
-
 	// Used for Villages AND Pillager Outposts
 	// TESTED: AUG 21, 2019
 	@Override
-	public int func_222529_a(int x, int z, Heightmap.Type p_222529_3_)
+	public int func_222529_a(int x, int z, Heightmap.Type unused)
 	{
 		int[][] valuesInChunk = biomeProviderS.simulator.simulateChunkYFull(new ChunkPos(new BlockPos(x, 0, z))).getFirst();
 		// Working!
@@ -185,12 +150,6 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 			yRet = getSeaLevel() + 1;
 		}
 		return yRet;
-	}
-
-	@Override
-	protected void func_222548_a(double[] doubles, int i, int i1)
-	{
-
 	}
 
 	/* -- GENERATION METHODS -- */
@@ -262,38 +221,6 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 		}
 	}
 
-	//Replace Biomes where necessary
-	/*
-	private void replaceBiomes(IChunk iChunk)
-	{
-		for (int z = 0; z < CHUNK_SIZE; ++z)
-		{
-			for (int x = 0; x < CHUNK_SIZE; ++x)
-			{
-				int xPos = iChunk.getPos().getXStart() + x;
-				int zPos = iChunk.getPos().getZStart() + z;
-				int yVal = BiomeReplaceUtil.getSolidHeightY(new BlockPos(xPos, 0, zPos), iChunk);
-				if (yVal > settings.getHighAltitude())
-				{
-					biomesForGeneration[(x << 4 | z)] = EnumBetaPlusBiome.mountain.handle;
-				}
-				else if (yVal < settings.getSeaLevel() - 1)
-				{
-
-					if (yVal < settings.getSeaLevel() - settings.getSeaDepth())
-					{
-						biomesForGeneration[(x << 4 | z)] = biomeProviderS.getOceanBiome(new BlockPos(xPos, yVal, zPos), true);
-					}
-					else
-					{
-						biomesForGeneration[(x << 4 | z)] = biomeProviderS.getOceanBiome(new BlockPos(xPos, yVal, zPos), false);
-					}
-				}
-			}
-		}
-	}
-	*/
-
 	private void replaceBeaches(IChunk chunk)
 	{
 		for (int z = 0; z < CHUNK_SIZE; ++z)
@@ -332,28 +259,28 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 	/* 1.14, COPY TRIGALOO */
 	private double[] octaveGenerator(double[] values, int xPos, int zPos)
 	{
-		int var5 = 5;
-		int var6 = 17;
-		int var7 = 5;
+		int size1 = 5;
+		int size2 = 17;
+		int size3 = 5;
 		if (values == null)
 		{
-			values = new double[var5 * var6 * var7];
+			values = new double[size1 * size2 * size3];
 		}
 		double noiseFactor = ConfigRetroPlus.noiseScale;
 		double[] temps = biomeProviderS.temperatures;
 		double[] humidities = biomeProviderS.humidities;
-		octaveArr4 = scaleNoise.generateNoiseOctaves(octaveArr4, xPos, zPos, var5, var7, 1.121, 1.121, 0.5);
-		octaveArr5 = octaves7.generateNoiseOctaves(octaveArr5, xPos, zPos, var5, var7, 200.0, 200.0, 0.5);
-		octaveArr1 = octaves3.generateNoiseOctaves(octaveArr1, xPos, 0, zPos, var5, var6, var7, noiseFactor / 80.0, noiseFactor / 160.0, noiseFactor / 80.0);
-		octaveArr2 = octaves1.generateNoiseOctaves(octaveArr2, xPos, 0, zPos, var5, var6, var7, noiseFactor, noiseFactor, noiseFactor);
-		octaveArr3 = octaves2.generateNoiseOctaves(octaveArr3, xPos, 0, zPos, var5, var6, var7, noiseFactor, noiseFactor, noiseFactor);
+		octaveArr4 = scaleNoise.generateNoiseOctaves(octaveArr4, xPos, zPos, size1, size3, 1.121, 1.121, 0.5);
+		octaveArr5 = octaves7.generateNoiseOctaves(octaveArr5, xPos, zPos, size1, size3, 200.0, 200.0, 0.5);
+		octaveArr1 = octaves3.generateNoiseOctaves(octaveArr1, xPos, 0, zPos, size1, size2, size3, noiseFactor / 80.0, noiseFactor / 160.0, noiseFactor / 80.0);
+		octaveArr2 = octaves1.generateNoiseOctaves(octaveArr2, xPos, 0, zPos, size1, size2, size3, noiseFactor, noiseFactor, noiseFactor);
+		octaveArr3 = octaves2.generateNoiseOctaves(octaveArr3, xPos, 0, zPos, size1, size2, size3, noiseFactor, noiseFactor, noiseFactor);
 		int incrementer1 = 0;
 		int incrementer2 = 0;
-		int var16 = 16 / var5;
-		for (int i = 0; i < var5; ++i)
+		int var16 = 16 / size1;
+		for (int i = 0; i < size1; ++i)
 		{
 			int var18 = i * var16 + var16 / 2;
-			for (int j = 0; j < var7; ++j)
+			for (int j = 0; j < size3; ++j)
 			{
 				double var29;
 				int var20 = j * var16 + var16 / 2;
@@ -395,10 +322,10 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 					var27 = 0.0;
 				}
 				var27 += 0.5;
-				var29 = var29 * (double) var6 / 16.0;
-				double var31 = (double) var6 / 2.0 + var29 * 4.0;
+				var29 = var29 * (double) size2 / 16.0;
+				double var31 = (double) size2 / 2.0 + var29 * 4.0;
 				++incrementer2;
-				for (int k = 0; k < var6; ++k)
+				for (int k = 0; k < size2; ++k)
 				{
 					double var34;
 					double var36 = ((double) k - var31) * 12.0 / var27;
@@ -411,9 +338,9 @@ public class ChunkGeneratorBetaPlus extends NoiseChunkGenerator<BetaPlusGenSetti
 					double var42 = (octaveArr1[incrementer1] / 10.0 + 1.0) / 2.0;
 					var34 = var42 < 0.0 ? var38 : (var42 > 1.0 ? var40 : var38 + (var40 - var38) * var42);
 					var34 -= var36;
-					if (k > var6 - 4)
+					if (k > size2 - 4)
 					{
-						double var44 = (float) (k - (var6 - 4)) / 3.0f;
+						double var44 = (float) (k - (size2 - 4)) / 3.0f;
 						var34 = var34 * (1.0 - var44) + -10.0 * var44;
 					}
 					values[incrementer1] = var34;

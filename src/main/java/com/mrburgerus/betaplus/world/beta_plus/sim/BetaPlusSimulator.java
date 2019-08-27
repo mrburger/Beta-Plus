@@ -3,14 +3,31 @@ package com.mrburgerus.betaplus.world.beta_plus.sim;
 import com.mojang.datafixers.util.Pair;
 import com.mrburgerus.betaplus.util.AbstractWorldSimulator;
 import com.mrburgerus.betaplus.util.ConfigRetroPlus;
+import com.mrburgerus.betaplus.world.beta_plus.BetaPlusGenSettings;
+import com.mrburgerus.betaplus.world.beta_plus.BiomeProviderBetaPlus;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBeta;
+import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBiome;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.GenerationSettings;
+
+import java.util.Random;
+
+import static com.mrburgerus.betaplus.world.beta_plus.ChunkGeneratorBetaPlus.CHUNK_SIZE;
 
 public class BetaPlusSimulator extends AbstractWorldSimulator
 {
-	public BetaPlusSimulator(World world)
+	// Added for testing 0.5c
+	private NoiseGeneratorOctavesBiome temperatureOctave;
+	private NoiseGeneratorOctavesBiome humidityOctave;
+	private double[] temps;
+	private double[] humidities;
+	private double scaleVal;
+	private double mult;
+	private BiomeProviderBetaPlus provider;
+
+	public BetaPlusSimulator(World world, BiomeProviderBetaPlus providerIn, BetaPlusGenSettings settings)
 	{
 		super(world);
 		// Remember to assign values EXACTLY the same way, otherwise the .next[X]() value order will be disturbed.
@@ -21,33 +38,54 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 		surfaceNoise = new NoiseGeneratorOctavesBeta(rand, 4);
 		scaleNoise = new NoiseGeneratorOctavesBeta(rand, 10);
 		octaves7 = new NoiseGeneratorOctavesBeta(rand, 16);
+
+		// Testing 0.5c
+		temperatureOctave = new NoiseGeneratorOctavesBiome(new Random(world.getSeed() * 9871), 4);
+		humidityOctave = new NoiseGeneratorOctavesBiome(new Random(world.getSeed() * 39811), 4);
+		scaleVal = settings.getScale();
+		mult = settings.getMultiplierBiome();
+
+		provider = providerIn;
 	}
 
 	@Override
-	protected double[] generateOctaves(double[] values, int xChunkMult, int yValueZero, int zChunkMult, int size1, int size2, int size3)
+	protected double[] generateOctaves(double[] values, int xPos, int yValueZero, int zPos, int size1, int size2, int size3)
 	{
 		if (values == null)
 		{
 			values = new double[size1 * size2 * size3];
 		}
-		// Modified to accomodate noise Scale
 		double noiseFactor = ConfigRetroPlus.noiseScale;
-		// These map to a simple function thankfully
-		octaveArr4 = scaleNoise.generateNoiseOctaves(octaveArr4, xChunkMult, zChunkMult, size1, size3, 1.121, 1.121, 0.5);
-		octaveArr5 = octaves7.generateNoiseOctaves(octaveArr5, xChunkMult, zChunkMult, size1, size3, 200.0, 200.0, 0.5);
-
-		octaveArr1 = octaves3.generateNoiseOctaves(octaveArr1, xChunkMult, 0, zChunkMult, size1, size2, size3, noiseFactor / 80.0, noiseFactor / 160.0, noiseFactor / 80.0);
-		octaveArr2 = octaves1.generateNoiseOctaves(octaveArr2, xChunkMult, 0, zChunkMult, size1, size2, size3, noiseFactor, noiseFactor, noiseFactor);
-		octaveArr3 = octaves2.generateNoiseOctaves(octaveArr3, xChunkMult, 0, zChunkMult, size1, size2, size3, noiseFactor, noiseFactor, noiseFactor);
+		// Added 0.5c
+		temps = temperatureOctave.generateOctaves(temps, (double) xPos * CHUNK_SIZE, (double) zPos * CHUNK_SIZE, size1 * CHUNK_SIZE, size1 * CHUNK_SIZE, scaleVal, scaleVal, 0.25);//provider.temperatures; //temperatureOctave.generateOctaves(temps, (double) xPos, (double) zPos, size1, size1, scaleVal, scaleVal, 0.25);
+		humidities = humidityOctave.generateOctaves(humidities, (double) xPos * CHUNK_SIZE, (double) zPos * CHUNK_SIZE, size1 * CHUNK_SIZE, size1 * CHUNK_SIZE, scaleVal * mult, scaleVal * mult, 0.3333333333333333); //provider.humidities; //humidityOctave.generateOctaves(humidities, (double) xPos, (double) zPos, size1, size1, scaleVal * mult, scaleVal * mult, 0.3333333333333333);
+		// Old stuff
+		octaveArr4 = scaleNoise.generateNoiseOctaves(octaveArr4, xPos, zPos, size1, size3, 1.121, 1.121, 0.5);
+		octaveArr5 = octaves7.generateNoiseOctaves(octaveArr5, xPos, zPos, size1, size3, 200.0, 200.0, 0.5);
+		octaveArr1 = octaves3.generateNoiseOctaves(octaveArr1, xPos, 0, zPos, size1, size2, size3, noiseFactor / 80.0, noiseFactor / 160.0, noiseFactor / 80.0);
+		octaveArr2 = octaves1.generateNoiseOctaves(octaveArr2, xPos, 0, zPos, size1, size2, size3, noiseFactor, noiseFactor, noiseFactor);
+		octaveArr3 = octaves2.generateNoiseOctaves(octaveArr3, xPos, 0, zPos, size1, size2, size3, noiseFactor, noiseFactor, noiseFactor);
 		int incrementer1 = 0;
 		int incrementer2 = 0;
 		int var16 = 16 / size1;
 		for (int i = 0; i < size1; ++i)
 		{
+			int var18 = i * var16 + var16 / 2;
 			for (int j = 0; j < size3; ++j)
 			{
 				double var29;
+				int var20 = j * var16 + var16 / 2;
+				double var21 = temps[var18 * 16 + var20];
+				double var23 = humidities[var18 * 16 + var20] * var21;
+				double var25 = 1.0 - var23;
+				var25 *= var25;
+				var25 *= var25;
+				var25 = 1.0 - var25;
 				double var27 = (octaveArr4[incrementer2] + 256.0) / 512.0;
+				if ((var27 *= var25) > 1.0)
+				{
+					var27 = 1.0;
+				}
 				if ((var29 = octaveArr5[incrementer2] / 8000.0) < 0.0)
 				{
 					var29 = (-var29) * 0.3;
@@ -110,7 +148,6 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 		return 0;
 	}
 
-	//TODO: SAMPLE EVERY 4 BLOCKS (TESTING)
 	// SHOULD WORK
 	@Override
 	public Pair<int[][], Boolean> simulateChunkYFast(ChunkPos pos)
@@ -144,6 +181,10 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 
 	public Pair<int[][], Boolean> simulateChunkYFull(ChunkPos pos)
 	{
+		// Added for test 0.5c, STACKOVERFLOW. Do not use!
+		//provider.getBiomes(pos.x * 16, pos.z * 16, 16, 16, false);
+
+
 		// Check if already simulated
 		if (chunkYCache.containsKey(pos))
 		{
@@ -231,10 +272,23 @@ public class BetaPlusSimulator extends AbstractWorldSimulator
 		}
 	}
 
+	public boolean[][] isBlockSandSimChunk(ChunkPos chunkPos)
+	{
+		if (sandBlockCache.containsKey(chunkPos))
+		{
+			return sandBlockCache.get(chunkPos).getFirst();
+		}
+		else
+		{
+			Pair<boolean[][], Boolean> sandPair = isSandBlockSim(chunkPos);
+			sandBlockCache.put(chunkPos, sandPair); // Enter the value
+			return sandPair.getFirst();
+		}
+	}
 
-	//TODO: TEST
 	/* Simulates sand blocks, for spawning on beaches, and Buried Treasure */
-	protected Pair<boolean[][], Boolean> isSandBlockSim(ChunkPos chunkPos)
+	// Made public for 0.5c
+	private Pair<boolean[][], Boolean> isSandBlockSim(ChunkPos chunkPos)
 	{
 		// Chunksize is 16
 		boolean[][] outputBool = new boolean[16][16];

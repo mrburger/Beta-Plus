@@ -1,6 +1,8 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
 import com.mrburgerus.betaplus.util.ConfigRetroPlus;
+import com.mrburgerus.betaplus.world.biome.AbstractBiomeSelector;
+import com.mrburgerus.betaplus.world.biome.BiomeSelectorBeta;
 import net.minecraft.world.gen.OverworldGenSettings;
 
 public class BetaPlusGenSettings extends OverworldGenSettings
@@ -19,6 +21,8 @@ public class BetaPlusGenSettings extends OverworldGenSettings
 	// Multiplier for Humidity
 	// BETA DEFAULT: 2;
 	private double multBiome = ConfigRetroPlus.humidityScale;
+	// Biome Selector to use, in the future this will be selectable.
+	private AbstractBiomeSelector biomeSelector = new BiomeSelectorBeta();
 
 	public int getSeaLevel()
 	{
@@ -48,6 +52,11 @@ public class BetaPlusGenSettings extends OverworldGenSettings
 	public double getMultiplierBiome()
 	{
 		return multBiome;
+	}
+
+	public AbstractBiomeSelector getBiomeSelector()
+	{
+		return biomeSelector;
 	}
 
 	@Override

@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import com.mrburgerus.betaplus.BetaPlus;
+import com.mrburgerus.betaplus.util.ConfigRetroPlus;
 import com.mrburgerus.betaplus.world.alpha_plus.sim.AlphaPlusSimulator;
-import com.mrburgerus.betaplus.world.biome.BetaPlusBiomeSelectorNew;
 import com.mrburgerus.betaplus.world.biome.TerrainType;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
@@ -30,13 +30,16 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 {
 	private Biome landBiome;
 	private Biome oceanBiome;
+	private Biome hillBiome;
+	private Biome deepOceanBiome;
 	/* Had to create custom biomes */
 	/* Custom Biomes created so that ICE sheets Spawn on Oceans in snowy worlds */
 	private static final Biome ALPHA_FROZEN_BIOME = Biomes.SNOWY_TUNDRA;
 	public static final Biome ALPHA_FROZEN_OCEAN = Biomes.FROZEN_OCEAN;
 	private static final Biome ALPHA_BIOME = Biomes.PLAINS;
-	public static final Biome ALPHA_OCEAN = Biomes.DEEP_OCEAN;
-	private static final Biome[] BIOMES_LIST = new Biome[]{ALPHA_FROZEN_BIOME, ALPHA_FROZEN_OCEAN, ALPHA_BIOME, ALPHA_OCEAN};
+	public static final Biome ALPHA_OCEAN = Biomes.OCEAN;
+	public static final Biome ALPHA_DEEP_OCEAN = Biomes.DEEP_OCEAN;
+	private static final Biome[] BIOMES_LIST = new Biome[]{ALPHA_FROZEN_BIOME, ALPHA_FROZEN_OCEAN, ALPHA_BIOME, ALPHA_OCEAN, ALPHA_DEEP_OCEAN};
 	// Simulator for Y-heights
 	public final AlphaPlusSimulator simulator;
 
@@ -47,17 +50,21 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 			BetaPlus.LOGGER.info("Using Frozen");
 			this.landBiome = ALPHA_FROZEN_BIOME;
 			this.oceanBiome = ALPHA_FROZEN_OCEAN;
+			this.hillBiome = Biomes.SNOWY_MOUNTAINS; // TODO
+			this.deepOceanBiome = Biomes.DEEP_FROZEN_OCEAN;
 		}
 		else
 		{
 			this.landBiome = ALPHA_BIOME;
 			this.oceanBiome = ALPHA_OCEAN;
+			this.hillBiome = Biomes.FOREST;
+			this.deepOceanBiome = ALPHA_DEEP_OCEAN;
 		}
 		simulator = new AlphaPlusSimulator(world);
 	}
 
 	/* Just Like Beta Plus, generates a single landBiome */
-	private Biome[] generateBiomes(int startX, int startZ, int xSize, int zSize)
+	private Biome[] generateBiomes(int startX, int startZ, int xSize, int zSize, boolean useAverage)
 	{
 		Biome[] biomeArr = new Biome[xSize * zSize];
 		int counter = 0;
@@ -79,13 +86,13 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 						selected = this.landBiome;
 						break;
 					case hillyLand:
-						selected = Biomes.FLOWER_FOREST; // PLACEHOLDER
+						selected = this.hillBiome; // PLACEHOLDER
 						break;
 					case sea:
 						selected = this.oceanBiome;
 						break;
 					case deepSea:
-						selected = this.oceanBiome;
+						selected = this.deepOceanBiome;
 						break;
 					case island:
 						selected = Biomes.MUSHROOM_FIELDS;
@@ -97,6 +104,27 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 						selected = Biomes.DEFAULT;
 						break;
 				}
+
+				// Catch Averages
+				if (useAverage)
+				{
+					Pair<Integer, Boolean> avg = simulator.simulateYAvg(pos);
+
+					// OCEAN MONUMENT CATCHER
+					if (avg.getFirst() < ConfigRetroPlus.seaLevel)
+					{
+						if (avg.getFirst() < MathHelper.floor(ConfigRetroPlus.seaLevel - (ConfigRetroPlus.seaDepth / ConfigRetroPlus.oceanYScale)))
+						{
+							// Overwrite.
+							biomeArr[counter] = this.deepOceanBiome;
+						}
+						else
+						{
+							biomeArr[counter] = this.oceanBiome;
+						}
+					}
+				}
+
 				biomeArr[counter] = selected;
 				counter++;
 			}
@@ -113,13 +141,13 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	@Override
 	public Biome getBiome(int i, int i1)
 	{
-		return this.generateBiomes(i, i1, 1, 1)[0];
+		return this.generateBiomes(i, i1, 1, 1, false)[0];
 	}
 
 	@Override
 	public Biome[] getBiomes(int x, int z, int width, int length, boolean b)
 	{
-		return generateBiomes(x, z, width, length);
+		return generateBiomes(x, z, width, length, true);
 	}
 
 	/* Used By Ocean Monuments and Mansions */
@@ -127,7 +155,7 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 	public Set<Biome> getBiomesInSquare(int centerX, int centerZ, int sideLength)
 	{
 		Set<Biome> set = Sets.newHashSet();
-		Collections.addAll(set, this.generateBiomes(centerX, centerZ, sideLength, sideLength));
+		Collections.addAll(set, this.generateBiomes(centerX, centerZ, sideLength, sideLength, true));
 		return set;
 	}
 
@@ -140,7 +168,7 @@ public class BiomeProviderAlphaPlus extends BiomeProvider
 		int l = z + range >> 2;
 		int xSize = k - i + 1;
 		int zSize = l - j + 1;
-		Biome[] biomeArr = this.generateBiomes(i, j, xSize, zSize);
+		Biome[] biomeArr = this.generateBiomes(i, j, xSize, zSize, false);
 
 		BlockPos blockpos = null;
 		int k1 = 0;

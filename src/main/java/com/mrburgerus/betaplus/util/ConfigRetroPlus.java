@@ -127,11 +127,11 @@ public class ConfigRetroPlus
 			biomeScale = builder.comment("Defines biome size in Beta+, larger values increase biome size (default: 75)" +
 					"\n(For faithful Beta 1.7.3 biome size: 39.999999404)")
 					.translation("biomescale" + PREFIX)
-					.defineInRange("biomeScale", 75.0, 1.0, 256.0);
+					.defineInRange("biomeScale", 39.999999404, 1.0, 256.0);
 			humidityScale = builder.comment("Defines the scale of humidity noise in relation to other factors (default: 1.75)" +
 					"\n(For faithful Beta 1.7.3 biome size: 2)")
 					.translation("humidityscale" + PREFIX)
-					.define("humidityScale", 1.75);
+					.define("humidityScale", 2.0);
 			oceanSmoothSize = builder.comment("An *ODD* Integer that determines the size of smoothing for deepened oceans, larger values increase process time" +
 					"\nMUST BE ODD!!! (default: 7)")
 					.translation("smoothsize" + PREFIX)
