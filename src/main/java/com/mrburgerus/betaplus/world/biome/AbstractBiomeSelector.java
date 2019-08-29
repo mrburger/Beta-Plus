@@ -17,5 +17,5 @@ public abstract class AbstractBiomeSelector
 		SPAWN_BIOMES = spawnBiomes;
 	}
 
-	public abstract Biome getBiome(double temperature, double humidity, TerrainType terrainType);
+	public abstract Biome getBiome(double temperature, double humidity, double noiseSelect, TerrainType terrainType);
 }

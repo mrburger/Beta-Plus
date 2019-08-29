@@ -95,7 +95,8 @@ public class BetaPlusGenSettings extends OverworldGenSettings
 					selector = new BiomeSelectorBeta();
 					break;
 				case 1:
-					selector = new BetaPlusBiomeSelectorNew();
+					// Modified
+					selector = new BiomeSelectorBetaPlus();
 					break;
 				default:
 					selector = new BiomeSelectorBeta();

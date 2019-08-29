@@ -7,6 +7,7 @@ import net.minecraft.world.biome.Biomes;
 import java.util.List;
 
 // Ripped straight from Beta, minimally processed.
+// Should Provide the "Closest" Experience
 public class BiomeSelectorBeta extends AbstractBiomeSelector
 {
 	// Mappings //
@@ -46,8 +47,9 @@ public class BiomeSelectorBeta extends AbstractBiomeSelector
 	}
 
 
+	// noiseSelect is NOT used for this.
 	@Override
-	public Biome getBiome(double temperature, double humidity, TerrainType type)
+	public Biome getBiome(double temperature, double humidity, double noiseSelect, TerrainType type)
 	{
 		// Ripped from Beta, This is the basis for all other functions
 		// Added some switch statement for hills and the like
@@ -56,6 +58,9 @@ public class BiomeSelectorBeta extends AbstractBiomeSelector
 			case land:
 				return temperature < 0.1f ? tundra : (humidity < 0.2f ? (temperature < 0.5f ? tundra : (temperature < 0.95f ? savanna : desert)) : (humidity > 0.5f && temperature < 0.7f ? swampland : (temperature < 0.5f ? taiga : (temperature < 0.97f ? (humidity < 0.35f ? shrubland : forest) : (humidity < 0.45f ? plains : ((humidity *= temperature) < 0.9f ? seasonalForest : rainforest))))));
 			case hillyLand:
+				return temperature < 0.1f ? tundraHills : (humidity < 0.2f ? (temperature < 0.5f ? tundraHills : (temperature < 0.95f ? savannaHills : desertHills)) : (humidity > 0.5f && temperature < 0.7f ? swamplandHills : (temperature < 0.5f ? taigaHills : (temperature < 0.97f ? (humidity < 0.35f ? shrublandHills : forestHills) : (humidity < 0.45f ? plainsHills : ((humidity *= temperature) < 0.9f ? seasonalForestHills : rainforestHills))))));
+			// SAME AS ABOVE
+			case mountains:
 				return temperature < 0.1f ? tundraHills : (humidity < 0.2f ? (temperature < 0.5f ? tundraHills : (temperature < 0.95f ? savannaHills : desertHills)) : (humidity > 0.5f && temperature < 0.7f ? swamplandHills : (temperature < 0.5f ? taigaHills : (temperature < 0.97f ? (humidity < 0.35f ? shrublandHills : forestHills) : (humidity < 0.45f ? plainsHills : ((humidity *= temperature) < 0.9f ? seasonalForestHills : rainforestHills))))));
 			case sea:
 				return ocean;

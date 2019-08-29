@@ -188,27 +188,16 @@ public class ConfigRetroPlus
 		}
 
 		// Default Values (REMEMBER BIOMES O PLENTY IF ENABLED)
-		private static List<String> defaultIslandBiomes = Lists.newArrayList(Biomes.MUSHROOM_FIELDS.getDisplayName().getString());
-		private static List<String> defaultFrozenBiomes = Lists.newArrayList(Biomes.ICE_SPIKES.getDisplayName().getString());
-		private static List<String> defaultFrozenHillBiomes = Lists.newArrayList(Biomes.SNOWY_MOUNTAINS.getDisplayName().getString());
+		private static List<String> defaultIslandBiomes = Lists.newArrayList();
+		private static List<String> defaultFrozenBiomes = Lists.newArrayList();
+		private static List<String> defaultFrozenHillBiomes = Lists.newArrayList();
 
 		static
 		{
 			final Biome[] rawBiomes = ForgeRegistries.BIOMES.getValues().toArray(new Biome[0]);
 			for (Biome biome : rawBiomes)
 			{
-				biomes.add(biome.getDisplayName().getString());
-			}
-
-			// Check if BOP enabled (NOT WORKING)
-			// Checking only Alps?
-			if (ModList.get().isLoaded("biomesoplenty") && BOPBiomes.alps.isPresent())
-			{
-				LOGGER.info("YES! We are adding biomes.");
-				defaultIslandBiomes.addAll(Lists.newArrayList(BOPBiomes.origin_hills.get().getDisplayName().getString(),
-						BOPBiomes.oasis.get().getDisplayName().getString()));
-				defaultFrozenBiomes.addAll(Lists.newArrayList(BOPBiomes.cold_desert.get().getDisplayName().getString()));
-				defaultFrozenHillBiomes.addAll(Lists.newArrayList(BOPBiomes.alps.get().getDisplayName().getString()));
+				biomes.add(biome.getTranslationKey());
 			}
 		}
 	}
@@ -218,7 +207,7 @@ public class ConfigRetroPlus
 		final Biome[] rawBiomes = ForgeRegistries.BIOMES.getValues().toArray(new Biome[0]);
 		for (Biome b : rawBiomes)
 		{
-			biomeNames.put(b.getDisplayName().getString(), b);
+			biomeNames.put(b.getTranslationKey(), b);
 		}
 	}
 }

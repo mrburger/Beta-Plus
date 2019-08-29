@@ -1,5 +1,6 @@
 package com.mrburgerus.betaplus.client.gui;
 
+import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.world.alpha_plus.WorldTypeAlphaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.WorldTypeBetaPlus;
 import net.minecraft.client.Minecraft;
@@ -27,11 +28,25 @@ public class OverlayRetroVersion extends AbstractGui
 	private static String mcVersion = "1.14.4"; //Minecraft.getInstance().getVersion();
 
 	/* Overlays Version if we use a Beta World Type */
+	// TODO: DISPLAY ON SERVERS TOO
 	@SubscribeEvent
 	public static void overlayEvent(RenderGameOverlayEvent.Post event)
 	{
+		WorldType wType;
 		Minecraft mc = Minecraft.getInstance();
-		WorldType wType = mc.getIntegratedServer().getWorld(DimensionType.OVERWORLD).getWorldType();
+		if (mc.isIntegratedServerRunning())
+		{
+			 wType = mc.getIntegratedServer().getWorld(DimensionType.OVERWORLD).getWorldType();
+		}
+		else if (mc.world != null && !mc.world.isRemote)
+		{
+			wType = mc.world.getWorldType();
+		}
+		else
+		{
+			BetaPlus.LOGGER.error("Cannot Make GUI");
+			return;
+		}
 		// Check if we are in Beta+ World
 		/* Don't Call Client-side, returns null */
 		if(wType instanceof WorldTypeBetaPlus)

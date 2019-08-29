@@ -15,7 +15,7 @@ import java.util.List;
 import static com.mrburgerus.betaplus.world.beta_plus.ChunkGeneratorBetaPlus.CHUNK_SIZE;
 
 // Contains the Enumerated Type of Terrain. For Islands, Hills, and such.
-// TODO: Add "COASTAL" Type for values close to sea level. This will prevent placement of stuff on water. Also, I have to figure out how to make sure biomes are preserved.
+// TODO: IMPLEMENT MOUNTAINOUS AREAS
 public enum TerrainType
 {
 	generic(),
@@ -24,6 +24,7 @@ public enum TerrainType
 	sea(),
 	deepSea(),
 	coastal(),
+	mountains(),
 	island();
 
 	// FIELDS //
@@ -40,8 +41,10 @@ public enum TerrainType
 
 	// PLACEHOLDER
 	// Changing between 3 and 4....
-	static final int heightThreshold = 3;
-	static final int altThreshold = 82;
+	// Switched to 4 while I add the detector
+	static final int heightThreshold = 4;
+	static final int altThreshold = 78;
+	static final int highAltThreshold = 90;
 
 	// Check North, south, east, west. for hills
 	public static TerrainType getTerrainNoIsland(int[][] yVals, int xValChunk, int zValChunk)
@@ -64,10 +67,18 @@ public enum TerrainType
 		// Trying -2 to fix.
 		else if (y >= ConfigRetroPlus.seaLevel - 2)
 		{
-			// If above a predetermined threshold, it must be "Hills"
+			// If above a predetermined threshold, it must be "Hills" or "Mountains"
 			if (y >= altThreshold)
 			{
-				return hillyLand;
+				// Check for mountains
+				if (y >= highAltThreshold)
+				{
+					return mountains;
+				}
+				else
+				{
+					return hillyLand;
+				}
 			}
 			// This is where the fun begins, check the neighors
 			// Check that is is inside the edges of the chunk

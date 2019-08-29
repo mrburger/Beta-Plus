@@ -14,7 +14,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 // Add Scale Sliders
 // Add more FEATURES
 // Remove many of the Config Options from the config file. Only biomes should be assigned there.
-public class CreateBetaWorldScreen extends Screen
+public class  CreateBetaWorldScreen extends Screen
 {
 	// Required
 	private final CreateWorldScreen parent;
@@ -124,10 +124,10 @@ public class CreateBetaWorldScreen extends Screen
 		switch (select)
 		{
 			case 0:
-				provide = "Old";
+				provide = I18n.format("betaplus.oldProvider");
 				break;
 			case 1:
-				provide = "New";
+				provide = I18n.format("betaplus.newProvider");
 				break;
 			default:
 				provide = "????";

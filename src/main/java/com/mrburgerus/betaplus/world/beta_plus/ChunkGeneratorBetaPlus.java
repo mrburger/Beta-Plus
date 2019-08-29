@@ -257,7 +257,8 @@ public class ChunkGeneratorBetaPlus extends ChunkGenerator<BetaPlusGenSettings>
 				//Inject Beaches (MODIFIED)
 				if ((yVal <= (settings.getSeaLevel() + 1) && yVal >= settings.getSeaLevel() - 1) &&
 						(biome != Biomes.DESERT && biome != Biomes.DESERT_HILLS) &&
-						chunk.getBlockState(new BlockPos(xPos, yVal, zPos)) == Blocks.SAND.getDefaultState())
+						chunk.getBlockState(new BlockPos(xPos, yVal, zPos)) == Blocks.SAND.getDefaultState() ||
+						chunk.getBlockState(new BlockPos(xPos, yVal, zPos)) == Blocks.GRAVEL.getDefaultState()) // Added Gravel, beaches.
 				{
 						this.biomesForGeneration[(x << 4 | z)] = Biomes.BEACH; //biomeProviderS.getBeachBiome(new BlockPos(xPos, yVal, zPos));
 				}

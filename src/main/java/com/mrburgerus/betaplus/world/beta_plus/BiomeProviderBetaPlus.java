@@ -1,14 +1,11 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
 //import biomesoplenty.api.biome.BOPBiomes;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
-import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.ConfigRetroPlus;
 import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulator;
 import com.mrburgerus.betaplus.world.biome.AbstractBiomeSelector;
-import com.mrburgerus.betaplus.world.biome.BetaPlusBiomeSelectorNew;
 import com.mrburgerus.betaplus.world.biome.TerrainType;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBiome;
 import com.mrburgerus.betaplus.world.noise.VoronoiNoiseGenerator;
@@ -47,6 +44,10 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	private final BetaPlusGenSettings settings;
 	// Voronoi Cell Generator.
 	private VoronoiNoiseGenerator voronoi;
+	// Voronoi Cell offset
+	// Too Big: 1024
+	// Too Small: 512,
+	private double offsetVoronoi = 768.0; //420.69; // HE HE.
 	// Biome Selector object
 	private AbstractBiomeSelector selector;
 
@@ -77,9 +78,8 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		selector = settingsIn.getBiomeSelector();
 
 		// 0 uses a fancy distance type.
-		//voronoi = new VoronoiNoiseGenerator(world.getSeed(), (short) 0);
+		voronoi = new VoronoiNoiseGenerator(world.getSeed(), (short) 0);
 	}
-
 
 	// METHODS //
 
@@ -249,10 +249,8 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 				// Begin New Declarations
 				BlockPos pos = new BlockPos(x + startX, 0, z + startZ);
 				// Frequency is 1, Amplitude is halved and then offset for absolute.
-				//vNoise = (voronoi.noise((x + startX + 1000D) / 1000D, (z + startZ + 1000D) / 1000D, 1) * 0.5) + 0.5;
-				//double noiseVal = MathHelper.clamp(vNoise, 0.0, 0.99999999999999);
-
-				selected = selector.getBiome(temperatureVal, humidityVal, terrainTypes[x][z]);
+				vNoise = (voronoi.noise((x + startX + offsetVoronoi) / offsetVoronoi, (z + startZ + offsetVoronoi) / offsetVoronoi, 1) * 0.5) + 0.5;
+				double noiseVal = MathHelper.clamp(vNoise, 0.0, 0.99999999999999);
 
 				// If Average used, we only cared about a very top-level view, and will operate as such.
 				// Typically used for Ocean Monuments
@@ -266,14 +264,16 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 						if (avg.getFirst() < MathHelper.floor(ConfigRetroPlus.seaLevel - (ConfigRetroPlus.seaDepth / ConfigRetroPlus.oceanYScale)))
 						{
 							// Overwrite.
-							biomeArr[counter] = selector.getBiome(temperatureVal, humidityVal, TerrainType.deepSea);
+							terrainTypes[x][z] = TerrainType.deepSea;
 						}
 						else
 						{
-							biomeArr[counter] = selector.getBiome(temperatureVal, humidityVal, TerrainType.sea);
+							terrainTypes[x][z] = TerrainType.sea;
 						}
 					}
 				}
+				selected = selector.getBiome(temperatureVal, humidityVal, noiseVal, terrainTypes[x][z]);
+
 
 				biomeArr[counter] = selected;
 				counter++;
@@ -315,8 +315,8 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 					{
 						// Block Position in world
 						BlockPos pos = new BlockPos(x + chunkPos.getXStart(), 0 ,z + chunkPos.getZStart());
-						// Let's try +2, +1 now
-						if (simulator.isBlockSandSim(pos) && yVals[x][z] <= settings.getSeaLevel() + 1 && yVals[x][z] >= settings.getSeaLevel() - 1)
+						if ((simulator.isBlockSandSim(pos))
+								&& yVals[x][z] <= settings.getSeaLevel() + 2 && yVals[x][z] >= settings.getSeaLevel() - 1)
 						{
 							terrainPairs[x + xChunk * CHUNK_SIZE][z + zChunk * CHUNK_SIZE] = Pair.of(pos, TerrainType.coastal);
 						}
