@@ -20,6 +20,20 @@ public class BiomeReplaceUtil
 		return biomesOut;
 	}
 
+	/* Back-Converts a Biome Array */
+	// Looks to work
+	public static Biome[] backConvertBiomeArray(Biome[] biomesIn)
+	{
+		// Array is in X, Z format, convert to Z, X format.
+		Biome[] biomesOut = new Biome[biomesIn.length];
+		for (int i = 0; i < biomesOut.length; i++)
+		{
+			int place = i >> 4 & 15 | (i & 15) << 4;
+			biomesOut[i] = biomesIn[place];
+		}
+		return biomesOut;
+	}
+
 	/* Gets the first solid block at a Position */
 	public static int getSolidHeightY(BlockPos pos, IChunk chunk)
 	{

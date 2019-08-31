@@ -13,10 +13,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.gen.NoiseChunkGenerator;
-import net.minecraft.world.gen.WorldGenRegion;
+import net.minecraft.world.gen.*;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.spawner.WorldEntitySpawner;
@@ -24,7 +21,7 @@ import net.minecraft.world.spawner.WorldEntitySpawner;
 import java.util.Locale;
 import java.util.Random;
 
-public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSettings>
+public class ChunkGeneratorAlphaPlus extends ChunkGenerator<AlphaPlusGenSettings>
 {
 	// Fields
 	private Random rand;
@@ -52,7 +49,7 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 
 	public ChunkGeneratorAlphaPlus(IWorld world, BiomeProviderAlphaPlus biomeProvider, AlphaPlusGenSettings settingsIn)
 	{
-		super(world, biomeProvider, 4,8, 256, settingsIn, true);
+		super(world, biomeProvider, settingsIn);
 		this.rand = new Random(seed);
 		/* Declaration Order Matters */
 		this.octaves1 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
@@ -63,6 +60,7 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 		this.octaves4 = new NoiseGeneratorOctavesAlpha(this.rand, 10);
 		this.octaves5 = new NoiseGeneratorOctavesAlpha(this.rand, 16);
 		new NoiseGeneratorOctavesAlpha(this.rand, 8);
+
 		settings = settingsIn;
 		biomeProviderS = biomeProvider;
 	}
@@ -86,17 +84,7 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 	@Override
 	public void generateSurface(IChunk iChunk)
 	{
-		int xPos = iChunk.getPos().x;
-		int zPos =  iChunk.getPos().z;
-		biomesForGeneration = this.biomeProviderS.getBiomeBlock(xPos * 16, zPos * 16, 16, 16);
-		setBlocksInChunk(iChunk);
-		DeepenOceanUtil.deepenOcean(iChunk, new Random(seed), settings.getSeaLevel(), 7, 3.1);
-		this.replaceBiomes(iChunk);
-		this.replaceBeaches(iChunk);
-
-		iChunk.setBiomes(BiomeReplaceUtil.convertBiomeArray(biomesForGeneration));
-		// Replace Blocks Such as Grass.
-		this.replaceBlocks(iChunk);
+		// Empty
 	}
 
 	public BlockPos findNearestStructure(World worldIn, String name, BlockPos pos, int radius, boolean p_211403_5_)
@@ -134,34 +122,34 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 	}
 
 	@Override
-	protected double[] func_222549_a(int i, int i1)
+	public void makeBase(IWorld iWorld, IChunk iChunk)
 	{
-		return new double[0];
+		int xPos = iChunk.getPos().x;
+		int zPos =  iChunk.getPos().z;
+		biomesForGeneration = this.biomeProviderS.getBiomeBlock(xPos * 16, zPos * 16, 16, 16);
+		setBlocksInChunk(iChunk);
+		DeepenOceanUtil.deepenOcean(iChunk, new Random(seed), settings.getSeaLevel(), 7, 3.1);
+		//this.replaceBiomes(iChunk);
+		//this.replaceBeaches(iChunk);
+
+		iChunk.setBiomes(BiomeReplaceUtil.convertBiomeArray(biomesForGeneration));
+		// Replace Blocks Such as Grass.
+		this.replaceBlocks(iChunk);
 	}
 
-	@Override
-	protected double func_222545_a(double v, double v1, int i)
-	{
-		return 0;
-	}
-
+	// Can be combined...
+	// Use this one
 	@Override
 	public int func_222529_a(int x, int z, Heightmap.Type p_222529_3_)
 	{
 		int[][] valuesInChunk = biomeProviderS.simulator.simulateChunkYFull(new ChunkPos(new BlockPos(x, 0, z))).getFirst();
 		// Working!
-		int yRet = valuesInChunk[x & 0x000F][z & 0x000F];
+		int yRet = valuesInChunk[x & 15][z & 15];
 		if (yRet < getSeaLevel())
 		{
 			yRet = getSeaLevel() + 1;
 		}
 		return yRet;
-	}
-
-	@Override
-	protected void func_222548_a(double[] doubles, int i, int i1)
-	{
-
 	}
 
 
@@ -170,33 +158,32 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 	{
 		int chunkX = chunk.getPos().x;
 		int chunkZ = chunk.getPos().z;
-		byte seaLevel = 63; //Was 64, Ocean Monuments messed with this.
 		this.heightNoise = this.generateOctaves(this.heightNoise, chunkX * 4, 0, chunkZ * 4, 5, 17, 5);
 
-		for (int var9 = 0; var9 < 4; ++var9) {
-			for (int var10 = 0; var10 < 4; ++var10) {
-				for (int var11 = 0; var11 < 16; ++var11) {
-					double var12 = 0.125D;
-					double var14 = this.heightNoise[((((var9) * 5) + var10) * 17) + var11];
-					double var16 = this.heightNoise[((var9) * 5 + var10 + 1) * 17 + var11];
-					double var18 = this.heightNoise[((var9 + 1) * 5 + var10) * 17 + var11];
-					double var20 = this.heightNoise[((var9 + 1) * 5 + var10 + 1) * 17 + var11];
-					double var22 = (this.heightNoise[((var9) * 5 + var10) * 17 + var11 + 1] - var14) * var12;
-					double var24 = (this.heightNoise[((var9) * 5 + var10 + 1) * 17 + var11 + 1] - var16) * var12;
-					double var26 = (this.heightNoise[((var9 + 1) * 5 + var10) * 17 + var11 + 1] - var18) * var12;
-					double var28 = (this.heightNoise[((var9 + 1) * 5 + var10 + 1) * 17 + var11 + 1] - var20) * var12;
+		for (int cX = 0; cX < 4; ++cX) {
+			for (int cZ = 0; cZ < 4; ++cZ) {
+				for (int cY = 0; cY < 16; ++cY) {
+					double eighth = 0.125D;
+					double noise1 = this.heightNoise[(cX * 5 + cZ) * 17 + cY];
+					double var16 = this.heightNoise[((cX) * 5 + cZ + 1) * 17 + cY];
+					double var18 = this.heightNoise[((cX + 1) * 5 + cZ) * 17 + cY];
+					double var20 = this.heightNoise[((cX + 1) * 5 + cZ + 1) * 17 + cY];
+					double var22 = (this.heightNoise[((cX) * 5 + cZ) * 17 + cY + 1] - noise1) * eighth;
+					double var24 = (this.heightNoise[((cX) * 5 + cZ + 1) * 17 + cY + 1] - var16) * eighth;
+					double var26 = (this.heightNoise[((cX + 1) * 5 + cZ) * 17 + cY + 1] - var18) * eighth;
+					double var28 = (this.heightNoise[((cX + 1) * 5 + cZ + 1) * 17 + cY + 1] - var20) * eighth;
 
 					for (int var30 = 0; var30 < 8; ++var30) {
 						double var31 = 0.25D;
-						double var33 = var14;
+						double var33 = noise1;
 						double var35 = var16;
-						double var37 = (var18 - var14) * var31;
+						double var37 = (var18 - noise1) * var31;
 						double var39 = (var20 - var16) * var31;
 
 						for (int var41 = 0; var41 < 4; ++var41) {
-							int x = var41 + var9 * 4;
-							int y = var11 * 8 + var30;
-							int z = var10 * 4;
+							int x = var41 + cX * 4;
+							int y = cY * 8 + var30;
+							int z = cZ * 4;
 
 							double var44 = 0.25D;
 							double stoneN = var33;
@@ -204,7 +191,7 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 
 							for (int var50 = 0; var50 < 4; ++var50) {
 								Block block = null;
-								if (y < seaLevel) {
+								if (y < settings.getSeaLevel()) {
 									block = Blocks.WATER;
 								}
 
@@ -223,7 +210,7 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 							var35 += var39;
 						}
 
-						var14 += var22;
+						noise1 += var22;
 						var16 += var24;
 						var18 += var26;
 						var20 += var28;
@@ -341,8 +328,6 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 	{
 		int chunkX = chunk.getPos().x;
 		int chunkZ = chunk.getPos().z;
-
-		byte seaLevel = 63;
 		double var5 = 0.03125D;
 
 
@@ -363,10 +348,6 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 				int var12 = -1;
 				Block topBlock = Blocks.GRASS_BLOCK;
 				Block fillerBlock = Blocks.DIRT;
-
-
-				boolean top = true;
-				boolean water = false;
 
 				for (int y = 127; y >= 0; y--)
 				{
@@ -391,7 +372,7 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 									topBlock = Blocks.AIR;
 									fillerBlock = Blocks.STONE;
 								}
-								else if ((y >= seaLevel - 4) && (y <= seaLevel + 1))
+								else if ((y >= settings.getSeaLevel() - 4) && (y <= settings.getSeaLevel() + 1))
 								{
 									topBlock = Blocks.GRASS_BLOCK;
 									fillerBlock = Blocks.DIRT;
@@ -416,13 +397,13 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 									}
 								}
 
-								if ((y < seaLevel) && (topBlock == Blocks.AIR))
+								if ((y < settings.getSeaLevel()) && (topBlock == Blocks.AIR))
 								{
 									topBlock = Blocks.WATER;
 								}
 
 								var12 = stone;
-								if (y >= seaLevel - 1)
+								if (y >= settings.getSeaLevel() - 1)
 								{
 									chunk.setBlockState(new BlockPos(x, y, z), topBlock.getDefaultState(), false);
 								}
@@ -436,43 +417,6 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 								var12--;
 								chunk.setBlockState(new BlockPos(x, y, z), fillerBlock.getDefaultState(), false);
 							}
-						}
-						else if (block == Blocks.WATER)
-						{
-							water = true;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	//Replace Biomes where necessary
-	private void replaceBiomes(IChunk iChunk)
-	{
-		for (int z = 0; z < CHUNK_SIZE; ++z)
-		{
-			for (int x = 0; x < CHUNK_SIZE; ++x)
-			{
-				int xPos = iChunk.getPos().getXStart() + x;
-				int zPos = iChunk.getPos().getZStart() + z;
-				int yVal = BiomeReplaceUtil.getSolidHeightY(new BlockPos(xPos, 0, zPos), iChunk);
-				// Trying -2 to avoid beach to ocean conversion
-				if (yVal < settings.getSeaLevel() - 2)
-				{
-					if(settings.getSnowy())
-					{
-						biomesForGeneration[(x << 4 | z)] = BiomeProviderAlphaPlus.ALPHA_FROZEN_OCEAN;
-					}
-					else
-					{
-						if (yVal < 64 - 16)
-						{
-							biomesForGeneration[(x << 4 | z)] = BiomeProviderAlphaPlus.ALPHA_OCEAN;
-						}
-						else
-						{
-							biomesForGeneration[(x << 4 | z)] = BiomeProviderAlphaPlus.ALPHA_OCEAN;
 						}
 					}
 				}
@@ -504,5 +448,4 @@ public class ChunkGeneratorAlphaPlus extends NoiseChunkGenerator<AlphaPlusGenSet
 			}
 		}
 	}
-	
 }

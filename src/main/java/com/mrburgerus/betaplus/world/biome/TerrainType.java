@@ -43,7 +43,7 @@ public enum TerrainType
 	// Changing between 3 and 4....
 	// Switched to 4 while I add the detector
 	static final int heightThreshold = 4;
-	static final int altThreshold = 78;
+	static final int altThreshold = 77; // was 78
 	static final int highAltThreshold = 90;
 
 	// Check North, south, east, west. for hills

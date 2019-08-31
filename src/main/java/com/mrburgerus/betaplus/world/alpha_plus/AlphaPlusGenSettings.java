@@ -1,13 +1,14 @@
 package com.mrburgerus.betaplus.world.alpha_plus;
 
 import com.mrburgerus.betaplus.BetaPlus;
+import com.mrburgerus.betaplus.util.ConfigRetroPlus;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.gen.GenerationSettings;
 
 public class AlphaPlusGenSettings extends GenerationSettings
 {
 	private boolean isSnowy = false;
-	private final int seaLevel = 63; // Had to be changed :(
+	private final int seaLevel = ConfigRetroPlus.seaLevel; // Had to be changed :(
 
 	public void setSnowy(boolean snowy)
 	{

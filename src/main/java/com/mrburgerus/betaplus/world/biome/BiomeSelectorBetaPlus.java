@@ -30,7 +30,9 @@ public class BiomeSelectorBetaPlus extends AbstractBiomeSelector
 	public BiomeSelectorBetaPlus()
 	{
 		// Spawn on sand, or coastal Biomes. HOPEFULLY IT WORKS
-		super(Lists.asList(Biomes.DESERT, Support.coastBiomes.toArray(new Biome[0])));
+		// Causes Chunk issues....
+		//super(Lists.asList(Biomes.DESERT, Support.coastBiomes.toArray(new Biome[0])));
+		super(Support.coastBiomes);
 	}
 
 	@Override
@@ -59,17 +61,27 @@ public class BiomeSelectorBetaPlus extends AbstractBiomeSelector
 
 		// Implementation 1 //
 		// NOTES: Much Better, jagged edges still exist.
-		//ran = (temperature + humidity) * (0.5 - Float.MIN_VALUE);
-		//temperature = (noiseSelect * TEMP_RANGE) - 0.5;
-		//humidity = (noiseSelect + humidity) * (0.5 - Float.MIN_VALUE);
-
-		// Implementation 2 //
-		// NOTES:
-		ran = (temperature + humidity + noiseSelect) * 0.33333333333333;
-		temperature = ((temperature + humidity) * (TEMP_RANGE / 2.0)) - 0.5;
+		ran = (temperature + humidity) * (0.5 - Float.MIN_VALUE);
+		temperature = (noiseSelect * TEMP_RANGE) - 0.5;
 		humidity = (noiseSelect + humidity) * (0.5 - Float.MIN_VALUE);
 
+		// Implementation 2 //
+		// NOTES: Striping has returned! ARGH
+		//ran = (temperature + humidity + noiseSelect) * 0.33333333333333;
+		//temperature = ((temperature + humidity) * (TEMP_RANGE / 2.0)) - 0.5;
+		//humidity = (noiseSelect + humidity) * (0.5 - Float.MIN_VALUE);
 
+		// Implementation 3 //
+		// NOTES: Too much noiseselect weight
+		//ran = (temperature * humidity + noiseSelect) * 0.5;
+		//temperature = ((temperature + humidity) * (TEMP_RANGE / 2.0)) - 0.5;
+		//humidity = (noiseSelect + humidity) * (0.5 - Float.MIN_VALUE);
+
+		// Implementation 4 //
+		// NOTES: Mini-biomes are the normal, too small.
+		//ran = (temperature + humidity * noiseSelect) * 0.5;
+		//temperature = ((temperature + humidity) * (TEMP_RANGE / 2.0)) - 0.5;
+		//humidity = (noiseSelect + humidity) * (0.5 - Float.MIN_VALUE);
 
 
 		Biome select;
@@ -79,8 +91,7 @@ public class BiomeSelectorBetaPlus extends AbstractBiomeSelector
 				select = getLandBiome(temperature, humidity, ran).getFirst();
 				break;
 			case hillyLand:
-				double s = ran;
-				select = getHillyBiome(temperature, humidity, s, getLandBiome(temperature, humidity, s).getSecond());
+				select = getHillyBiome(temperature, humidity, ran, getLandBiome(temperature, humidity, ran).getSecond());
 				break;
 			case mountains:
 				select = Support.getBiomeFromParams(temperature, humidity, ran, Support.mountainBiomes);

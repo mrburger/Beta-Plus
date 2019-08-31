@@ -40,7 +40,7 @@ public class OverlayRetroVersion extends AbstractGui
 		}
 		else if (mc.world != null && !mc.world.isRemote)
 		{
-			wType = mc.world.getWorldType();
+			wType = mc.world.getWorld().getWorldType();
 		}
 		else
 		{

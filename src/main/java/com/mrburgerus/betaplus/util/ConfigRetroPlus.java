@@ -20,7 +20,6 @@ import static com.mrburgerus.betaplus.BetaPlus.*;
 public class ConfigRetroPlus
 {
 	private static final String PREFIX = MOD_NAME + ".config.";
-	private static final boolean BOP_ENABLE = BetaPlus.loadedBOP;
 
 
 	private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
@@ -139,9 +138,9 @@ public class ConfigRetroPlus
 			oceanDepthScale = builder.comment("Scale value for increasing ocean depth (default: 3.25)")
 					.translation("oceanDepth" + PREFIX)
 					.defineInRange("oceanDepthScale", 3.25, 1.0, 4.0);
-			seaLevel = builder.comment("The \"Sea Level\" of the world (default: 64)")
+			seaLevel = builder.comment("The \"Sea Level\" of the world, changes may cause issues! (default: 63)")
 					.translation("sealevel" + PREFIX)
-					.defineInRange("seaLevel", 64, 1, 128);
+					.defineInRange("seaLevel", 63, 1, 128);
 			noiseFactor = builder.comment("Noise scaling factor in range [600, 800) (default: 684.412)")
 					.translation("noisefactor" + PREFIX)
 					.defineInRange("noiseFactor", 684.412, 600.0, 800.0);

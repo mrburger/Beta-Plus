@@ -46,8 +46,8 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	private VoronoiNoiseGenerator voronoi;
 	// Voronoi Cell offset
 	// Too Big: 1024
-	// Too Small: 512,
-	private double offsetVoronoi = 768.0; //420.69; // HE HE.
+	// Too Small?: 512, 768
+	private double offsetVoronoi = 1000; //420.69; // HE HE.
 	// Biome Selector object
 	private AbstractBiomeSelector selector;
 
@@ -315,8 +315,8 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 					{
 						// Block Position in world
 						BlockPos pos = new BlockPos(x + chunkPos.getXStart(), 0 ,z + chunkPos.getZStart());
-						if ((simulator.isBlockSandSim(pos))
-								&& yVals[x][z] <= settings.getSeaLevel() + 2 && yVals[x][z] >= settings.getSeaLevel() - 1)
+						if ((simulator.isBlockBeach(pos))
+								&& yVals[x][z] <= settings.getSeaLevel() + 1 && yVals[x][z] >= settings.getSeaLevel() - 1)
 						{
 							terrainPairs[x + xChunk * CHUNK_SIZE][z + zChunk * CHUNK_SIZE] = Pair.of(pos, TerrainType.coastal);
 						}

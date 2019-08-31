@@ -2,7 +2,6 @@ package com.mrburgerus.betaplus.client;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
-import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.ServerProxy;
 import com.mrburgerus.betaplus.client.render.BakedModelWrapperAlpha;
 import com.mrburgerus.betaplus.client.render.ModelCache;
@@ -40,7 +39,9 @@ public class ClientProxy extends ServerProxy
 	// FIELDS //
 	final ResourceLocation GRASS_BLOCK_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_grass_block"));
 	final ResourceLocation GRASS_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_grass"));
-	final ResourceLocation LEAVES_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_oak_leaves"));
+	final ResourceLocation OAK_LEAVES_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_oak_leaves"));
+	final ResourceLocation SPRUCE_LEAVES_LOCATION = new ResourceLocation(ResourceHelper.getResourceStringBetaPlus("block/alpha_spruce_leaves"));
+
 
 	public ClientProxy()
 	{}
@@ -70,7 +71,7 @@ public class ClientProxy extends ServerProxy
 		List<Pair<ResourceLocation, ModelResourceLocation>> locList = Lists.newArrayList(
 				Pair.of(GRASS_BLOCK_LOCATION, grassBlockLoc),
 				Pair.of(GRASS_LOCATION, grassLoc)
-				//Pair.of(LEAVES_LOCATION, leavesLoc)
+				//Pair.of(OAK_LEAVES_LOCATION, leavesLoc)
 		);
 
 		for (Pair<ResourceLocation, ModelResourceLocation> loc : locList)
@@ -87,7 +88,8 @@ public class ClientProxy extends ServerProxy
 
 		// Leaves require special handling.
 		List<Pair<ResourceLocation, Block>> leavesList = Lists.newArrayList(
-				Pair.of(LEAVES_LOCATION, Blocks.OAK_LEAVES)
+				Pair.of(OAK_LEAVES_LOCATION, Blocks.OAK_LEAVES),
+				Pair.of(SPRUCE_LEAVES_LOCATION, Blocks.SPRUCE_LEAVES)
 		);
 
 		for (Pair<ResourceLocation, Block> blockPair : leavesList)
@@ -121,7 +123,7 @@ public class ClientProxy extends ServerProxy
 	@SubscribeEvent
 	public void addTextures(TextureStitchEvent.Pre event)
 	{
-		List<ResourceLocation> locationList = Lists.newArrayList(GRASS_BLOCK_LOCATION, GRASS_LOCATION, LEAVES_LOCATION);
+		List<ResourceLocation> locationList = Lists.newArrayList(GRASS_BLOCK_LOCATION, GRASS_LOCATION, OAK_LEAVES_LOCATION, SPRUCE_LEAVES_LOCATION);
 		for (ResourceLocation loc : locationList)
 		{
 			IUnbakedModel model = ModelLoaderAlpha.INSTANCE.loadModel(loc);

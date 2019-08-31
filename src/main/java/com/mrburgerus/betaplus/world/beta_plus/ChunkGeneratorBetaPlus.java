@@ -82,10 +82,13 @@ public class ChunkGeneratorBetaPlus extends ChunkGenerator<BetaPlusGenSettings>
 		this.settings = settingsIn;
 	}
 
+	// Could be more useful.
+	// How about moving the Chunk block setting?
 	@Override
 	public void generateSurface(IChunk chunk)
 	{
-		// Empty for now
+		// TESTING
+		this.replaceBlocksForBiome(chunk.getPos().x, chunk.getPos().z, chunk, BiomeReplaceUtil.backConvertBiomeArray(chunk.getBiomes()));
 	}
 
 	// TESTING 0.5D
@@ -143,16 +146,9 @@ public class ChunkGeneratorBetaPlus extends ChunkGenerator<BetaPlusGenSettings>
 		setBlocksInChunk(chunkIn);
 		// Scale factor formerly 2.85
 		DeepenOceanUtil.deepenOcean(chunkIn, rand, settings.getSeaLevel(), settings.getOceanSmoothSize(), ConfigRetroPlus.oceanYScale);
-		// Replace Biomes (Oceans)
-		// This is because detection of Oceans is an average operation.
-		//this.replaceBiomes(chunkIn);
 
-		// Replace Blocks (DIRT & SAND & STUFF)
-		// NOT WORKING RIGHT NOW?
-		replaceBlocksForBiome(x, z, chunkIn, biomesForGeneration);
-
-		// Replace Beaches, done afterwards.
-		this.replaceBeaches(chunkIn);
+		// Replace Blocks (DIRT & SAND & STUFF) SEE ABOVE
+		//replaceBlocksForBiome(x, z, chunkIn, biomesForGeneration);
 
 		// Set Biomes
 		chunkIn.setBiomes(BiomeReplaceUtil.convertBiomeArray(biomesForGeneration));
@@ -160,6 +156,7 @@ public class ChunkGeneratorBetaPlus extends ChunkGenerator<BetaPlusGenSettings>
 
 	// Used for Villages AND Pillager Outposts
 	// TESTED: AUG 21, 2019
+	// COULD BE MANIPULATED AND COMBINED
 	@Override
 	public int func_222529_a(int x, int z, Heightmap.Type unused)
 	{
@@ -242,6 +239,7 @@ public class ChunkGeneratorBetaPlus extends ChunkGenerator<BetaPlusGenSettings>
 		}
 	}
 
+	// Causes Issues with BOP beaches.
 	private void replaceBeaches(IChunk chunk)
 	{
 		for (int z = 0; z < CHUNK_SIZE; ++z)

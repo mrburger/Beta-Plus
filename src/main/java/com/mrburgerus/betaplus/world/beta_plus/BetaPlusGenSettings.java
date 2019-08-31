@@ -1,9 +1,7 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
 import com.mrburgerus.betaplus.util.ConfigRetroPlus;
-import com.mrburgerus.betaplus.world.alpha_plus.AlphaPlusGenSettings;
 import com.mrburgerus.betaplus.world.biome.AbstractBiomeSelector;
-import com.mrburgerus.betaplus.world.biome.BetaPlusBiomeSelectorNew;
 import com.mrburgerus.betaplus.world.biome.BiomeSelectorBeta;
 import com.mrburgerus.betaplus.world.biome.BiomeSelectorBetaPlus;
 import net.minecraft.nbt.CompoundNBT;
@@ -15,8 +13,6 @@ public class BetaPlusGenSettings extends OverworldGenSettings
 	private final int seaLevel = ConfigRetroPlus.seaLevel;
 	// Deep Sea Threshold
 	private final int seaDepth = ConfigRetroPlus.seaDepth;
-	// Mountain Threshold, above this is Mountains
-	private final int highAltitude = 112;
 	// ODD NUMBER: Diameter of Guassian Kernel
 	private final int oceanSmoothSize = ConfigRetroPlus.smoothSize;
 	// Scale Size for Biomes (smaller value = bigger biomes)
@@ -38,11 +34,6 @@ public class BetaPlusGenSettings extends OverworldGenSettings
 	public int getSeaDepth()
 	{
 		return seaDepth;
-	}
-
-	public int getHighAltitude()
-	{
-		return highAltitude;
 	}
 
 	public int getOceanSmoothSize()
