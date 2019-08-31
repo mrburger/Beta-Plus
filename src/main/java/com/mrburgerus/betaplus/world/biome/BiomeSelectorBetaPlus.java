@@ -61,9 +61,9 @@ public class BiomeSelectorBetaPlus extends AbstractBiomeSelector
 
 		// Implementation 1 //
 		// NOTES: Much Better, jagged edges still exist.
-		ran = (temperature + humidity) * (0.5 - Float.MIN_VALUE);
-		temperature = (noiseSelect * TEMP_RANGE) - 0.5;
-		humidity = (noiseSelect + humidity) * (0.5 - Float.MIN_VALUE);
+		//ran = (temperature + humidity) * (0.5 - Float.MIN_VALUE);
+		//temperature = (noiseSelect * TEMP_RANGE) - 0.5;
+		//humidity = (noiseSelect + humidity) * (0.5 - Float.MIN_VALUE);
 
 		// Implementation 2 //
 		// NOTES: Striping has returned! ARGH
@@ -79,9 +79,36 @@ public class BiomeSelectorBetaPlus extends AbstractBiomeSelector
 
 		// Implementation 4 //
 		// NOTES: Mini-biomes are the normal, too small.
-		//ran = (temperature + humidity * noiseSelect) * 0.5;
-		//temperature = ((temperature + humidity) * (TEMP_RANGE / 2.0)) - 0.5;
-		//humidity = (noiseSelect + humidity) * (0.5 - Float.MIN_VALUE);
+		ran = (temperature + humidity * noiseSelect) * 0.5;
+		temperature = ((temperature + humidity) * (TEMP_RANGE / 2.0)) - 0.5;
+		humidity = (noiseSelect + humidity) * (0.5 - Float.MIN_VALUE);
+
+		// Implementation 5 //
+		// NOTES: STRIPES OF BIOMES
+		//ran = (temperature * noiseSelect + humidity * noiseSelect) * 0.5;
+		//temperature = ((temperature + noiseSelect) * (TEMP_RANGE / 2.0)) - 0.5;
+		//humidity = humidity * noiseSelect;
+
+		// Implementation 6 //
+		// NOTES: Pretty darn good, actually. BUT, Temperature still creates stripes.
+		//ran = (temperature * noiseSelect + humidity * noiseSelect) * 0.5;
+		//temperature = (temperature * TEMP_RANGE) - 0.5;
+		// Assign humidity to itself
+
+		// Implementation 7 //
+		// NOTES: WEIRD Temperature Artifacts
+		//ran = (temperature * noiseSelect + humidity * noiseSelect) * 0.5;
+		//temperature = (temperature + noiseSelect + humidity) / (TEMP_RANGE / 3.0) - 0.5;
+		// Assign humidity to itself
+
+		// Implementation 8 //
+		// NOTES:
+		//ran = (temperature * noiseSelect + humidity * noiseSelect) * 0.5;
+		//temperature = (temperature * TEMP_RANGE) - 0.5;
+		// Assign humidity to itself
+
+		// Implementation X //
+		// NOTES:
 
 
 		Biome select;
@@ -106,7 +133,7 @@ public class BiomeSelectorBetaPlus extends AbstractBiomeSelector
 				select = Support.getBiomeFromParams(temperature, humidity, ran, Support.coastBiomes);
 				break;
 			case island:
-				select = Support.getBiomeFromParams(temperature, humidity, Math.random(), Support.islandBiomes);
+				select = Support.getBiomeFromParams(temperature, humidity, ran, Support.islandBiomes);
 				break;
 			case generic:
 				select = defaultBiome;

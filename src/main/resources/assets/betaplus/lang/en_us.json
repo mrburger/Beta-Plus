@@ -1,13 +1,9 @@
 {
-  "generator.TRUE_BETA": "True Beta",
-  "generator.TRUE_BETA.info": "True 1.7.3 Beta Terrain",
   "generator.BETA_PLUS": "Beta+",
-  "generator.BETA_PLUS.info": "Beta Terrain, Deeper Oceans and Modern Structures",
-  "generator.BETA_EXT": "Beta+ Extended",
-  "generator.BETA_EXT.info": "Beta+, Extended Biome Suite",
-  "generator.ALPHA": "Alpha",
-  "generator.ALPHA.info": "Alpha Terrain, deeper oceans",
+  "generator.ALPHA": "Alpha+",
   "betaplus.isSnowWorld": "Snow World",
   "betaplus.useOldCaves": "Use Beta Caves",
-  "betaplus.provider": "Biome Provider"
+  "betaplus.provider": "Biome Provider",
+  "betaplus.oldProvider": "Faithful",
+  "betaplus.newProvider": "Beta+"
 }

@@ -14,8 +14,8 @@ public class Support
 
 	// Values are within [-0.5, 2.0]
 	// This has to be big enough to select a few biomes
-	private static final double INIT_TEMP = 0.5;
-	private static final double INIT_HUMID = 0.25;
+	private static final double INIT_TEMP = 0.3;
+	private static final double INIT_HUMID = 0.15;
 	// Smaller Values increase processing time.
 	private static final double TEMP_INCREMENT = 0.2;
 	private static final double HUMID_INCREMENT = 0.1;

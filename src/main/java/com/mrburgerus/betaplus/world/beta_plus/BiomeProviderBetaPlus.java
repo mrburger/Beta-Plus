@@ -8,6 +8,7 @@ import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulator;
 import com.mrburgerus.betaplus.world.biome.AbstractBiomeSelector;
 import com.mrburgerus.betaplus.world.biome.TerrainType;
 import com.mrburgerus.betaplus.world.noise.NoiseGeneratorOctavesBiome;
+import com.mrburgerus.betaplus.world.noise.PerlinNoise;
 import com.mrburgerus.betaplus.world.noise.VoronoiNoiseGenerator;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
@@ -44,10 +45,13 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 	private final BetaPlusGenSettings settings;
 	// Voronoi Cell Generator.
 	private VoronoiNoiseGenerator voronoi;
+	// Perlin Generator
+	private PerlinNoise biomeNoise;
+
 	// Voronoi Cell offset
-	// Too Big: 1024
+	// Too Big?: 1024
 	// Too Small?: 512, 768
-	private double offsetVoronoi = 1000; //420.69; // HE HE.
+	private double offsetVoronoi = 1024; //420.69; // HE HE.
 	// Biome Selector object
 	private AbstractBiomeSelector selector;
 
@@ -78,7 +82,9 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		selector = settingsIn.getBiomeSelector();
 
 		// 0 uses a fancy distance type.
+		// Creates NASTY edges
 		voronoi = new VoronoiNoiseGenerator(world.getSeed(), (short) 0);
+		biomeNoise = new PerlinNoise(world.getSeed());
 	}
 
 	// METHODS //
@@ -217,6 +223,9 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 		noise = noiseOctave.generateOctaves(noise, (double) startX, (double) startZ, xSize, xSize, 0.25, 0.25, 0.5882352941176471);
 
 		double vNoise;
+		double offsetX;
+		double offsetZ;
+		double noiseVal;
 		Biome[] biomeArr = new Biome[xSize * zSize];
 		int counter = 0;
 		Biome selected;
@@ -248,9 +257,19 @@ public class BiomeProviderBetaPlus extends BiomeProvider
 
 				// Begin New Declarations
 				BlockPos pos = new BlockPos(x + startX, 0, z + startZ);
+
 				// Frequency is 1, Amplitude is halved and then offset for absolute.
-				vNoise = (voronoi.noise((x + startX + offsetVoronoi) / offsetVoronoi, (z + startZ + offsetVoronoi) / offsetVoronoi, 1) * 0.5) + 0.5;
-				double noiseVal = MathHelper.clamp(vNoise, 0.0, 0.99999999999999);
+				//vNoise = (voronoi.noise((x + startX + offsetVoronoi) / offsetVoronoi, (z + startZ + offsetVoronoi) / offsetVoronoi, 1) * 0.5) + 0.5;
+				//vNoise = voronoi.noise2((float) (startX + x / scaleVal), (float) (startZ + z / scaleVal));
+				//double noiseVal = MathHelper.clamp(vNoise, 0.0, 0.99999999999999);
+
+				// An 0.3 throwback.
+				offsetX = biomeNoise.noise2((float) ((startX + x) / scaleVal), (float) ((startZ + z) / scaleVal)) * 80 + biomeNoise.noise2((startX + x) / 7, (startZ + z) / 7) * 20;
+				offsetZ = biomeNoise.noise2((float) ((startX + x) / scaleVal), (float) ((startZ + z) / scaleVal)) * 80 + biomeNoise.noise2((startX + x - 1000) / 7, (startX + x) / 7) * 20;
+				vNoise = (voronoi.noise((startX + x + offsetX + offsetVoronoi) / offsetVoronoi, (startZ + z - offsetZ) / offsetVoronoi, 1) * 0.5f) + 0.5f;
+				noiseVal = (voronoi.noise((startX + x + offsetX + 2000) / 180, (startZ + z - offsetZ) / 180, 1) * 0.5) + 0.5;
+				noiseVal = MathHelper.clamp(noiseVal, 0, 0.9999999);
+
 
 				// If Average used, we only cared about a very top-level view, and will operate as such.
 				// Typically used for Ocean Monuments

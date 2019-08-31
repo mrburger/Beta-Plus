@@ -198,7 +198,7 @@ public abstract class AbstractWorldSimulator implements IWorldSimulator
 		chunkYCache.put(cPos, yValues);
 	}
 
-	// TESTING A MOVE TO UNIFIED
+	// This function is the same for both Alpha and Beta, the noise octaves are different though.
 	public Pair<int[][], Boolean> simulateChunkYFull(ChunkPos pos)
 	{
 		// Added for test 0.5c, STACKOVERFLOW. Do not use!
