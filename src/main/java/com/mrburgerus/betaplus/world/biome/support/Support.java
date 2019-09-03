@@ -120,7 +120,7 @@ public class Support
 				Pair.of(Biomes.JUNGLE, Optional.of(Biomes.JUNGLE_HILLS)),
 				Pair.of(Biomes.BIRCH_FOREST, Optional.of(Biomes.BIRCH_FOREST_HILLS)),
 				Pair.of(Biomes.DARK_FOREST, Optional.of(Biomes.DARK_FOREST_HILLS)),
-				Pair.of(Biomes.SAVANNA, Optional.of(Biomes.SHATTERED_SAVANNA)), // Test the shattered.
+				Pair.of(Biomes.SAVANNA, Optional.of(Biomes.SAVANNA_PLATEAU)), // Test the shattered.
 				Pair.of(Biomes.SUNFLOWER_PLAINS, Optional.empty()),
 				Pair.of(Biomes.TALL_BIRCH_FOREST, Optional.of(Biomes.TALL_BIRCH_HILLS)),
 				Pair.of(Biomes.GIANT_SPRUCE_TAIGA, Optional.of(Biomes.GIANT_SPRUCE_TAIGA_HILLS)),
@@ -138,7 +138,8 @@ public class Support
 		mountainBiomes = Lists.newArrayList(
 				Biomes.SNOWY_MOUNTAINS,
 				//Biomes.MOUNTAINS,
-				Biomes.WOODED_MOUNTAINS
+				Biomes.WOODED_MOUNTAINS,
+				Biomes.SHATTERED_SAVANNA_PLATEAU // Testing
 		);
 
 		coastBiomes = Lists.newArrayList(

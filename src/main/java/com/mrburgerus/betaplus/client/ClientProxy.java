@@ -3,6 +3,7 @@ package com.mrburgerus.betaplus.client;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import com.mrburgerus.betaplus.ServerProxy;
+import com.mrburgerus.betaplus.client.color.ReedColorBetaPlus;
 import com.mrburgerus.betaplus.client.render.BakedModelWrapperAlpha;
 import com.mrburgerus.betaplus.client.render.ModelCache;
 import com.mrburgerus.betaplus.client.render.ModelLoaderAlpha;
@@ -10,6 +11,7 @@ import com.mrburgerus.betaplus.util.ResourceHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.IUnbakedModel;
@@ -27,6 +29,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.HashSet;
@@ -52,10 +55,18 @@ public class ClientProxy extends ServerProxy
 		// Register Client
 		MinecraftForge.EVENT_BUS.register(this);
 		// Added
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerColors);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::addTextures);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::bakeAlphaModels);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerAlphaLoader);
 
+		// Load Sugarcane color
+	}
+
+	@SubscribeEvent
+	public void registerColors(final FMLLoadCompleteEvent event)
+	{
+		Minecraft.getInstance().getBlockColors().register(new ReedColorBetaPlus(), Blocks.SUGAR_CANE);
 	}
 
 	@SubscribeEvent
@@ -71,7 +82,6 @@ public class ClientProxy extends ServerProxy
 		List<Pair<ResourceLocation, ModelResourceLocation>> locList = Lists.newArrayList(
 				Pair.of(GRASS_BLOCK_LOCATION, grassBlockLoc),
 				Pair.of(GRASS_LOCATION, grassLoc)
-				//Pair.of(OAK_LEAVES_LOCATION, leavesLoc)
 		);
 
 		for (Pair<ResourceLocation, ModelResourceLocation> loc : locList)

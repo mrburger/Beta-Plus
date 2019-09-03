@@ -9,6 +9,8 @@ import java.util.Optional;
 
 public class BOPSupport
 {
+	public static final String BOP_MOD_NAME = "biomesoplenty";
+
 	public static void init()
 	{
 		try
@@ -84,6 +86,7 @@ public class BOPSupport
 		// Mystic Grove
 		BOPBiomes.mystic_grove.ifPresent(biome -> Support.landBiomes.add(Pair.of(biome, Optional.of(biome))));
 		// Oasis TODO
+
 		// Ominous Woods
 		BOPBiomes.ominous_woods.ifPresent(biome -> Support.landBiomes.add(Pair.of(biome, Optional.of(biome))));
 		// Orchard
@@ -114,7 +117,8 @@ public class BOPSupport
 		BOPBiomes.shrubland.ifPresent(biome -> Support.landBiomes.add(Pair.of(biome, Optional.empty())));
 		// Silk Glade
 		BOPBiomes.silkglade.ifPresent(biome -> Support.landBiomes.add(Pair.of(biome, Optional.empty())));
-		// Skip Snowy Coniferous Biomes for now
+		// Snowy Coniferous
+		BOPBiomes.snowy_coniferous_forest.ifPresent(biome -> Support.landBiomes.add(Pair.of(biome, Optional.of(biome))));
 		// Snowy Forest
 		BOPBiomes.snowy_forest.ifPresent(biome -> Support.landBiomes.add(Pair.of(biome, Optional.of(biome))));
 		// Steppe(r)
@@ -147,8 +151,5 @@ public class BOPSupport
 		BOPBiomes.woodland.ifPresent(biome -> Support.landBiomes.add(Pair.of(biome, Optional.of(biome))));
 		// Xeric Shrubland
 		BOPBiomes.xeric_shrubland.ifPresent(biome -> Support.landBiomes.add(Pair.of(biome, Optional.empty())));
-
-		// Dead Reef
-		BOPBiomes.dead_reef.ifPresent(biome -> Support.oceanBiomes.add(Pair.of(biome, biome)));
 	}
 }
