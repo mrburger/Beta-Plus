@@ -25,10 +25,11 @@ public class OverlayRetroVersion extends AbstractGui
 	private static String mcName = "Minecraft ";
 	private static String betaVersion = "Beta+ ";
 	private static String alphaVersion = "Alpha+ ";
-	private static String mcVersion = "1.14.4"; //Minecraft.getInstance().getVersion();
+	private static String mcVersion = "1.15.2"; //Minecraft.getInstance().getVersion();
 
 	/* Overlays Version if we use a Beta World Type */
 	// TODO: DISPLAY ON SERVERS TOO
+	// TODO: ALLOW DISABLE
 	@SubscribeEvent
 	public static void overlayEvent(RenderGameOverlayEvent.Post event)
 	{

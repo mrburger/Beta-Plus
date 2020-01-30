@@ -6,16 +6,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GrassColors;
-import net.minecraft.world.IEnviromentBlockReader;
+import net.minecraft.world.ILightReader;
 import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.dimension.DimensionType;
+
+import javax.annotation.Nullable;
 
 public class GrassColorBetaPlus implements IBlockColor
 {
 	@Override
-	public int getColor(BlockState blockState, IEnviromentBlockReader iEnviromentBlockReader, BlockPos blockPos, int i)
+	public int getColor(BlockState blockState, @Nullable ILightReader environment, @Nullable BlockPos blockPos, int i)
 	{
-		if (iEnviromentBlockReader == null || blockPos == null)
+		if (environment == null || blockPos == null)
 			return GrassColors.get(0.5D, 1.0D);
 		// Modified (It's so long!)
 		BiomeProvider provider = Minecraft.getInstance().getIntegratedServer().getWorld(DimensionType.OVERWORLD).getChunkProvider().generator.getBiomeProvider();

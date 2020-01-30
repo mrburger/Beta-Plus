@@ -1,6 +1,5 @@
 package com.mrburgerus.betaplus.util;
 
-import biomesoplenty.api.biome.BOPBiomes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mrburgerus.betaplus.BetaPlus;

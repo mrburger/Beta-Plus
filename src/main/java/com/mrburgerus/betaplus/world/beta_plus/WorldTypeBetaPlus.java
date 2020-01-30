@@ -1,7 +1,6 @@
 package com.mrburgerus.betaplus.world.beta_plus;
 
 import com.mrburgerus.betaplus.client.gui.CreateBetaWorldScreen;
-import com.mrburgerus.betaplus.world.biome.support.BOPSupport;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
 import net.minecraft.world.World;

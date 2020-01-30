@@ -1,8 +1,6 @@
 package com.mrburgerus.betaplus.world.biome;
 
-import biomesoplenty.api.biome.BOPBiomes;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.mrburgerus.betaplus.BetaPlus;
 import com.mrburgerus.betaplus.util.ConfigRetroPlus;
 import net.minecraft.world.biome.Biome;
@@ -10,7 +8,6 @@ import net.minecraft.world.biome.Biomes;
 import net.minecraftforge.common.BiomeDictionary;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 // New Biome Selector, works on a more sophisticated data set
