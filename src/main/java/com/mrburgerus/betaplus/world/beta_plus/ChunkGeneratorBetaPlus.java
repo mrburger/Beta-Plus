@@ -14,7 +14,9 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeContainer;
 import net.minecraft.world.biome.Biomes;
+import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.*;
 import net.minecraft.world.gen.feature.Feature;
@@ -82,43 +84,6 @@ public class ChunkGeneratorBetaPlus extends ChunkGenerator<BetaPlusGenSettings>
 		this.settings = settingsIn;
 	}
 
-	// Could be more useful.
-	// How about moving the Chunk block setting?
-	@Override
-	public void generateSurface(IChunk chunk)
-	{
-		// TESTING
-		this.replaceBlocksForBiome(chunk.getPos().x, chunk.getPos().z, chunk, BiomeReplaceUtil.backConvertBiomeArray(chunk.getBiomes()));
-	}
-
-	// TESTING 0.5D
-	@Override
-	public void carve(IChunk chunkIn, GenerationStage.Carving carvingSettings)
-	{
-		if (!settings.isUseOldCaves())
-		{
-			super.carve(chunkIn, carvingSettings);
-		}
-		else
-		{
-			ChunkPos chunkPos = chunkIn.getPos();
-			caveGenerator.generate(seed, chunkPos.x, chunkPos.z, chunkIn);
-		}
-	}
-
-	/* Spawns Passive Mobs */
-	@Override
-	public void spawnMobs(WorldGenRegion region)
-	{
-		//sBetaPlus.LOGGER.info("Called Spawn");
-		int lvt_2_1_ = region.getMainChunkX();
-		int lvt_3_1_ = region.getMainChunkZ();
-		Biome lvt_4_1_ = region.getChunk(lvt_2_1_, lvt_3_1_).getBiomes()[0];
-		SharedSeedRandom lvt_5_1_ = new SharedSeedRandom();
-		lvt_5_1_.setDecorationSeed(region.getSeed(), lvt_2_1_ << 4, lvt_3_1_ << 4);
-		WorldEntitySpawner.performWorldGenSpawning(region, lvt_4_1_, lvt_2_1_, lvt_3_1_, lvt_5_1_);
-	}
-
 	@Override
 	public BetaPlusGenSettings getSettings()
 	{
@@ -150,8 +115,14 @@ public class ChunkGeneratorBetaPlus extends ChunkGenerator<BetaPlusGenSettings>
 		// Replace Blocks (DIRT & SAND & STUFF) SEE ABOVE
 		//replaceBlocksForBiome(x, z, chunkIn, biomesForGeneration);
 
+		//TESTING
+		this.replaceBlocksForBiome(chunkIn.getPos().x, chunkIn.getPos().z, chunkIn, biomesForGeneration);
+
+
 		// Set Biomes
-		chunkIn.setBiomes(BiomeReplaceUtil.convertBiomeArray(biomesForGeneration));
+		//chunkIn.setBiomes(BiomeReplaceUtil.convertBiomeArray(biomesForGeneration));
+		((ChunkPrimer) chunkIn).func_225548_a_(new BiomeContainer(BiomeReplaceUtil.convertBiomeArray(biomesForGeneration)));
+
 	}
 
 	// Used for Villages AND Pillager Outposts
@@ -285,7 +256,13 @@ public class ChunkGeneratorBetaPlus extends ChunkGenerator<BetaPlusGenSettings>
 		return null;
 	}
 
-	/* 1.14, COPY TRIGALOO */
+	@Override
+	public void func_225551_a_(WorldGenRegion p_225551_1_, IChunk p_225551_2_)
+	{
+
+	}
+
+	/* 1.15, COPY QUADGALOO */
 	private double[] octaveGenerator(double[] values, int xPos, int zPos)
 	{
 		int size1 = 5;

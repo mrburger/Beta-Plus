@@ -2,6 +2,7 @@ package com.mrburgerus.betaplus;
 
 import com.mrburgerus.betaplus.client.ClientProxy;
 import com.mrburgerus.betaplus.util.ConfigRetroPlus;
+import com.mrburgerus.betaplus.util.EnumWorldType;
 import com.mrburgerus.betaplus.world.alpha_plus.WorldTypeAlphaPlus;
 import com.mrburgerus.betaplus.world.beta_plus.WorldTypeBetaPlus;
 import net.minecraft.world.WorldType;
@@ -33,6 +34,8 @@ public class BetaPlus
 {
 	//Fields
 	public static final String MOD_NAME = "betaplus";
+	// World Loaded type
+	public static EnumWorldType loadedWorldType;
 
 	// Directly reference a log4j logger.
 	public static final Logger LOGGER = LogManager.getLogger();
@@ -75,8 +78,8 @@ public class BetaPlus
 	public void setAlphaSnow(final WorldEvent.Load event)
 	{
 		/* If World is Snowy */
-		WorldType worldType = event.getWorld().getWorldInfo().getGenerator(); //event.getWorld().getWorld().getWorldType();
-		if (worldType instanceof WorldTypeAlphaPlus)
+		LOGGER.info(loadedWorldType);
+		if (loadedWorldType == EnumWorldType.alphaWorld)
 		{
 			WorldInfo info = event.getWorld().getWorldInfo();
 			if (info.getGeneratorOptions().getBoolean(WorldTypeAlphaPlus.SNOW_WORLD_TAG))
@@ -88,5 +91,18 @@ public class BetaPlus
 				//info.setRainTime(0);
 			}
 		}
+	}
+
+	// Stores whether the world is a Alpha OR Beta World, with form.
+	@SubscribeEvent
+	public void isWorldRetro(final WorldEvent.Load event)
+	{
+		WorldType worldType = event.getWorld().getWorldInfo().getGenerator();
+		if (worldType instanceof WorldTypeAlphaPlus)
+			loadedWorldType = EnumWorldType.alphaWorld;
+		else if (worldType instanceof WorldTypeBetaPlus)
+			loadedWorldType = EnumWorldType.betaWorld;
+		else
+			loadedWorldType = EnumWorldType.nonRetro;
 	}
 }

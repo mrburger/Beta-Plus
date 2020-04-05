@@ -30,6 +30,7 @@ import java.util.Set;
 import static com.mrburgerus.betaplus.world.beta_plus.ChunkGeneratorBetaPlus.CHUNK_SIZE;
 
 /* This is a WIP class that will provide a NEW biome system. */
+// NEED TO IMPLEMENT 3D Biomes
 /* Based off BiomeProviderBetaPlus */
 public class BiomeProviderBetaPlus extends BiomeProvider
 {
