@@ -2,32 +2,26 @@ package com.mrburgerus.betaplus.world.beta_plus;
 
 import com.mrburgerus.betaplus.world.beta_plus.biome.EnumBetaPlusBiome;
 import com.mrburgerus.betaplus.world.beta_plus.noise.NoiseGeneratorOctavesBeta;
-import com.mrburgerus.betaplus.world.beta_plus.sim.BetaPlusSimulator;
 import com.mrburgerus.betaplus.world.beta_plus.util.BiomeReplaceUtil;
 import com.mrburgerus.betaplus.world.beta_plus.util.DeepenOceanUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityCategory;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sortme.SpawnHelper;
-import net.minecraft.structure.Structure;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ChunkRegion;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.source.BiomeSource;
+import net.minecraft.world.biome.BiomeContainer;
+import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkPos;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.gen.*;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.StructureFeature;
+import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.spawner.CatSpawner;
+import net.minecraft.world.spawner.PatrolSpawner;
+import net.minecraft.world.spawner.PhantomSpawner;
 
-import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 
 public class BetaChunkGenerator extends ChunkGenerator<BetaChunkGeneratorConfig>
@@ -60,10 +54,10 @@ public class BetaChunkGenerator extends ChunkGenerator<BetaChunkGeneratorConfig>
 	private double[] stoneNoise = new double[256];
 
 	private final PhantomSpawner phantomSpawner = new PhantomSpawner();
-	private final PillagerSpawner pillagerSpawner = new PillagerSpawner();
+	private final PatrolSpawner pillagerSpawner = new PatrolSpawner();
 	private final CatSpawner field_19181 = new CatSpawner();
 
-	public BetaChunkGenerator(IWorld iWorld_1, BiomeSource biomeProvider, BetaChunkGeneratorConfig settingsIn)
+	public BetaChunkGenerator(IWorld iWorld_1, BiomeProvider biomeProvider, BetaChunkGeneratorConfig settingsIn)
 	{
 		super(iWorld_1, biomeProvider, settingsIn);
 
@@ -82,19 +76,26 @@ public class BetaChunkGenerator extends ChunkGenerator<BetaChunkGeneratorConfig>
 
 	// Like makeBase
 	@Override
-	public void buildSurface(Chunk chunk)
+	public void makeBase(IWorld worldIn, IChunk chunk)
 	{
-		int x = chunk.getPos().x;
-		int z = chunk.getPos().z;
-		rand.setSeed((long) x * 341873128712L + (long) z * 132897987541L);
-		biomesForGeneration = biomeProviderS.sampleBiomes(x * 16, z * 16, 16, 16);
 		setBlocksInChunk(chunk);
 		DeepenOceanUtil.deepenOcean(chunk, rand, settings.getSeaLevel(), 7, 3.25);
-		this.replaceBiomes(chunk);
-		replaceBlocksForBiome(x, z, chunk, EnumBetaPlusBiome.convertBiomeTable(biomesForGeneration));
-		chunk.setBiomeArray(BiomeReplaceUtil.convertBiomeArray(biomesForGeneration));
-	}
 
+	}
+	//		replaceBlocksForBiome(x, z, chunk, EnumBetaPlusBiome.convertBiomeTable(biomesForGeneration));
+	//		replaceBlocksForBiome(chunkpos.x, chunkpos.z, chunk, EnumBetaPlusBiome.convertBiomeTable(biomesForGeneration));
+
+	@Override
+	public void generateBiomes(IChunk chunkIn)
+	{
+		ChunkPos chunkpos = chunkIn.getPos();
+		int x = chunkpos.x;
+		int z = chunkpos.z;
+		rand.setSeed((long) x * 341873128712L + (long) z * 132897987541L);
+		biomesForGeneration = biomeProviderS.sampleBiomes(x * 16, z * 16, 16, 16);
+		this.replaceBiomes(chunkIn);
+		((ChunkPrimer)chunkIn).func_225548_a_(new BiomeContainer(chunkpos, this.biomeProvider));
+	}
 
 
 	// CAUSES ISSUES
@@ -110,40 +111,13 @@ public class BetaChunkGenerator extends ChunkGenerator<BetaChunkGeneratorConfig>
 			SpawnHelper.populateEntities(region, biome, i, j, this.rand);
 	}
 	*/
-	public void populateEntities(ChunkRegion region) {
-		int int_1 = region.getCenterChunkX();
-		int int_2 = region.getCenterChunkZ();
-		Biome biome_1 = region.getChunk(int_1, int_2).getBiomeArray()[0];
-		ChunkRandom chunkRandom_1 = new ChunkRandom();
-		chunkRandom_1.setSeed(region.getSeed(), int_1 << 4, int_2 << 4);
-		SpawnHelper.populateEntities(region, biome_1, int_1, int_2, chunkRandom_1);
-	}
-
-	@Override
-	public int getSpawnHeight()
-	{
-		return getSeaLevel();
-	}
-
-	@Override
-	public void populateNoise(IWorld iWorld, Chunk chunk)
-	{
-	}
-
-	// like findNearestStructure
-	@Override
-	public BlockPos locateStructure(World worldIn, String name, BlockPos pos, int radius, boolean boolean_1)
-	{
-		StructureFeature<?> structure = Feature.STRUCTURES.get(name.toLowerCase(Locale.ROOT));
-		return structure != null ? structure.locateStructure(worldIn, this, pos, radius, boolean_1) : null;
-	}
 
 	// Possibly can be ignored
 	// Seems to affect Village Features, Pillager Features, and Temples
-	@Override
-	public int getHeightOnGround(int x, int z, Heightmap.Type type)
+	// Modified name
+	public int func_222529_a(int x, int z, Heightmap.Type type)
 	{
-		int starth = getMaxY();
+		int starth = getMaxHeight();
 		// Get y height
 		return biomeProviderS.simulator.simulateYChunk(new BlockPos(x, 0, z)).getFirst();
 	}
@@ -152,7 +126,7 @@ public class BetaChunkGenerator extends ChunkGenerator<BetaChunkGeneratorConfig>
 
 	/* GENERATES THE BLOCKS */
 	// PREVIOUSLY other methods, updated for 1.13!
-	private void setBlocksInChunk(Chunk chunk)
+	private void setBlocksInChunk(IChunk chunk)
 	{
 		heightNoise = octaveGenerator(heightNoise, chunk.getPos().x * 4, chunk.getPos().z * 4, 5, 17, 5);
 		for (int i = 0; i < 4; ++i)
@@ -217,7 +191,7 @@ public class BetaChunkGenerator extends ChunkGenerator<BetaChunkGeneratorConfig>
 		}
 	}
 
-	/* 1.14!, COPY BOOGALOO */
+	/* FABRIC!, COPY IFORGETALOO */
 	private double[] octaveGenerator(double[] values, int xPos, int zPos, int var5, int var6, int var7)
 	{
 		if (values == null)
@@ -405,14 +379,14 @@ public class BetaChunkGenerator extends ChunkGenerator<BetaChunkGeneratorConfig>
 	}
 
 	//Replace Biomes where necessary
-	private void replaceBiomes(Chunk iChunk)
+	private void replaceBiomes(IChunk iChunk)
 	{
 		for (int z = 0; z < CHUNK_SIZE; ++z)
 		{
 			for (int x = 0; x < CHUNK_SIZE; ++x)
 			{
-				int xPos = iChunk.getPos().getStartX() + x;
-				int zPos = iChunk.getPos().getStartZ() + z;
+				int xPos = iChunk.getPos().getXStart() + x;
+				int zPos = iChunk.getPos().getZStart() + z;
 				int yVal = BiomeReplaceUtil.getSolidHeightY(new BlockPos(xPos, 0, zPos), iChunk);
 				if (yVal > 108)
 				{
@@ -434,39 +408,8 @@ public class BetaChunkGenerator extends ChunkGenerator<BetaChunkGeneratorConfig>
 		}
 	}
 
-
 	@Override
-	public List<Biome.SpawnEntry> getEntitySpawnList(EntityCategory entityCategory_1, BlockPos blockPos_1) {
-		if (Feature.SWAMP_HUT.method_14029(this.world, blockPos_1)) {
-			if (entityCategory_1 == EntityCategory.MONSTER) {
-				return Feature.SWAMP_HUT.getMonsterSpawns();
-			}
-
-			if (entityCategory_1 == EntityCategory.CREATURE) {
-				return Feature.SWAMP_HUT.getCreatureSpawns();
-			}
-		} else if (entityCategory_1 == EntityCategory.MONSTER) {
-			if (Feature.PILLAGER_OUTPOST.isApproximatelyInsideStructure(this.world, blockPos_1)) {
-				return Feature.PILLAGER_OUTPOST.getMonsterSpawns();
-			}
-
-			if (Feature.OCEAN_MONUMENT.isApproximatelyInsideStructure(this.world, blockPos_1)) {
-				return Feature.OCEAN_MONUMENT.getMonsterSpawns();
-			}
-		}
-
-		return super.getEntitySpawnList(entityCategory_1, blockPos_1);
-	}
-
-
-	@Override
-	public void spawnEntities(ServerWorld serverWorld_1, boolean boolean_1, boolean boolean_2) {
-		this.phantomSpawner.spawn(serverWorld_1, boolean_1, boolean_2);
-		this.pillagerSpawner.spawn(serverWorld_1, boolean_1, boolean_2);
-		this.field_19181.spawn(serverWorld_1, boolean_1, boolean_2);
-	}
-
-	@Override
+	// EDIT
 	public int getSeaLevel()
 	{
 		return 64;

@@ -12,6 +12,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
+import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.biome.source.VanillaLayeredBiomeSource;
 import net.minecraft.world.biome.source.VanillaLayeredBiomeSourceConfig;
 
@@ -21,7 +22,7 @@ import java.util.Random;
 import java.util.Set;
 
 // Biome Provider
-public class BetaBiomeProvider extends VanillaLayeredBiomeSource
+public class BetaBiomeProvider extends BiomeProvider
 {
 	// Fields
 	private NoiseGeneratorOctavesBiome temperatureOctave;

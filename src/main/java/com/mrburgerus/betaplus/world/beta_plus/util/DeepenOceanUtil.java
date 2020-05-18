@@ -3,16 +3,17 @@ package com.mrburgerus.betaplus.world.beta_plus.util;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunk;
 
 import java.util.Random;
 
 public class DeepenOceanUtil
 {
-	public static void deepenOcean(Chunk chunk, Random random, int seaLevel, int smoothSize, double scaleFactor)
+	public static void deepenOcean(IChunk chunk, Random random, int seaLevel, int smoothSize, double scaleFactor)
 	{
 		// Get X and Z start
-		int xStart = chunk.getPos().getStartX();
-		int zStart = chunk.getPos().getStartZ();
+		int xStart = chunk.getPos().getXStart();
+		int zStart = chunk.getPos().getZStart();
 
 		// Create 2-D Map of Y-Depth in Chunk
 		double[][] depthValues = new double[16][16];

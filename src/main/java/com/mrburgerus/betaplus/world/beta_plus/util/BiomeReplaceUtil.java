@@ -5,6 +5,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunk;
 
 public class BiomeReplaceUtil
 {
@@ -21,7 +22,7 @@ public class BiomeReplaceUtil
 	}
 
 	/* Gets the first solid block at a Position */
-	public static int getSolidHeightY(BlockPos pos, Chunk chunk)
+	public static int getSolidHeightY(BlockPos pos, IChunk chunk)
 	{
 		for (int y = 130; y >= 0; --y)
 		{
